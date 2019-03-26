@@ -24,8 +24,13 @@ a {
 }
 
 #contentContainer {
-    padding-left: 250px;
+    padding-left: 220px;
     padding-top: 20px
+}
+
+#title{
+    color: #ffffff;
+    text-align: right;
 }
 
 /* nav */

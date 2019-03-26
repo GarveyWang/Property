@@ -20,10 +20,10 @@ $(function () {
             $('.nav-item.nav-show').removeClass('nav-show');
             $('.nav-item').children('ul').removeAttr('style');
             $('.nav').addClass('nav-mini');
-            $('#contentContainer').css('padding-left', '90px');
+            $('#contentContainer').css('padding-left', '60px');
         } else {
             $('.nav').removeClass('nav-mini');
-            $('#contentContainer').css('padding-left', '250px');
+            $('#contentContainer').css('padding-left', '220px');
         }
     });
 });
