@@ -18,10 +18,11 @@ import java.lang.reflect.Method;
 public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if (!(handler instanceof HandlerMethod)) {
+            return true;
+        }
         HandlerMethod handlerMethod = (HandlerMethod) handler;
-        Method method = handlerMethod.getMethod();
-        Login login = method.getAnnotation(Login.class);
-        if (login != null) {
+        if (containLoginAnnotation(handlerMethod)) {
             HttpSession session = request.getSession(false);
             if (session == null || session.getAttribute("user") == null) {
                 response.sendRedirect("/login");
@@ -29,5 +30,15 @@ public class LoginInterceptor implements HandlerInterceptor {
             }
         }
         return true;
+    }
+
+    private boolean containLoginAnnotation(HandlerMethod handlerMethod) {
+        Class clazz = handlerMethod.getBeanType();
+        Login login = (Login) clazz.getAnnotation(Login.class);
+        if (login == null) {
+            Method method = handlerMethod.getMethod();
+            login = method.getAnnotation(Login.class);
+        }
+        return login != null;
     }
 }

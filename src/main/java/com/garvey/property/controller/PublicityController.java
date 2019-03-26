@@ -11,20 +11,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/publicity")
+@Login
 public class PublicityController {
-    @Login
+
     @GetMapping("/info")
     public String infoPage(){
         return "info";
     }
 
-    @Login
     @GetMapping("/fund")
     public String fundPage(){
         return "fund";
     }
 
-    @Login
     @GetMapping("/log")
     public String logPage(){
         return "log";

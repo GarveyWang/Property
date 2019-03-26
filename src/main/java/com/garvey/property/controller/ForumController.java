@@ -11,9 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/forum")
+@Login
 public class ForumController {
-
-    @Login
     @GetMapping
     public String index(){
         return "forum";
