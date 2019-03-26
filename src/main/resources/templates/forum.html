@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="dashboard">
+
+<head>
+    <title>论坛</title>
+</head>
+<body>
+<div layout:fragment="content" style="width:90%;">
+    <div>
+        <iframe id="iframe1" width="1000" height="600" frameborder='no' border='0' marginwidth='0' marginheight='0'
+                scrolling='no' allowtransparency='yes'
+                src="http://view.officeapps.live.com/op/view.aspx?src=http://sse.tongji.edu.cn/Assets/userfiles/sys_a37a45b6-5ecd-411b-b8db-a78b00e45cd7/files/%E4%BC%9A%E8%AE%AE%E7%AD%BE%E5%88%B0%E8%A1%A8%E6%A8%A1%E6%9D%BF.docx"></iframe>
+    </div>
+</div>
+<th:block layout:fragment="bottomScriptBlock">
+    <script type="text/javascript">
+        $(function () {
+            $('.nav-item').children('ul').slideUp(300);
+            $("#forumNav").slideDown(300);
+            $("#forumNav").parent('li').addClass('nav-show').siblings('li').removeClass('nav-show');
+        })
+    </script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/login.css">
+    <link rel="stylesheet" href="../static/css/iconfont.css">
+</head>
+<body background="../static/image/login-background.jpg">
+<div class="container">
+    <div class="row" style="margin-top: 100px">
+        <div class="col-md-offset-3 col-md-6">
+            <form id="loginForm" class="form-horizontal" action="/login/validate" method="post">
+                <span class="heading">区块链物业管理系统</span>
+                <div class="form-group">
+                    <input type="text" class="form-control" name="cellphone" id="cellphone" placeholder="账  号">
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" name="password" id="password" placeholder="密　码">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-default" onclick="checkForm()">登录</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="../static/js/jquery.min.js"></script>
+<script type="text/javascript" src="../static/js/jquery.md5.js"></script>
+<script type="text/javascript">
+     $(function () {
+         var info = "[[${info}]]";
+         if (info != null && info.length>0){
+             alert(info);
+         }
+     });
+
+    function checkForm() {
+        var cellphone = $("#cellphone").val().trim();
+        var password = $("#password").val();
+        if (cellphone == "") {
+            alert("账号为空！");
+            return false;
+        }
+        if (password == "") {
+            alert("密码为空!");
+            return false;
+        }
+        $("#cellphone").val(cellphone);
+        $("#password").val($.md5(password))
+        $("#loginForm").submit();
+    }
+</script>
+</body>
+</html>

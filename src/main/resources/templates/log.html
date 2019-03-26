@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="dashboard">
+
+<head>
+    <title>操作日志</title>
+</head>
+<body>
+<div layout:fragment="content" style="width:90%;">
+    操作日志
+</div>
+<th:block layout:fragment="bottomScriptBlock">
+    <script type="text/javascript">
+        $(function () {
+            $('.nav-item').children('ul').slideUp(300);
+            $("#infoNav").slideDown(300);
+            $("#infoNav").parent('li').addClass('nav-show').siblings('li').removeClass('nav-show');
+        })
+    </script>
+</th:block>
+</body>
+</html>

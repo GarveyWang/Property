@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link href="../static/css/iconfont.css" rel="stylesheet">
+    <link href="../static/css/nav.css" rel="stylesheet">
+</head>
+<body>
+<div class="nav">
+    <div class="nav-top">
+        <div id="mini" style="border-bottom:1px solid rgba(255,255,255,.1)">
+            <img src="../static/image/mini.png">
+        </div>
+    </div>
+    <ul>
+        <li class="nav-item">
+            <a href="javascript:;"><i class="my-icon nav-icon icon_1"></i><span>信息公示</span><i
+                    class="my-icon nav-more"></i></a>
+            <ul id="infoNav">
+                <li><a href="/publicity/info"><span>政策公告</span></a></li>
+                <li><a href="/publicity/fund"><span>资金公示</span></a></li>
+                <li><a href="/publicity/log"><span>操作日志</span></a></li>
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a href="javascript:;"><i class="my-icon nav-icon icon_2"></i><span>小区论坛</span><i
+                    class="my-icon nav-more"></i></a>
+            <ul id="forumNav">
+                <li><a href="/forum"><span>小区论坛</span></a></li>
+                <li><a href="javascript:;"><span>我的发帖</span></a></li>
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a href="javascript:;"><i class="my-icon nav-icon icon_3"></i><span>提案管理</span><i
+                    class="my-icon nav-more"></i></a>
+            <ul id="motionNav">
+                <li><a href="javascript:;"><span>议程中</span></a></li>
+                <li><a href="javascript:;"><span>已结束</span></a></li>
+                <li><a href="javascript:;"><span>我的提案</span></a></li>
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a href="javascript:;"><i class="my-icon nav-icon icon_4"></i><span>账号管理</span><i
+                    class="my-icon nav-more"></i></a>
+            <ul id="accountNav">
+                <li><a href="javascript:;"><span>我的账号</span></a></li>
+                <li><a href="javascript:;"><span>我的积分</span></a></li>
+                <li><a href="javascript:;"><span>权限控制</span></a></li>
+                <li><a onclick="logout()"><span>退出账号</span></a></li>
+            </ul>
+        </li>
+    </ul>
+</div>
+<div id="contentContainer" class="container" layout:fragment="content"></div>
+</body>
+<script type="text/javascript" src="../static/js/jquery.min.js"></script>
+<script type="text/javascript" src="../static/js/nav.js"></script>
+<script type="text/javascript">
+    function logout() {
+        $.ajax({
+            type: "POST",
+            url:"/logout",
+            success:function () {
+                window.location.href="/login";
+            },
+            error:function () {
+                alert("注销失败！请检查网络");
+            }
+        })
+    }
+</script>
+<th:block layout:fragment="bottomScriptBlock"></th:block>
+</html>
