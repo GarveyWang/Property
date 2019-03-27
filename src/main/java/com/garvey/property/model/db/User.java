@@ -1,4 +1,4 @@
-package com.garvey.property.model;
+package com.garvey.property.model.db;
 
 import java.io.Serializable;
 
@@ -15,7 +15,7 @@ public class User implements Serializable {
 
     private String md5id;
 
-    private Byte role;
+    private Integer role;
 
     private static final long serialVersionUID = 1L;
 
@@ -67,11 +67,11 @@ public class User implements Serializable {
         this.md5id = md5id == null ? null : md5id.trim();
     }
 
-    public Byte getRole() {
+    public Integer getRole() {
         return role;
     }
 
-    public void setRole(Byte role) {
+    public void setRole(Integer role) {
         this.role = role;
     }
 

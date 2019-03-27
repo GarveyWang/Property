@@ -7,10 +7,13 @@ import java.lang.annotation.Target;
 
 /**
  * @author GarveyWong
- * @date 2019/3/26
+ * @date 2019/3/27
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Login {
+public @interface Authority {
+    boolean anomynous() default false;
+    boolean proprietor() default false;
+    boolean property() default false;
+    boolean manager() default true;
 }
-

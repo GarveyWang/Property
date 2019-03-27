@@ -1,9 +1,12 @@
 package com.garvey.property.controller;
 
-import com.garvey.property.annotation.Login;
+import com.garvey.property.annotation.Authority;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.servlet.http.HttpSession;
 
 /**
  * @author GarveyWong
@@ -11,10 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/forum")
-@Login
+@Authority
 public class ForumController {
     @GetMapping
-    public String index(){
+    public String index(Model model, HttpSession session) {
+        model.addAttribute("user", session.getAttribute("user"));
         return "forum";
     }
 }

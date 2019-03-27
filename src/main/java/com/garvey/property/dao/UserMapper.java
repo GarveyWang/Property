@@ -1,6 +1,6 @@
 package com.garvey.property.dao;
 
-import com.garvey.property.model.User;
+import com.garvey.property.model.db.User;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
