@@ -1,7 +1,7 @@
 package com.garvey.property.service;
 
 import com.garvey.property.dao.UserMapper;
-import com.garvey.property.model.db.User;
+import com.garvey.property.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

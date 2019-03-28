@@ -2,7 +2,7 @@ package com.garvey.property.interceptor;
 
 import com.garvey.property.annotation.Authority;
 import com.garvey.property.constant.Role;
-import com.garvey.property.model.db.User;
+import com.garvey.property.model.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -30,26 +30,35 @@ public class AuthorityInterceptor implements HandlerInterceptor {
             Class clazz = handlerMethod.getBeanType();
             authority = (Authority) clazz.getAnnotation(Authority.class);
         }
-        if (authority == null){
+        if (authority == null) {
             return true;
         }
         HttpSession session = request.getSession(false);
 
         boolean auth = false;
-        if (session == null || session.getAttribute("user") == null){
+        boolean credentials = false;
+        if (session == null || session.getAttribute("user") == null) {
             auth = authority.anomynous();
-        }else{
-            User user = (User)session.getAttribute("user");
-            if (user.getRole() == Role.Proprietor.getValue()){
+        } else {
+            User user = (User) session.getAttribute("user");
+            if (user.getCredentials() != null) {
+                credentials = true;
+            }
+            if (user.getRole() == Role.Proprietor.getValue()) {
                 auth = authority.proprietor();
-            } else if (user.getRole() == Role.Property.getValue()){
+            } else if (user.getRole() == Role.Property.getValue()) {
                 auth = authority.property();
-            }else if (user.getRole() == Role.Manager.getValue()){
+            } else if (user.getRole() == Role.Manager.getValue()) {
                 auth = authority.manager();
             }
         }
-        if (!auth){
+        if (!auth) {
             response.sendRedirect("/login");
+            return false;
+        }
+        if (!credentials) {
+            response.sendRedirect("/keystore");
+            return false;
         }
         return auth;
     }

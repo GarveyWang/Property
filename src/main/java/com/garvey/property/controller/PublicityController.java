@@ -1,9 +1,10 @@
 package com.garvey.property.controller;
 
 import com.garvey.property.annotation.Authority;
-import com.garvey.property.util.IpfsUtil;
+import com.garvey.property.service.IpfsService;
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,8 @@ import java.util.Map;
 @RequestMapping("/publicity")
 @Authority(property = true, proprietor = true)
 public class PublicityController {
+    @Autowired
+    private IpfsService ipfsService;
 
     @GetMapping("/info")
     public String infoPage(Model model, HttpSession session) {
@@ -47,19 +50,24 @@ public class PublicityController {
     @Authority(property = true)
     public String uploadInfo(@Param("title") String title, @Param("content") String content,
                              @RequestParam("attachments") MultipartFile[] attachments) {
-
         if (attachments != null && attachments.length > 0) {
             Map<String, File> map = new HashMap<>(attachments.length);
+            StringBuilder sb = new StringBuilder();
             try {
                 for (MultipartFile multipartFile : attachments) {
-                    if (!multipartFile.isEmpty()){
+                    if (!multipartFile.isEmpty()) {
                         File file = new File(multipartFile.getName(), multipartFile.getOriginalFilename());
                         FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
-                        String hash = IpfsUtil.upload(file);
+                        String hash = ipfsService.upload(file);
                         map.put(hash, file);
+                        sb.append(hash).append(",");
                     }
                 }
-            }catch (IOException e){
+                String hashes = sb.toString();
+                if (hashes.endsWith(",")) {
+                    hashes = hashes.substring(0, hashes.length() - 1);
+                }
+            } catch (IOException e) {
                 return "fail";
             }
         }

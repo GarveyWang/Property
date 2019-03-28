@@ -14,7 +14,7 @@ import javax.servlet.http.HttpSession;
  */
 @Controller
 @RequestMapping("/forum")
-@Authority
+@Authority(proprietor = true, property = true)
 public class ForumController {
     @GetMapping
     public String index(Model model, HttpSession session) {
