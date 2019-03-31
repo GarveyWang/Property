@@ -1,6 +1,7 @@
 package com.garvey.property.controller;
 
-import com.garvey.property.annotation.Authority;
+import com.garvey.property.annotation.NeededAuthority;
+import com.garvey.property.constant.Authority;
 import com.garvey.property.service.IpfsService;
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.annotations.Param;
@@ -22,7 +23,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/publicity")
-@Authority(property = true, proprietor = true)
+@NeededAuthority(authorities = {Authority.BASIC_READ})
 public class PublicityController {
     @Autowired
     private IpfsService ipfsService;
@@ -47,7 +48,7 @@ public class PublicityController {
 
     @PostMapping("/uploadInfo")
     @ResponseBody
-    @Authority(property = true)
+    @NeededAuthority(authorities = {Authority.PUBLISH_ANNOUNCEMENT})
     public String uploadInfo(@Param("title") String title, @Param("content") String content,
                              @RequestParam("attachments") MultipartFile[] attachments) {
         if (attachments != null && attachments.length > 0) {

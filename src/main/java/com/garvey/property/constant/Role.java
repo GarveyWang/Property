@@ -5,9 +5,10 @@ package com.garvey.property.constant;
  * @date 2019/3/27
  */
 public enum Role {
-    Manager(0,"管理员"),
-    Property(1,"物业"),
-    Proprietor(2,"业主")
+    AnonymousUser(0,"匿名用户"),
+    Manager(1,"管理员"),
+    Property(2,"物业"),
+    Proprietor(3,"业主")
     ;
     private int value;
     private String desc;

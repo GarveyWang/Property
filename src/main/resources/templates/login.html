@@ -6,30 +6,67 @@
     <link rel="stylesheet" href="../static/css/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="../static/css/login.css">
     <link rel="stylesheet" href="../static/css/iconfont.css">
+    <link href="../static/css/bootstrap/fileinput.min.css" rel="stylesheet">
 </head>
 <body background="../static/image/login-background.jpg">
 <div class="container">
     <div class="row" style="margin-top: 100px">
         <div class="col-md-offset-3 col-md-6">
-            <form id="loginForm" class="form-horizontal" action="/login/validate" method="post">
+            <div id="loginForm" class="form-horizontal">
                 <span class="heading">区块链物业管理系统</span>
-                <div class="form-group">
-                    <input type="text" class="form-control" name="cellphone" id="cellphone" placeholder="账  号">
-                </div>
                 <div class="form-group">
                     <input type="password" class="form-control" name="password" id="password" placeholder="密　码">
                 </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-default" onclick="checkForm()">登录</button>
+                <div>
+                    <input id="keystore" type="file" name="keystore" />
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
 <script type="text/javascript" src="../static/js/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="../static/js/jquery/jquery.md5.js"></script>
+<script type="text/javascript" src="../static/js/bootstrap/fileinput.min.js"></script>
+<script type="text/javascript" src="../static/js/bootstrap/fileinput-locale-zh.js"></script>
 <script type="text/javascript">
      $(function () {
+         $("#keystore").fileinput({
+             language: 'zh', //设置语言
+             uploadUrl: "/login/validate", //上传的地址
+             allowedFileExtensions: ['json'],//接收的文件后缀
+             uploadAsync: false, //默认异步上传
+             showUpload: true, //是否显示上传按钮
+             showRemove : true, //显示移除按钮
+             showPreview : true, //是否显示预览
+             showCaption: false,//是否显示标题
+             browseClass: "btn btn-primary", //按钮样式
+             //dropZoneEnabled: true,//是否显示拖拽区域
+             maxFileSize: 20,//单位为kb，如果为0表示不限制文件大小
+             minFileCount: 1,
+             //maxFileCount: 10, //表示允许同时上传的最大文件个数
+             enctype: 'multipart/form-data',
+             validateInitialCount:true,
+             previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+             msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+             layoutTemplates :{
+                 // actionDelete:'', //去除上传预览的缩略图中的删除图标
+                 actionUpload:'',//去除上传预览缩略图中的上传图片；
+                 actionZoom:''   //去除上传预览缩略图中的查看详情预览的缩略图标。
+             },
+             uploadLabel: "上传keystore",
+             uploadExtraData:function () {
+                 return {
+                     "md5Password": $.md5($("#password").val())
+                 };
+             }
+         }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
+             alert('验证成功！');
+             window.location.href="/publicity/info";
+         }).on("filebatchuploaderror", function (event, data, msg) {
+             alert('验证失败！');
+         });
+
+
          var info = "[[${info}]]";
          if (info != null && info.length>0){
              alert(info);

@@ -1,5 +1,7 @@
 package com.garvey.property.annotation;
 
+import com.garvey.property.constant.Authority;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,9 +13,6 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Authority {
-    boolean anomynous() default false;
-    boolean proprietor() default false;
-    boolean property() default false;
-    boolean manager() default true;
+public @interface NeededAuthority {
+    Authority[] authorities();
 }

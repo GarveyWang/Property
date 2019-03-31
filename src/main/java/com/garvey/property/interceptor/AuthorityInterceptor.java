@@ -1,7 +1,7 @@
 package com.garvey.property.interceptor;
 
-import com.garvey.property.annotation.Authority;
-import com.garvey.property.constant.Role;
+import com.garvey.property.annotation.NeededAuthority;
+import com.garvey.property.constant.Authority;
 import com.garvey.property.model.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -10,6 +10,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.websocket.Session;
 import java.lang.reflect.Method;
 
 /**
@@ -23,43 +24,30 @@ public class AuthorityInterceptor implements HandlerInterceptor {
         if (!(handler instanceof HandlerMethod)) {
             return true;
         }
+
         HandlerMethod handlerMethod = (HandlerMethod) handler;
         Method method = handlerMethod.getMethod();
-        Authority authority = method.getAnnotation(Authority.class);
-        if (authority == null) {
-            Class clazz = handlerMethod.getBeanType();
-            authority = (Authority) clazz.getAnnotation(Authority.class);
-        }
-        if (authority == null) {
+        NeededAuthority controllerAuthority = handlerMethod.getBeanType().getAnnotation(NeededAuthority.class);
+        NeededAuthority methodAuthority = method.getAnnotation(NeededAuthority.class);
+
+        if (controllerAuthority == null && methodAuthority == null) {
             return true;
         }
-        HttpSession session = request.getSession(false);
 
-        boolean auth = false;
-        boolean credentials = false;
-        if (session == null || session.getAttribute("user") == null) {
-            auth = authority.anomynous();
-        } else {
-            User user = (User) session.getAttribute("user");
-            if (user.getCredentials() != null) {
-                credentials = true;
-            }
-            if (user.getRole() == Role.Proprietor.getValue()) {
-                auth = authority.proprietor();
-            } else if (user.getRole() == Role.Property.getValue()) {
-                auth = authority.property();
-            } else if (user.getRole() == Role.Manager.getValue()) {
-                auth = authority.manager();
-            }
-        }
-        if (!auth) {
-            response.sendRedirect("/login");
+        HttpSession session =  request.getSession(false);
+        if (session == null){
+            response.sendRedirect("redirect:/login");
             return false;
         }
-        if (!credentials) {
-            response.sendRedirect("/keystore");
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            response.sendRedirect("redirect:/login");
+            return false;
+        } else if (controllerAuthority != null && !Authority.containArray(user.getAuthority(), controllerAuthority.authorities())) {
+            return false;
+        } else if (methodAuthority!=null && !Authority.containArray(user.getAuthority(), methodAuthority.authorities())) {
             return false;
         }
-        return auth;
+        return true;
     }
 }
