@@ -21,8 +21,7 @@ public enum Authority {
     ADD_PROPRIETOR_ACCOUNT(512, "添加业主账号权限"),
     ADD_PROPERTY_ACCOUNT(1024, "添加物业账号权限"),
 
-    SUPER(2048, "超级管理员权限")
-    ;
+    SUPER(2048, "超级管理员权限");
 
     int value;
     String desc;
@@ -40,17 +39,17 @@ public enum Authority {
         return desc;
     }
 
-    public boolean hasAuthority(int authority){
+    public boolean hasAuthority(int authority) {
         return (authority & value) > 0;
     }
 
-    public static int getDefaultProprietorAuthValue(){
+    public static int getDefaultProprietorAuthValue() {
         return BASIC_READ.getValue()
                 + PUBLISH_DISCUSSION.getValue() + PARTICIPATE_DISCUSSION.getValue()
                 + VOTE_PROPOSAL.getValue();
     }
 
-    public static int getDefaultPropertyAuthValue(){
+    public static int getDefaultPropertyAuthValue() {
         return BASIC_READ.getValue()
                 + PUBLISH_DISCUSSION.getValue() + PARTICIPATE_DISCUSSION.getValue() + DELETE_DISCUSSION.getValue()
                 + PUBLISH_PROPOSAL.getValue() + VOTE_PROPOSAL.getValue() + DELETE_PROPOSAL.getValue()
@@ -58,18 +57,18 @@ public enum Authority {
                 + ADD_PROPRIETOR_ACCOUNT.getValue();
     }
 
-    public static boolean contain(int auth, Authority... authorities){
-        for (Authority authority: authorities){
-            if ((authority.getValue() & auth) == 0){
+    public static boolean contain(int auth, Authority... authorities) {
+        for (Authority authority : authorities) {
+            if ((authority.getValue() & auth) == 0) {
                 return false;
             }
         }
         return true;
     }
 
-    public static boolean containArray(int auth, Authority[] authorities){
-        for (Authority authority: authorities){
-            if ((authority.getValue() & auth) == 0){
+    public static boolean containArray(int auth, Authority[] authorities) {
+        for (Authority authority : authorities) {
+            if ((authority.getValue() & auth) == 0) {
                 return false;
             }
         }

@@ -37,19 +37,20 @@ public class Web3Util {
 
     public User getUser(Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
-        if (contract!=null){
+        if (contract != null) {
             int retryTimes = 0;
-            while (retryTimes < 200){
+            //可能是web3j的问题，查询有时会返回空结果异常，没有规律，所以多次重试获取
+            while (retryTimes < 200) {
                 try {
                     Tuple4<String, String, String, BigInteger> tuple = contract.getUser(credentials.getAddress()).send();
-                    if (tuple.getValue4().intValue() == 0){
+                    if (tuple.getValue4().intValue() == 0) {
                         return null;
                     }
                     User user = new User(tuple.getValue1(), tuple.getValue2(), tuple.getValue3(), tuple.getValue4().intValue());
                     user.setCredentials(credentials);
                     System.out.println("【getUser】重试次数：" + retryTimes);
                     return user;
-                }catch (IndexOutOfBoundsException e){
+                } catch (IndexOutOfBoundsException e) {
                     ++retryTimes;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -62,10 +63,10 @@ public class Web3Util {
     }
 
     private PropertyContract getPropertyContract(Credentials credentials) {
-        if (contractThreadLocal == null){
+        if (contractThreadLocal == null) {
             contractThreadLocal = new ThreadLocal<>();
         }
-        if (contractThreadLocal.get() == null){
+        if (contractThreadLocal.get() == null) {
             PropertyContract contract = PropertyContract.load(contractAddress, web3j, credentials, gasProvider);
             contractThreadLocal.set(contract);
             return contract;
@@ -77,22 +78,22 @@ public class Web3Util {
         Credentials credentials = WalletUtils.loadCredentials("202cb962ac59075b964b07152d234b70", "E:\\project\\propertySystem\\UTC--2019-03-31T11-08-33.779000000Z--4532eead8799f2d6c2537b1ff1767fabd3b7f732.json");
         PropertyContract contract = PropertyContract.load("0xbf4d5a842be08ab38a38e1697297c5130237dc95", web3j, credentials, gasProvider);
 
-        if (contract!=null){
+        if (contract != null) {
             int retryTimes = 0;
-            while (retryTimes < 200){
+            while (retryTimes < 200) {
                 try {
                     Tuple4<String, String, String, BigInteger> tuple = contract.getUser(credentials.getAddress()).send();
                     User user = new User(tuple.getValue1(), tuple.getValue2(), tuple.getValue3(), tuple.getValue4().intValue());
                     user.setCredentials(credentials);
                     System.out.println("【getUser】重试次数：" + retryTimes);
                     break;
-                }catch (IndexOutOfBoundsException e){
+                } catch (IndexOutOfBoundsException e) {
                     ++retryTimes;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            System.out.println("重试次数"+retryTimes);
+            System.out.println("重试次数" + retryTimes);
         }
     }
 

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Function;
@@ -25,7 +26,7 @@ import org.web3j.tx.gas.ContractGasProvider;
  * <p>Auto generated code.
  * <p><strong>Do not modify!</strong>
  * <p>Please use the <a href="https://docs.web3j.io/command_line.html">web3j command line tools</a>,
- * or the org.web3j.codegen.SolidityFunctionWrapperGenerator in the 
+ * or the org.web3j.codegen.SolidityFunctionWrapperGenerator in the
  * <a href="https://github.com/web3j/web3j/tree/master/codegen">codegen module</a> to update.
  *
  * <p>Generated with web3j version 4.2.0.
@@ -74,101 +75,111 @@ public class PropertyContract extends Contract {
     }
 
     public RemoteCall<String> getEncryptedPhone(String _addr) {
-        final Function function = new Function(FUNC_GETENCRYPTEDPHONE, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(_addr)), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
+        final Function function = new Function(FUNC_GETENCRYPTEDPHONE,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(_addr)),
+                Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, String.class);
     }
 
     public RemoteCall<BigInteger> getVoterCount() {
-        final Function function = new Function(FUNC_GETVOTERCOUNT, 
-                Arrays.<Type>asList(), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Uint32>() {}));
+        final Function function = new Function(FUNC_GETVOTERCOUNT,
+                Arrays.<Type>asList(),
+                Arrays.<TypeReference<?>>asList(new TypeReference<Uint32>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, BigInteger.class);
     }
 
     public RemoteCall<TransactionReceipt> registerProperietor(BigInteger _code, String _encryptedPwd, String _encryptedPhone, String _nickName) {
         final Function function = new Function(
-                FUNC_REGISTERPROPERIETOR, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint24(_code), 
-                new org.web3j.abi.datatypes.Utf8String(_encryptedPwd), 
-                new org.web3j.abi.datatypes.Utf8String(_encryptedPhone), 
-                new org.web3j.abi.datatypes.Utf8String(_nickName)), 
+                FUNC_REGISTERPROPERIETOR,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint24(_code),
+                        new org.web3j.abi.datatypes.Utf8String(_encryptedPwd),
+                        new org.web3j.abi.datatypes.Utf8String(_encryptedPhone),
+                        new org.web3j.abi.datatypes.Utf8String(_nickName)),
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
     }
 
     public RemoteCall<TransactionReceipt> addPropertyRegistryCodeMap(String _encryptedPhone, BigInteger code) {
         final Function function = new Function(
-                FUNC_ADDPROPERTYREGISTRYCODEMAP, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(_encryptedPhone), 
-                new org.web3j.abi.datatypes.generated.Uint24(code)), 
+                FUNC_ADDPROPERTYREGISTRYCODEMAP,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(_encryptedPhone),
+                        new org.web3j.abi.datatypes.generated.Uint24(code)),
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
     }
 
     public RemoteCall<BigInteger> getAuthority(String _addr) {
-        final Function function = new Function(FUNC_GETAUTHORITY, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(_addr)), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Uint16>() {}));
+        final Function function = new Function(FUNC_GETAUTHORITY,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(_addr)),
+                Arrays.<TypeReference<?>>asList(new TypeReference<Uint16>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, BigInteger.class);
     }
 
     public RemoteCall<Tuple4<String, String, String, BigInteger>> getUser(String _addr) {
-        final Function function = new Function(FUNC_GETUSER, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(_addr)), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}, new TypeReference<Utf8String>() {}, new TypeReference<Utf8String>() {}, new TypeReference<Uint16>() {}));
+        final Function function = new Function(FUNC_GETUSER,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(_addr)),
+                Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {
+                }, new TypeReference<Utf8String>() {
+                }, new TypeReference<Utf8String>() {
+                }, new TypeReference<Uint16>() {
+                }));
         return new RemoteCall<Tuple4<String, String, String, BigInteger>>(
                 new Callable<Tuple4<String, String, String, BigInteger>>() {
                     @Override
                     public Tuple4<String, String, String, BigInteger> call() throws Exception {
                         List<Type> results = executeCallMultipleValueReturn(function);
                         return new Tuple4<String, String, String, BigInteger>(
-                                (String) results.get(0).getValue(), 
-                                (String) results.get(1).getValue(), 
-                                (String) results.get(2).getValue(), 
+                                (String) results.get(0).getValue(),
+                                (String) results.get(1).getValue(),
+                                (String) results.get(2).getValue(),
                                 (BigInteger) results.get(3).getValue());
                     }
                 });
     }
 
     public RemoteCall<String> getEncryptedPwd(String _addr) {
-        final Function function = new Function(FUNC_GETENCRYPTEDPWD, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(_addr)), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
+        final Function function = new Function(FUNC_GETENCRYPTEDPWD,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(_addr)),
+                Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, String.class);
     }
 
     public RemoteCall<TransactionReceipt> registerProperty(BigInteger _code, String _encryptedPwd, String _encryptedPhone, String _nickName) {
         final Function function = new Function(
-                FUNC_REGISTERPROPERTY, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint24(_code), 
-                new org.web3j.abi.datatypes.Utf8String(_encryptedPwd), 
-                new org.web3j.abi.datatypes.Utf8String(_encryptedPhone), 
-                new org.web3j.abi.datatypes.Utf8String(_nickName)), 
+                FUNC_REGISTERPROPERTY,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint24(_code),
+                        new org.web3j.abi.datatypes.Utf8String(_encryptedPwd),
+                        new org.web3j.abi.datatypes.Utf8String(_encryptedPhone),
+                        new org.web3j.abi.datatypes.Utf8String(_nickName)),
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
     }
 
     public RemoteCall<String> getNickName(String _addr) {
-        final Function function = new Function(FUNC_GETNICKNAME, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(_addr)), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
+        final Function function = new Function(FUNC_GETNICKNAME,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(_addr)),
+                Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, String.class);
     }
 
     public RemoteCall<String> myTest(String _addr) {
-        final Function function = new Function(FUNC_MYTEST, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(_addr)), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
+        final Function function = new Function(FUNC_MYTEST,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(_addr)),
+                Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, String.class);
     }
 
     public RemoteCall<TransactionReceipt> addProperietorRegistryCode(String _encryptedPhone, BigInteger code) {
         final Function function = new Function(
-                FUNC_ADDPROPERIETORREGISTRYCODE, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(_encryptedPhone), 
-                new org.web3j.abi.datatypes.generated.Uint24(code)), 
+                FUNC_ADDPROPERIETORREGISTRYCODE,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(_encryptedPhone),
+                        new org.web3j.abi.datatypes.generated.Uint24(code)),
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
     }
@@ -192,31 +203,31 @@ public class PropertyContract extends Contract {
     }
 
     public static RemoteCall<PropertyContract> deploy(Web3j web3j, Credentials credentials, ContractGasProvider contractGasProvider, String _encryptedPwd, String _encryptedPhone, String _nickName) {
-        String encodedConstructor = FunctionEncoder.encodeConstructor(Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(_encryptedPwd), 
-                new org.web3j.abi.datatypes.Utf8String(_encryptedPhone), 
+        String encodedConstructor = FunctionEncoder.encodeConstructor(Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(_encryptedPwd),
+                new org.web3j.abi.datatypes.Utf8String(_encryptedPhone),
                 new org.web3j.abi.datatypes.Utf8String(_nickName)));
         return deployRemoteCall(PropertyContract.class, web3j, credentials, contractGasProvider, BINARY, encodedConstructor);
     }
 
     public static RemoteCall<PropertyContract> deploy(Web3j web3j, TransactionManager transactionManager, ContractGasProvider contractGasProvider, String _encryptedPwd, String _encryptedPhone, String _nickName) {
-        String encodedConstructor = FunctionEncoder.encodeConstructor(Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(_encryptedPwd), 
-                new org.web3j.abi.datatypes.Utf8String(_encryptedPhone), 
+        String encodedConstructor = FunctionEncoder.encodeConstructor(Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(_encryptedPwd),
+                new org.web3j.abi.datatypes.Utf8String(_encryptedPhone),
                 new org.web3j.abi.datatypes.Utf8String(_nickName)));
         return deployRemoteCall(PropertyContract.class, web3j, transactionManager, contractGasProvider, BINARY, encodedConstructor);
     }
 
     @Deprecated
     public static RemoteCall<PropertyContract> deploy(Web3j web3j, Credentials credentials, BigInteger gasPrice, BigInteger gasLimit, String _encryptedPwd, String _encryptedPhone, String _nickName) {
-        String encodedConstructor = FunctionEncoder.encodeConstructor(Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(_encryptedPwd), 
-                new org.web3j.abi.datatypes.Utf8String(_encryptedPhone), 
+        String encodedConstructor = FunctionEncoder.encodeConstructor(Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(_encryptedPwd),
+                new org.web3j.abi.datatypes.Utf8String(_encryptedPhone),
                 new org.web3j.abi.datatypes.Utf8String(_nickName)));
         return deployRemoteCall(PropertyContract.class, web3j, credentials, gasPrice, gasLimit, BINARY, encodedConstructor);
     }
 
     @Deprecated
     public static RemoteCall<PropertyContract> deploy(Web3j web3j, TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit, String _encryptedPwd, String _encryptedPhone, String _nickName) {
-        String encodedConstructor = FunctionEncoder.encodeConstructor(Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(_encryptedPwd), 
-                new org.web3j.abi.datatypes.Utf8String(_encryptedPhone), 
+        String encodedConstructor = FunctionEncoder.encodeConstructor(Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(_encryptedPwd),
+                new org.web3j.abi.datatypes.Utf8String(_encryptedPhone),
                 new org.web3j.abi.datatypes.Utf8String(_nickName)));
         return deployRemoteCall(PropertyContract.class, web3j, transactionManager, gasPrice, gasLimit, BINARY, encodedConstructor);
     }

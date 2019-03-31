@@ -34,8 +34,8 @@ public class AuthorityInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        HttpSession session =  request.getSession(false);
-        if (session == null){
+        HttpSession session = request.getSession(false);
+        if (session == null) {
             response.sendRedirect("redirect:/login");
             return false;
         }
@@ -45,7 +45,7 @@ public class AuthorityInterceptor implements HandlerInterceptor {
             return false;
         } else if (controllerAuthority != null && !Authority.containArray(user.getAuthority(), controllerAuthority.authorities())) {
             return false;
-        } else if (methodAuthority!=null && !Authority.containArray(user.getAuthority(), methodAuthority.authorities())) {
+        } else if (methodAuthority != null && !Authority.containArray(user.getAuthority(), methodAuthority.authorities())) {
             return false;
         }
         return true;

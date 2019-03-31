@@ -2,14 +2,14 @@ package com.garvey.property.model;
 
 import org.web3j.crypto.Credentials;
 
-public class User{
+public class User {
     private String encryptedPwd;
     private String encryptedPhone;
     private String nickName;
     private int authority;
     private Credentials credentials;
 
-    public User(){
+    public User() {
 
     }
 

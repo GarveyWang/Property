@@ -20,7 +20,7 @@ public class UserService {
         User user = web3Util.getUser(credentials);
         if (user != null) {
             String encryptedPwd = DigestUtils.md5DigestAsHex(md5Password.getBytes()).toLowerCase();
-            if (user.getEncryptedPwd().equals(encryptedPwd)){
+            if (user.getEncryptedPwd().equals(encryptedPwd)) {
                 return user;
             }
         }

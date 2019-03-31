@@ -28,9 +28,9 @@ public class IpfsService {
     public void download(String filePathName, String hash) throws IOException {
         Multihash filePointer = Multihash.fromBase58(hash);
         byte[] data = ipfs.cat(filePointer);
-        if (data != null){
+        if (data != null) {
             File file = new File(filePathName);
-            if (file.exists()){
+            if (file.exists()) {
                 file.delete();
             }
             FileOutputStream fos = new FileOutputStream(file);

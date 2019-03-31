@@ -41,26 +41,6 @@ public class LoginController {
         return "login";
     }
 
-//    @PostMapping("/login/validate")
-//    public String validate(@RequestParam("cellphone") String cellphone, @RequestParam("password") String md5Password,
-//                           RedirectAttributes redirectAttributes, HttpSession session) {
-////        User user = userService.getUserByCellphone(cellphone);
-////        String doubleEncryptedPwd = DigestUtils.md5DigestAsHex(md5Password.getBytes());
-////        if (user == null || !user.getDoubleEncryptedPwd().equals(doubleEncryptedPwd)) {
-////            redirectAttributes.addFlashAttribute("info", "手机号或密码不正确！");
-////            return "redirect:/login";
-////        }
-////        user.setMd5Pwd(md5Password);
-////        user.setRole(1);
-////        session.setAttribute("user",user);
-////        return "redirect:/keystore";
-//    }
-
-    @GetMapping("/keystore")
-    public String keystorePage() {
-        return "keystore";
-    }
-
     @PostMapping("/login/validate")
     @ResponseBody
     public String validate(@Param("keystore") MultipartFile keystore, @Param("md5Password") String md5Password, HttpSession session) {
