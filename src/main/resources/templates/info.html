@@ -40,7 +40,7 @@
                     <HR style="FILTER: alpha(opacity = 0,finishopacity = 100,style = 1)" width="100%" color=#333333 SIZE=3>
                     <div class="clearfix">
                         <small>发布于<span th:text="${#dates.format(info.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
-                        <button class="btn btn-default" onclick="showDetail(this)" style="float:right">
+                        <button class="btn btn-default" onclick="showDetail(this)" style="float:right" th:attr = "idx = ${info.idx}">
                             查看详情
                         </button>
                         <button th:if="${user.canPublishInfo() && info.prop.visible == 0}" class="btn btn-default invisibleInfo" onclick="showInfo(this)" style="float:right" th:attr = "idx = ${info.idx}">
@@ -55,7 +55,7 @@
         </div>
     </div>
 
-    <div class="form-horizontal" id="publishInfoPanel" hidden="hidden">
+    <div id="publishInfoPanel" class="form-horizontal" hidden="hidden">
         <h3  class="col-sm-offset-1" style="text-align: center"><b>发布公告</b></h3>
         <div class="form-group">
             <label for="infoTitle" class="col-sm-1 control-label">标题</label>
@@ -79,6 +79,20 @@
             <div class="col-sm-offset-10 col-sm-2">
                 <button class="btn btn-default" onclick="showDisplayInfoPanel()">取消</button>
                 <button class="btn btn-primary" onclick="submitInfo()">发布</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="detailInfoPanel" hidden="hidden">
+        <button class="btn btn-default" onclick="showDisplayInfoPanel()">←返回</button>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title" id="detailTitle"></h3>
+            </div>
+            <div class="panel-body">
+                <p id="detailContent"></p>
+            </div>
+            <div class="panel-footer" id="detailFiles">
             </div>
         </div>
     </div>
@@ -214,15 +228,62 @@
             })
         }
         function showPublishInfoPanel() {
+            $("#detailInfoPanel").hide();
             $("#displayInfoPanel").hide();
             $("#publishInfoPanel").show();
         }
         function showDisplayInfoPanel() {
+            $("#detailInfoPanel").hide();
             $("#publishInfoPanel").hide();
             $("#displayInfoPanel").show();
         }
         function showDetail(info){
+            $("#publishInfoPanel").hide();
+            $("#displayInfoPanel").hide();
+            var idx = $(info).attr("idx");
+            $("#detailTitle").html($("#title"+idx).val());
+            $("#detailContent").html($("#content"+idx).val());
+            var fileCount = $("#fileCount" + idx).val();
+            if (fileCount == 0){
+                $("#detailFiles").hide();
+            } else{
+                var ul = '<p>附件</p><ul class="list-group">';
+                for (var i= 0; i<fileCount; ++i){
+                    var fileId = "#file-"+idx+"-"+i;
+                    var fileHash = $(fileId).attr("fileHash");
+                    var fileName = $(fileId).attr("fileName");
+                    ul += '<li class="list-group-item">';
+                    ul += '<a onclick="downloadFile(\'' + fileHash + '\',\'' + fileName +'\')" >';
+                    ul += fileName;
+                    ul += '</a></li>';
+                }
+                ul += '</ul>'
+                $("#detailFiles").html(ul);
+                $("#detailFiles").show();
+            }
+            $("#detailInfoPanel").show();
+        }
+        function downloadFile(fileHash, fileName) {
+            var form=$("<form>");
+            form.attr("style","display:none");
+            form.attr("target","");
+            form.attr("method","post");
+            form.attr("action","/download");
 
+            var fileHashInput = $("<input>")
+            fileHashInput.attr("type","text");
+            fileHashInput.attr("name","fileHash");
+            fileHashInput.attr("value",fileHash);
+            form.append(fileHashInput);
+
+            var fileNameInput = $("<input>")
+            fileNameInput.attr("type","text");
+            fileNameInput.attr("name","fileName");
+            fileNameInput.attr("value",fileName);
+            form.append(fileNameInput);
+
+            $("body").append(form);
+            form.submit();
         }
     </script>
 </th:block>

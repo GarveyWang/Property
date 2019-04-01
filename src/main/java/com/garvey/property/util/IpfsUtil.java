@@ -6,9 +6,7 @@ import io.ipfs.api.NamedStreamable;
 import io.ipfs.multihash.Multihash;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 
 /**
@@ -38,6 +36,29 @@ public class IpfsUtil {
             fos.flush();
             fos.close();
         }
+    }
+
+    public FileInputStream getFileInputStream(String hash) {
+        try {
+            Multihash filePointer = Multihash.fromBase58(hash);
+            byte[] data = ipfs.cat(filePointer);
+            if (data != null) {
+                File file = new File("temp");
+                FileInputStream fileInputStream = null;
+
+                OutputStream output = new FileOutputStream(file);
+                BufferedOutputStream bufferedOutput = new BufferedOutputStream(output);
+                bufferedOutput.write(data);
+                fileInputStream = new FileInputStream(file);
+                file.deleteOnExit();
+                return fileInputStream;
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static void main(String[] args) throws IOException {
