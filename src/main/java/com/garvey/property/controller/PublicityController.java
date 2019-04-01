@@ -3,9 +3,10 @@ package com.garvey.property.controller;
 import com.garvey.property.annotation.NeededAuthority;
 import com.garvey.property.constant.Authority;
 import com.garvey.property.model.PublicityInfo;
+import com.garvey.property.model.PublicityInfoProp;
 import com.garvey.property.model.User;
-import com.garvey.property.service.IpfsService;
-import com.garvey.property.service.Web3Service;
+import com.garvey.property.service.PublicityService;
+import com.garvey.property.util.IpfsUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -30,16 +30,24 @@ import java.util.Map;
 @NeededAuthority(authorities = {Authority.BASIC_READ})
 public class PublicityController {
     @Autowired
-    private IpfsService ipfsService;
+    private IpfsUtil ipfsUtil;
 
     @Autowired
-    private Web3Service web3Service;
+    private PublicityService publicityService;
 
     @GetMapping("/info")
     public String infoPage(User user, Model model) {
-        List<PublicityInfo> infoList = web3Service.getPublicityInfos(user.getCredentials());
+        List<PublicityInfo> infoList = publicityService.getPublicityInfoList(user);
+        model.addAttribute("infoList", infoList);
         model.addAttribute("user", user);
         return "info";
+    }
+
+    @PostMapping("/updateInfoProp")
+    @ResponseBody
+    public String hideInfo(@RequestBody PublicityInfoProp prop){
+        int result = publicityService.updatePublicityInfoProp(prop);
+        return String.valueOf(result);
     }
 
     @GetMapping("/fund")
@@ -67,10 +75,10 @@ public class PublicityController {
             try {
                 for (MultipartFile multipartFile : attachments) {
                     if (!multipartFile.isEmpty()) {
-                        File file = new File(multipartFile.getName(), multipartFile.getOriginalFilename());
+                        File file = new File(multipartFile.getOriginalFilename(), multipartFile.getOriginalFilename());
                         FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
-                        String hash = ipfsService.upload(file);
-                        attachmentsMap.put(hash, multipartFile.getName());
+                        String hash = ipfsUtil.upload(file);
+                        attachmentsMap.put(hash, multipartFile.getOriginalFilename());
                     }
                 }
                 info.setAttachments(attachmentsMap);
@@ -78,7 +86,7 @@ public class PublicityController {
                 return "200";
             }
         }
-        web3Service.addPublicityInfo(info, user.getCredentials());
+        publicityService.addPublicityInfo(info, user);
         return "400";
     }
 }

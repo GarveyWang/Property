@@ -1,5 +1,6 @@
 package com.garvey.property.model;
 
+import com.garvey.property.constant.Authority;
 import org.web3j.crypto.Credentials;
 
 public class User {
@@ -58,5 +59,9 @@ public class User {
 
     public void setCredentials(Credentials credentials) {
         this.credentials = credentials;
+    }
+
+    public boolean canPublishInfo(){
+        return Authority.contain(authority, Authority.PUBLISH_ANNOUNCEMENT);
     }
 }

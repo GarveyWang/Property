@@ -7,23 +7,31 @@ import java.util.Map;
  * @date 2019/3/31
  */
 public class PublicityInfo {
+    private long idx;
     private String title;
     private String content;
     private Map<String, String> attachments;
     private String author;
     private long timestamp;
-    private int status;
+    private PublicityInfoProp prop;
 
     public PublicityInfo() {
     }
 
-    public PublicityInfo(String title, String content, Map<String, String> attachments, String author, long timestamp, int status) {
+    public PublicityInfo(long idx, String title, String content, Map<String, String> attachments, String author, long timestamp) {
         this.title = title;
         this.content = content;
         this.attachments = attachments;
         this.author = author;
         this.timestamp = timestamp;
-        this.status = status;
+    }
+
+    public long getIdx() {
+        return idx;
+    }
+
+    public void setIdx(long idx) {
+        this.idx = idx;
     }
 
     public String getTitle() {
@@ -66,11 +74,11 @@ public class PublicityInfo {
         this.timestamp = timestamp;
     }
 
-    public int getStatus() {
-        return status;
+    public PublicityInfoProp getProp() {
+        return prop;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
+    public void setProp(PublicityInfoProp prop) {
+        this.prop = prop;
     }
 }

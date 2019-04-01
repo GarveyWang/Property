@@ -1,6 +1,7 @@
 package com.garvey.property.service;
 
 import com.garvey.property.model.User;
+import com.garvey.property.util.Web3Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -13,10 +14,10 @@ import org.web3j.crypto.Credentials;
 @Service
 public class UserService {
     @Autowired
-    private Web3Service web3Service;
+    private Web3Util web3Util;
 
     public User validate(Credentials credentials, String md5Password) {
-        User user = web3Service.getUser(credentials);
+        User user = web3Util.getUser(credentials);
         if (user != null) {
             String encryptedPwd = DigestUtils.md5DigestAsHex(md5Password.getBytes()).toLowerCase();
             if (user.getEncryptedPwd().equals(encryptedPwd)) {

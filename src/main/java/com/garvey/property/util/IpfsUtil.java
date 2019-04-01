@@ -1,23 +1,22 @@
-package com.garvey.property.service;
+package com.garvey.property.util;
 
 import io.ipfs.api.IPFS;
 import io.ipfs.api.MerkleNode;
 import io.ipfs.api.NamedStreamable;
 import io.ipfs.multihash.Multihash;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
 
 
 /**
  * @author GarveyWong
  * @date 2019/3/27
  */
-@Service
-public class IpfsService {
+@Component
+public class IpfsUtil {
     static private IPFS ipfs = new IPFS("/ip4/127.0.0.1/tcp/5001");
 
     public String upload(File originFile) throws IOException {
@@ -42,11 +41,11 @@ public class IpfsService {
     }
 
     public static void main(String[] args) throws IOException {
-        IpfsService ipfsService = new IpfsService();
+        IpfsUtil ipfsUtil = new IpfsUtil();
         //File file = new File("E:\\go-ipfs\\test.docx");
 //        String hash = ipfsService.upload(file);
 //        System.out.println(hash);
-        ipfsService.download("E:\\haha.docx", "QmdfcwkzGSdq1xMqNdMwAgW8e732SqXna52KHsBSi3uw13");
+        ipfsUtil.download("E:\\haha.docx", "QmdfcwkzGSdq1xMqNdMwAgW8e732SqXna52KHsBSi3uw13");
         //ipfsService.download("E:\\haha.docx", "QmdGQZfPXdfZmk9W5eZLgDjvYh6kUaPcMbW8YAdsLSdbnB", "/test.docx");
     }
 }

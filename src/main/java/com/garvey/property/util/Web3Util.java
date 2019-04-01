@@ -1,15 +1,15 @@
-package com.garvey.property.service;
+package com.garvey.property.util;
 
 import com.garvey.property.contract.PropertyContract;
 import com.garvey.property.model.PublicityInfo;
 import com.garvey.property.model.User;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tuples.generated.Tuple4;
-import org.web3j.tuples.generated.Tuple7;
+import org.web3j.tuples.generated.Tuple6;
 import org.web3j.tx.exceptions.ContractCallException;
 import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.DefaultGasProvider;
@@ -21,8 +21,8 @@ import java.util.*;
  * @author GarveyWong
  * @date 2019/3/31
  */
-@Service
-public class Web3Service {
+@Component
+public class Web3Util {
     private static String gethAddress;
     private static String contractAddress;
     private static Web3j web3j;
@@ -32,7 +32,7 @@ public class Web3Service {
     private ThreadLocal<PropertyContract> contractThreadLocal;
 
     static {
-        contractAddress = "0x9783103008a00b9e1f2b08d1d2e62de33bdb6d28";
+        contractAddress = "0xd5a4e4889b51ae94ea8341126526d2528c435c5a";
         gethAddress = "http://localhost:8545";
         web3j = Web3j.build(new HttpService(gethAddress));
         gasProvider = new DefaultGasProvider();
@@ -66,12 +66,13 @@ public class Web3Service {
         return null;
     }
 
-    public List<PublicityInfo> getPublicityInfos(Credentials credentials) {
+    public List<PublicityInfo> getPublicityInfoList(Credentials credentials) {
         int count = getPublicityInfoCount(credentials);
         List<PublicityInfo> publicityInfoList = new ArrayList<>(count);
         for (int i = 0; i < count; ++i) {
             PublicityInfo info = getPublicityInfo(i, credentials);
             if (info != null) {
+                info.setIdx(i);
                 publicityInfoList.add(info);
             }
         }
@@ -105,8 +106,8 @@ public class Web3Service {
             int retryTimes = 0;
             while (retryTimes < maxRetryTimes) {
                 try {
-                    Tuple7<String, String, String, String, String, BigInteger, BigInteger> tuple = contract.getPublicityInfo(BigInteger.valueOf(idx)).send();
-                    if (tuple.getValue7().intValue() == 0) {
+                    Tuple6<String, String, String, String, String, BigInteger> tuple = contract.getPublicityInfo(BigInteger.valueOf(idx)).send();
+                    if (tuple.getValue6().longValue() == 0) {
                         return null;
                     }
                     String[] fileHashes = tuple.getValue3().split(":");
@@ -117,7 +118,7 @@ public class Web3Service {
                             attachments.put(fileHashes[i], fileNames[i]);
                         }
                     }
-                    PublicityInfo publicityInfo = new PublicityInfo(tuple.getValue1(), tuple.getValue2(), attachments, tuple.getValue5(), tuple.getValue6().longValue(), tuple.getValue7().intValue());
+                    PublicityInfo publicityInfo = new PublicityInfo(idx, tuple.getValue1(), tuple.getValue2(), attachments, tuple.getValue5(), tuple.getValue6().longValue());
                     System.out.println("【getPublicityInfo】重试次数：" + retryTimes);
                     return publicityInfo;
                 } catch (IndexOutOfBoundsException e) {
