@@ -2,6 +2,7 @@ package com.garvey.property.controller;
 
 import com.garvey.property.annotation.NeededAuthority;
 import com.garvey.property.constant.Authority;
+import com.garvey.property.model.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,8 +19,8 @@ import javax.servlet.http.HttpSession;
 @NeededAuthority(authorities = {Authority.BASIC_READ})
 public class ForumController {
     @GetMapping
-    public String index(Model model, HttpSession session) {
-        model.addAttribute("user", session.getAttribute("user"));
+    public String index(User user, Model model) {
+        model.addAttribute("user", user);
         return "forum";
     }
 }

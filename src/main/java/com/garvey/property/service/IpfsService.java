@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 
 /**
@@ -17,7 +18,7 @@ import java.io.IOException;
  */
 @Service
 public class IpfsService {
-    static private IPFS ipfs = new IPFS("/ip4/127.168.1.111/tcp/5001");
+    static private IPFS ipfs = new IPFS("/ip4/127.0.0.1/tcp/5001");
 
     public String upload(File originFile) throws IOException {
         NamedStreamable.FileWrapper file = new NamedStreamable.FileWrapper(originFile);
@@ -41,8 +42,11 @@ public class IpfsService {
     }
 
     public static void main(String[] args) throws IOException {
+        IpfsService ipfsService = new IpfsService();
         //File file = new File("E:\\go-ipfs\\test.docx");
-        //String hash = IpfsUtil.upload(file);
-        //IpfsUtil.download("E:\\haha.docx", "QmdfcwkzGSdq1xMqNdMwAgW8e732SqXna52KHsBSi3uw13");
+//        String hash = ipfsService.upload(file);
+//        System.out.println(hash);
+        ipfsService.download("E:\\haha.docx", "QmdfcwkzGSdq1xMqNdMwAgW8e732SqXna52KHsBSi3uw13");
+        //ipfsService.download("E:\\haha.docx", "QmdGQZfPXdfZmk9W5eZLgDjvYh6kUaPcMbW8YAdsLSdbnB", "/test.docx");
     }
 }
