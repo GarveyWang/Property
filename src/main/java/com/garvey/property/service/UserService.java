@@ -17,7 +17,7 @@ public class UserService {
     private Web3Util web3Util;
 
     public User validate(Credentials credentials, String md5Password) {
-        User user = web3Util.getUser(credentials);
+        User user = web3Util.getUser(credentials, credentials.getAddress());
         if (user != null) {
             String encryptedPwd = DigestUtils.md5DigestAsHex(md5Password.getBytes()).toLowerCase();
             if (user.getEncryptedPwd().equals(encryptedPwd)) {

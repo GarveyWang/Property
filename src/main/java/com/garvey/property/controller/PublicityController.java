@@ -69,7 +69,7 @@ public class PublicityController {
             try {
                 for (MultipartFile multipartFile : attachments) {
                     if (!multipartFile.isEmpty()) {
-                        File file = new File(multipartFile.getOriginalFilename(), multipartFile.getOriginalFilename());
+                        File file = new File("", multipartFile.getOriginalFilename());
                         FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
                         String hash = ipfsUtil.upload(file);
                         attachmentsMap.put(hash, multipartFile.getOriginalFilename());

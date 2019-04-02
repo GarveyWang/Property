@@ -31,7 +31,8 @@
                 <div class="panel-body">
                     <input type="hidden" th:id="'title'+${info.idx}" th:value="${info.title}">
                     <input type="hidden" th:id="'content'+${info.idx}" th:value="${info.content}">
-                    <input type="hidden" th:id="'author'+${info.idx}" th:value="${info.author}">
+                    <input type="hidden" th:id="'authorName'+${info.idx}" th:value="${info.authorName}">
+                    <input type="hidden" th:id="'authorHash'+${info.idx}" th:value="${info.authorHash}">
                     <input type="hidden" th:id="'visible'+${info.idx}" th:value="${info.prop.visible}">
                     <input type="hidden" th:id="'remark'+${info.idx}" th:value="${info.prop.remark}">
                     <input type="hidden" th:id="'publishTime'+${info.idx}" th:value="${#dates.format(info.timestamp, 'yyyy-MM-dd HH:mm:ss')}">
@@ -93,7 +94,6 @@
         <div class="panel panel-default">
             <div class="panel-heading" style="text-align: center">
                 <h2 id="detailTitle"></h2>
-                <HR style="FILTER: alpha(opacity = 0,finishopacity = 100,style = 1)" width="30%" color=#333333 SIZE=2>
                 <small><b id="detailAuthor"></b> 发布于 <b id="detailPublishTime"></b> 显示状态：<b id="detailInfoVisible"></b></small>
             </div>
             <div class="panel-body">
@@ -119,7 +119,11 @@
                     <input type="hidden" id="editIdx">
                     <label for="editVisiblityTrigger">显示状态</label>
                     <input id="editVisiblityTrigger" data-toggle="toggle" data-on="正常" data-off="隐藏" type="checkbox">
-                    <textarea rows="8" name="content" class="form-control" id="editRemark" placeholder="请输入备注" style="margin-top: 10px;"></textarea>
+                    <div style="margin-top: 10px;">
+                        <label for="editRemark">备注</label>
+                        <textarea rows="8" name="content" class="form-control" id="editRemark" placeholder="请输入备注"></textarea>
+                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">
@@ -155,7 +159,7 @@
             $("#attachments").fileinput({
                 language: 'zh', //设置语言
                 uploadUrl: "/publicity/uploadInfo", //上传的地址
-                allowedFileExtensions: ['jpg', 'gif', 'png','doc','docx','pdf','ppt','pptx','txt','xls','xlsx'],//接收的文件后缀
+                allowedFileExtensions: ['jpg', 'gif', 'png','doc','docx','pdf','ppt','pptx','xls','xlsx'],//接收的文件后缀
                 uploadAsync: false, //默认异步上传
                 showUpload: false, //是否显示上传按钮
                 showRemove : true, //显示移除按钮
@@ -271,7 +275,7 @@
             } else{
                 $("#detailInfoVisible").html("隐藏");
             }
-            $("#detailAuthor").html($("#author"+idx).val());
+            $("#detailAuthor").html($("#authorName"+idx).val() + '(' + $("#authorHash"+idx).val() + ')');
             $("#detailPublishTime").html($("#publishTime"+idx).val());
             var fileCount = $("#fileCount" + idx).val();
             if (fileCount == 0){

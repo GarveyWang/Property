@@ -11,18 +11,20 @@ public class PublicityInfo {
     private String title;
     private String content;
     private Map<String, String> attachments;
-    private String author;
+    private String authorHash;
+    private String authorName;
     private long timestamp;
     private PublicityInfoProp prop;
 
     public PublicityInfo() {
     }
 
-    public PublicityInfo(long idx, String title, String content, Map<String, String> attachments, String author, long timestamp) {
+    public PublicityInfo(long idx, String title, String content, Map<String, String> attachments, String authorHash, String authorName, long timestamp) {
         this.title = title;
         this.content = content;
         this.attachments = attachments;
-        this.author = author;
+        this.authorHash = authorHash;
+        this.authorName = authorName;
         this.timestamp = timestamp;
     }
 
@@ -58,12 +60,20 @@ public class PublicityInfo {
         this.attachments = attachments;
     }
 
-    public String getAuthor() {
-        return author;
+    public String getAuthorHash() {
+        return authorHash;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
+    public void setAuthorHash(String authorHash) {
+        this.authorHash = authorHash;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
     }
 
     public long getTimestamp() {

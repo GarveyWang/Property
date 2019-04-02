@@ -7,10 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
+import java.net.URLEncoder;
 
 /**
  * @author GarveyWong
@@ -24,11 +22,11 @@ public class DownloadController {
 
     @PostMapping("/download")
     public String download(@RequestParam("fileHash") String fileHash, @RequestParam("fileName") String fileName,
-                           HttpServletResponse response) {
+                           HttpServletResponse response) throws UnsupportedEncodingException {
         FileInputStream fileInputStream = ipfsUtil.getFileInputStream(fileHash);
         if (fileInputStream != null) {
             response.setContentType("application/force-download");
-            response.addHeader("Content-Disposition", "attachment;fileName=" + fileName);
+            response.addHeader("Content-Disposition", "attachment;fileName=" + URLEncoder.encode(fileName,"UTF-8"));
             byte[] buffer = new byte[1024];
             BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
             try {

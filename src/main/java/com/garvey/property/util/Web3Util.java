@@ -3,6 +3,8 @@ package com.garvey.property.util;
 import com.garvey.property.contract.PropertyContract;
 import com.garvey.property.model.PublicityInfo;
 import com.garvey.property.model.User;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
@@ -32,21 +34,22 @@ public class Web3Util {
     private ThreadLocal<PropertyContract> contractThreadLocal;
 
     static {
-        contractAddress = "0x23dfc83e2677e9461f42b87b8c27148eeeb4479f";
+        contractAddress = "0xc87e35baf89448de28986a9915843126442697b5";
         gethAddress = "http://localhost:8545";
         web3j = Web3j.build(new HttpService(gethAddress));
         gasProvider = new DefaultGasProvider();
         maxRetryTimes = 200;
     }
 
-    public User getUser(Credentials credentials) {
+    @Cacheable(value = "user", key = "#addr", unless = "#result == null")
+    public User getUser(Credentials credentials, String addr) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
             int retryTimes = 0;
             //可能是web3j的问题，查询有时会返回空结果异常，没有规律，所以多次重试获取
             while (retryTimes < maxRetryTimes) {
                 try {
-                    Tuple4<String, String, String, BigInteger> tuple = contract.getUser(credentials.getAddress()).send();
+                    Tuple4<String, String, String, BigInteger> tuple = contract.getUser(addr).send();
                     if (tuple.getValue4().intValue() == 0) {
                         return null;
                     }
@@ -66,7 +69,7 @@ public class Web3Util {
         return null;
     }
 
-
+    @Cacheable(value = "publicityInfoCount", key = "")
     public int getPublicityInfoCount(Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
@@ -88,6 +91,7 @@ public class Web3Util {
         return -1;
     }
 
+    @Cacheable(value = "publicityInfo", key = "#idx", unless = "#result == null")
     public PublicityInfo getPublicityInfo(long idx, Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
@@ -106,7 +110,8 @@ public class Web3Util {
                             attachments.put(fileHashes[i], fileNames[i]);
                         }
                     }
-                    PublicityInfo publicityInfo = new PublicityInfo(idx, tuple.getValue1(), tuple.getValue2(), attachments, tuple.getValue5(), tuple.getValue6().longValue());
+                    User author = getUser(credentials, tuple.getValue5());
+                    PublicityInfo publicityInfo = new PublicityInfo(idx, tuple.getValue1(), tuple.getValue2(), attachments, tuple.getValue5(), author.getNickName(), tuple.getValue6().longValue());
                     System.out.println("【getPublicityInfo】重试次数：" + retryTimes);
                     return publicityInfo;
                 } catch (IndexOutOfBoundsException e) {
@@ -121,6 +126,7 @@ public class Web3Util {
         return null;
     }
 
+    @CacheEvict(value = "publicityInfoCount", allEntries = true)
     public void addPublicityInfo(PublicityInfo publicityInfo, Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
@@ -129,7 +135,7 @@ public class Web3Util {
             if (publicityInfo.getAttachments() != null && !publicityInfo.getAttachments().isEmpty()) {
                 for (String fileHash: publicityInfo.getAttachments().keySet()){
                     fileHashes.append(fileHash).append(":");
-                    fileNames.append(publicityInfo.getAttachments().get(fileHash));
+                    fileNames.append(publicityInfo.getAttachments().get(fileHash)).append(":");
                 }
             }
             try {
