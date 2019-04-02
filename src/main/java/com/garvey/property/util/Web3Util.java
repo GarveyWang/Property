@@ -32,7 +32,7 @@ public class Web3Util {
     private ThreadLocal<PropertyContract> contractThreadLocal;
 
     static {
-        contractAddress = "0xd5a4e4889b51ae94ea8341126526d2528c435c5a";
+        contractAddress = "0x23dfc83e2677e9461f42b87b8c27148eeeb4479f";
         gethAddress = "http://localhost:8545";
         web3j = Web3j.build(new HttpService(gethAddress));
         gasProvider = new DefaultGasProvider();
@@ -66,18 +66,6 @@ public class Web3Util {
         return null;
     }
 
-    public List<PublicityInfo> getPublicityInfoList(Credentials credentials) {
-        int count = getPublicityInfoCount(credentials);
-        List<PublicityInfo> publicityInfoList = new ArrayList<>(count);
-        for (int i = 0; i < count; ++i) {
-            PublicityInfo info = getPublicityInfo(i, credentials);
-            if (info != null) {
-                info.setIdx(i);
-                publicityInfoList.add(info);
-            }
-        }
-        return publicityInfoList;
-    }
 
     public int getPublicityInfoCount(Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
@@ -86,7 +74,7 @@ public class Web3Util {
             while (retryTimes < maxRetryTimes) {
                 try {
                     BigInteger count = contract.getPublicityInfoCount().send();
-                    System.out.println("【getPublicityInfo】重试次数：" + retryTimes);
+                    System.out.println("【getPublicityInfoCount】重试次数：" + retryTimes);
                     return count.intValue();
                 } catch (ContractCallException e) {
                     ++retryTimes;

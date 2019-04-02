@@ -36,36 +36,30 @@ public class PublicityController {
     private PublicityService publicityService;
 
     @GetMapping("/info")
-    public String infoPage(User user, Model model) {
-        List<PublicityInfo> infoList = publicityService.getPublicityInfoList(user);
+    public String infoPage(@RequestParam(value = "page", defaultValue = "1") int pageNum,
+                           User user, Model model) {
+        if (pageNum <= 0) {
+            pageNum = 1;
+        }
+        List<PublicityInfo> infoList = publicityService.getPublicityInfoList(user.getCredentials(), pageNum);
         model.addAttribute("infoList", infoList);
+        model.addAttribute("page", pageNum);
+        model.addAttribute("totalPage", publicityService.getPublicityInfoTotalPage(user.getCredentials()));
         model.addAttribute("user", user);
         return "info";
     }
 
     @PostMapping("/updateInfoProp")
     @ResponseBody
-    public String hideInfo(@RequestBody PublicityInfoProp prop){
+    public String updateInfoProp(@RequestBody PublicityInfoProp prop) {
         int result = publicityService.updatePublicityInfoProp(prop);
         return String.valueOf(result);
-    }
-
-    @GetMapping("/fund")
-    public String fundPage(User user, Model model) {
-        model.addAttribute("user", user);
-        return "fund";
-    }
-
-    @GetMapping("/log")
-    public String logPage(User user, Model model) {
-        model.addAttribute("user", user);
-        return "log";
     }
 
     @PostMapping("/uploadInfo")
     @ResponseBody
     @NeededAuthority(authorities = {Authority.PUBLISH_ANNOUNCEMENT})
-    public String uploadInfo(@Param("title") String title, @Param("content") String content,
+    public String uploadInfo(@RequestParam("title") String title, @RequestParam("content") String content,
                              @RequestParam("attachments") MultipartFile[] attachments, User user) {
         PublicityInfo info = new PublicityInfo();
         info.setTitle(title);
@@ -88,5 +82,17 @@ public class PublicityController {
         }
         publicityService.addPublicityInfo(info, user);
         return "400";
+    }
+
+    @GetMapping("/fund")
+    public String fundPage(User user, Model model) {
+        model.addAttribute("user", user);
+        return "fund";
+    }
+
+    @GetMapping("/log")
+    public String logPage(User user, Model model) {
+        model.addAttribute("user", user);
+        return "log";
     }
 }

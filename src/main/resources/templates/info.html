@@ -31,6 +31,10 @@
                 <div class="panel-body">
                     <input type="hidden" th:id="'title'+${info.idx}" th:value="${info.title}">
                     <input type="hidden" th:id="'content'+${info.idx}" th:value="${info.content}">
+                    <input type="hidden" th:id="'author'+${info.idx}" th:value="${info.author}">
+                    <input type="hidden" th:id="'visible'+${info.idx}" th:value="${info.prop.visible}">
+                    <input type="hidden" th:id="'remark'+${info.idx}" th:value="${info.prop.remark}">
+                    <input type="hidden" th:id="'publishTime'+${info.idx}" th:value="${#dates.format(info.timestamp, 'yyyy-MM-dd HH:mm:ss')}">
                     <input type="hidden" th:id="'fileCount'+${info.idx}" th:value="${info.attachments.size()}">
                     <div th:each="fileHash,fileStat : ${info.attachments}" th:if="${not #maps.isEmpty(info.attachments)}">
                         <input type="hidden" th:id="'file-'+${info.idx} + '-' +${fileStat.index}" th:attr="fileHash = ${fileStat.current.key}, fileName = ${fileStat.current.value}">
@@ -43,16 +47,15 @@
                         <button class="btn btn-default" onclick="showDetail(this)" style="float:right" th:attr = "idx = ${info.idx}">
                             查看详情
                         </button>
-                        <button th:if="${user.canPublishInfo() && info.prop.visible == 0}" class="btn btn-default invisibleInfo" onclick="showInfo(this)" style="float:right" th:attr = "idx = ${info.idx}">
-                            恢复公告
-                        </button>
-                        <button th:if="${user.canPublishInfo() && info.prop.visible == 1}" class="btn btn-default visibleInfo" onclick="hideInfo(this)" style="float:right" th:attr = "idx = ${info.idx}">
-                            隐藏公告
+                        <button th:if="${user.canPublishInfo()}" class="btn btn-default" onclick="showEditPropModal(this)" style="float:right" th:attr = "idx = ${info.idx}">
+                            修改属性
                         </button>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="clearfix"></div>
+        <div id="paginator" style="text-align: center"> <ul id="pageLimit"></ul> </div>
     </div>
 
     <div id="publishInfoPanel" class="form-horizontal" hidden="hidden">
@@ -84,12 +87,18 @@
     </div>
 
     <div id="detailInfoPanel" hidden="hidden">
-        <button class="btn btn-default" onclick="showDisplayInfoPanel()">←返回</button>
+        <button class="btn btn-default" onclick="showDisplayInfoPanel()" style="margin-bottom: 10px">←返回</button>
+        <p><small>* 标题/正文数据来自<b>区块链</b></small></p>
+        <p><small>* 附件来自<b>IPFS</b></small></p>
         <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title" id="detailTitle"></h3>
+            <div class="panel-heading" style="text-align: center">
+                <h2 id="detailTitle"></h2>
+                <HR style="FILTER: alpha(opacity = 0,finishopacity = 100,style = 1)" width="30%" color=#333333 SIZE=2>
+                <small><b id="detailAuthor"></b> 发布于 <b id="detailPublishTime"></b> 显示状态：<b id="detailInfoVisible"></b></small>
             </div>
             <div class="panel-body">
+                <p id="detailInfoRemark"></p>
+                <HR style="FILTER: alpha(opacity = 0,finishopacity = 100,style = 1)" width="80%" color=#333333 SIZE=4>
                 <p id="detailContent"></p>
             </div>
             <div class="panel-footer" id="detailFiles">
@@ -97,11 +106,40 @@
         </div>
     </div>
 
+    <div class="modal fade" id="editInfoModal" tabindex="-1" role="dialog" aria-labelledby="editTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                    </button>
+                    <h4 class="modal-title" id="editTitle">
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editIdx">
+                    <label for="editVisiblityTrigger">显示状态</label>
+                    <input id="editVisiblityTrigger" data-toggle="toggle" data-on="正常" data-off="隐藏" type="checkbox">
+                    <textarea rows="8" name="content" class="form-control" id="editRemark" placeholder="请输入备注" style="margin-top: 10px;"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="editInfoProp()">
+                        提交更改
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 </div>
 <th:block layout:fragment="bottomScriptBlock">
     <script type="text/javascript" src="../static/js/bootstrap/fileinput.min.js"></script>
     <script type="text/javascript" src="../static/js/bootstrap/fileinput-locale-zh.js"></script>
     <script type="text/javascript" src="../static/js/bootstrap/bootstrap-toggle.min.js"></script>
+    <script type="text/javascript" src="../static/js/bootstrap/bootstrap-paginator.min.js"></script>
     <script type="text/javascript">
         $(function () {
             $('.nav-item').children('ul').slideUp(300);
@@ -154,6 +192,28 @@
                 alert('公告发布失败！');
             });
 
+
+            $('#pageLimit').bootstrapPaginator({
+                currentPage: [[${page}]],
+                totalPages: [[${totalPage}]],
+                size:"normal",
+                bootstrapMajorVersion: 3,
+                alignment:"right",
+                numberOfPages:5,
+                itemTexts: function (type, page, current) {
+                    switch (type) {
+                        case "first": return "首页";
+                        case "prev": return "上一页";
+                        case "next": return "下一页";
+                        case "last": return "末页";
+                        case "page": return page;
+                    }
+                },
+                pageUrl:function (type, page, current) {
+                    return "/publicity/info?page=" + page;
+                }
+            });
+
             var info = "[[${info}]]";
             if (info != null && info.length>0){
                 alert(info);
@@ -181,52 +241,6 @@
                 });
             }
         }
-        function showInfo(obj) {
-            $.ajax({
-                type:"POST",
-                url:"/publicity/updateInfoProp",
-                contentType : 'application/json',
-                dataType : 'json',
-                data:JSON.stringify({
-                    "idx":$(obj).attr("idx"),
-                    "visible":1
-                }),
-                success:function (data) {
-                    alert("恢复成功");
-                    var infoId = "#info" + $(obj).attr("idx");
-                    $(infoId).attr("visible",1);
-                    $(infoId).hide();
-                    $(obj).removeClass("invisibleInfo");
-                    $(obj).addClass("visibleInfo");
-                    $(obj).removeAttr("onclick");
-                    $(obj).attr("onclick","hideInfo(this)");
-                    $(obj).html("隐藏公告");
-                }
-            })
-        }
-        function hideInfo(obj) {
-            $.ajax({
-                type:"POST",
-                url:"/publicity/updateInfoProp",
-                contentType : 'application/json',
-                dataType : 'json',
-                data:JSON.stringify({
-                    "idx":$(obj).attr("idx"),
-                    "visible":0
-                }),
-                success:function (data) {
-                    alert("隐藏成功");
-                    var infoId = "#info" + $(obj).attr("idx");
-                    $(infoId).attr("visible",0);
-                    $(infoId).hide();
-                    $(obj).removeClass("visibleInfo");
-                    $(obj).addClass("invisibleInfo");
-                    $(obj).removeAttr("onclick");
-                    $(obj).attr("onclick","showInfo(this)");
-                    $(obj).html("恢复公告");
-                }
-            })
-        }
         function showPublishInfoPanel() {
             $("#detailInfoPanel").hide();
             $("#displayInfoPanel").hide();
@@ -240,14 +254,30 @@
         function showDetail(info){
             $("#publishInfoPanel").hide();
             $("#displayInfoPanel").hide();
+
             var idx = $(info).attr("idx");
-            $("#detailTitle").html($("#title"+idx).val());
-            $("#detailContent").html($("#content"+idx).val());
+
+            var title = "<b>【标题】</b>" + $("#title"+idx).val();
+            $("#detailTitle").html(title);
+
+            var content = "<p><b>【正文】</b></p>" + $("#content"+idx).val();
+            $("#detailContent").html(content);
+
+            var remark = "<p><b>【备注】</b></p>" + $("#remark"+idx).val();
+            $("#detailInfoRemark").html(remark);
+
+            if ($("#visible"+idx).val() == 1){
+                $("#detailInfoVisible").html("正常");
+            } else{
+                $("#detailInfoVisible").html("隐藏");
+            }
+            $("#detailAuthor").html($("#author"+idx).val());
+            $("#detailPublishTime").html($("#publishTime"+idx).val());
             var fileCount = $("#fileCount" + idx).val();
             if (fileCount == 0){
                 $("#detailFiles").hide();
             } else{
-                var ul = '<p>附件</p><ul class="list-group">';
+                var ul = '<p>【附件】</p><ul class="list-group">';
                 for (var i= 0; i<fileCount; ++i){
                     var fileId = "#file-"+idx+"-"+i;
                     var fileHash = $(fileId).attr("fileHash");
@@ -284,6 +314,49 @@
 
             $("body").append(form);
             form.submit();
+        }
+
+        function showEditPropModal(info) {
+            var idx = $(info).attr("idx");
+            $('#editIdx').val(idx);
+            $('#editRemark').val($("#remark"+idx).val());
+            if ($("#visible"+idx).val() == 1){
+                $('#editVisiblityTrigger').prop("checked", true).change();
+            } else{
+                $('#editVisiblityTrigger').prop("checked", false).change();
+            }
+            $('#editInfoModal').modal("show");
+        }
+
+        function editInfoProp() {
+            var idx = $("#editIdx").val();
+            var visible = 0;
+            if ($("#editVisiblityTrigger").prop("checked")){
+                visible = 1;
+            }
+            var remark = $("#editRemark").val();
+            $.ajax({
+                type:"POST",
+                url:"/publicity/updateInfoProp",
+                contentType : 'application/json',
+                dataType : 'json',
+                data:JSON.stringify({
+                    "idx": idx,
+                    "visible": visible,
+                    "remark": remark
+                }),
+                success:function (data) {
+                    alert("修改成功");
+                    var infoId = "#info" + idx;
+                    if ($(infoId).attr("visible") != visible){
+                        $(infoId).attr("visible",visible);
+                        $(infoId).hide();
+                        $("#visible"+idx).val(visible)
+                    }
+                    $("#remark"+idx).val(remark);
+                    $("#editInfoModal").modal("hide");
+                }
+            })
         }
     </script>
 </th:block>

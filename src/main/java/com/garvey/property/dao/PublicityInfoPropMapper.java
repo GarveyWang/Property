@@ -15,5 +15,7 @@ public interface PublicityInfoPropMapper {
 
     int updateByPrimaryKeySelective(PublicityInfoProp record);
 
+    int updateByPrimaryKeyWithBLOBs(PublicityInfoProp record);
+
     int updateByPrimaryKey(PublicityInfoProp record);
 }
