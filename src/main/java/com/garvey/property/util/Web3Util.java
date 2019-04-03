@@ -187,7 +187,7 @@ public class Web3Util {
                     expenseItem.setIdx(idx);
                     //Payee
                     expenseItem.setPayee(tuple.getValue1());
-                    if (expenseItem.getPayee().startsWith("0x") && expenseItem.getPayee().length() == 34) {
+                    if (expenseItem.getPayee().startsWith("0x")) {
                         User payee = getUser(credentials, expenseItem.getPayee());
                         if (payee != null) {
                             expenseItem.setPayeeName(payee.getNickName());
@@ -292,7 +292,7 @@ public class Web3Util {
                     incomeItem.setIdx(idx);
                     //Payee
                     incomeItem.setPayer(tuple.getValue1());
-                    if (incomeItem.getPayer().startsWith("0x") && incomeItem.getPayer().length() == 34) {
+                    if (incomeItem.getPayer().startsWith("0x")) {
                         User payer = getUser(credentials, incomeItem.getPayer());
                         if (payer != null) {
                             incomeItem.setPayerName(payer.getNickName());

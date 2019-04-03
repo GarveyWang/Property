@@ -297,28 +297,6 @@
             }
             $("#detailInfoPanel").show();
         }
-        function downloadFile(fileHash, fileName) {
-            var form=$("<form>");
-            form.attr("style","display:none");
-            form.attr("target","");
-            form.attr("method","post");
-            form.attr("action","/download");
-
-            var fileHashInput = $("<input>")
-            fileHashInput.attr("type","text");
-            fileHashInput.attr("name","fileHash");
-            fileHashInput.attr("value",fileHash);
-            form.append(fileHashInput);
-
-            var fileNameInput = $("<input>")
-            fileNameInput.attr("type","text");
-            fileNameInput.attr("name","fileName");
-            fileNameInput.attr("value",fileName);
-            form.append(fileNameInput);
-
-            $("body").append(form);
-            form.submit();
-        }
 
         function showEditPropModal(info) {
             var idx = $(info).attr("idx");

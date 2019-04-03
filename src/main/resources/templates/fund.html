@@ -16,6 +16,7 @@
 <div layout:fragment="content" style="width:90%;">
     <div id="displayFundPanel">
         <div class="clearfix" style="margin-bottom: 10px">
+            <div style="float: left"><h4>总余额：<span id="totalBalance">0</span>分</h4></div>
             <div style="float: right">
                 <button class="btn btn-default" onclick="showChartPanel()">
                     查看收支图表
@@ -146,6 +147,8 @@
     <script type="text/javascript" src="../static/js/bootstrap/bootstrap-table.min.js"></script>
     <script type="text/javascript" src="../static/js/bootstrap/bootstrap-table-zh-CN.min.js"></script>
     <script type="text/javascript">
+        var totalIncome = -1;
+        var totalExpense = -1;
         var expenseMap;
         var incomeMap;
 
@@ -169,6 +172,14 @@
                         expenses = expenses.concat(expenseMap[month]);
                     }
                     $("#expenseMonth option:last").attr('selected', true);
+                    var expenseTemp = 0;
+                    $.each(expenses, function (i, item) {
+                        expenseTemp += item.amountInCents;
+                    });
+                    totalExpense = expenseTemp;
+                    if (totalIncome > -1 && totalExpense > -1){
+                        $("#totalBalance").html(totalIncome - totalExpense);
+                    }
                     changeExpenseChart();
                     $('#expenseDetailTable').bootstrapTable({
                         striped: true,
@@ -181,7 +192,7 @@
                                     title: "支出明细",
                                     halign:"center",
                                     align:"center",
-                                    colspan: 6
+                                    colspan: 7
                                 }
                             ],
                             [
@@ -225,6 +236,29 @@
                                     formatter: function (value, row, index) {
                                         return timestampToTime(value);
                                     }
+                                },
+                                {
+                                    field: 'attachments',
+                                    title: '附件',
+                                    formatter: function (value, row, index) {
+                                        var fileHashes = [];
+                                        var fileNames = [];
+                                        $.each(row.attachments, function (k, v) {
+                                            fileHashes.push(k);
+                                            fileNames.push(v);
+                                        })
+                                        var ul = '<ul>';
+                                        for (var i= 0; i<fileHashes.length; ++i){
+                                            var fileHash = fileHashes[i];
+                                            var fileName = fileNames[i];
+                                            ul += '<li>';
+                                            ul += '<a onclick="downloadFile(\'' + fileHash + '\',\'' + fileName +'\')" >';
+                                            ul += fileName;
+                                            ul += '</a></li>';
+                                        }
+                                        ul += '</ul>'
+                                        return ul;
+                                    }
                                 }
                             ]
                         ],
@@ -249,6 +283,15 @@
                     }
                     $("#incomeMonth option:last").attr('selected', true);
                     changeIncomeChart();
+                    var incomeTemp = 0;
+                    $.each(incomes, function (i, item) {
+                        incomeTemp += item.amountInCents;
+                    });
+                    totalIncome = incomeTemp;
+                    if (totalIncome > -1 && totalExpense > -1){
+                        $("#totalBalance").html(totalIncome - totalExpense);
+                    }
+                    $("#totalBalance").attr("balance", totalBalance);
                     $('#incomeDetailTable').bootstrapTable({
                         striped: true,
                         cache: false,
@@ -260,7 +303,7 @@
                                     title: "收入明细",
                                     halign:"center",
                                     align:"center",
-                                    colspan: 6
+                                    colspan: 7
                                 }
                             ],
                             [
@@ -303,6 +346,29 @@
                                     title: '时间',
                                     formatter: function (value, row, index) {
                                         return timestampToTime(value);
+                                    }
+                                },
+                                {
+                                    field: 'attachments',
+                                    title: '附件',
+                                    formatter: function (value, row, index) {
+                                        var fileHashes = [];
+                                        var fileNames = [];
+                                        $.each(row.attachments, function (k, v) {
+                                            fileHashes.push(k);
+                                            fileNames.push(v);
+                                        })
+                                        var ul = '<ul>';
+                                        for (var i= 0; i<fileHashes.length; ++i){
+                                            var fileHash = fileHashes[i];
+                                            var fileName = fileNames[i];
+                                            ul += '<li>';
+                                            ul += '<a onclick="downloadFile(\'' + fileHash + '\',\'' + fileName +'\')" >';
+                                            ul += fileName;
+                                            ul += '</a></li>';
+                                        }
+                                        ul += '</ul>'
+                                        return ul;
                                     }
                                 }
                             ]
@@ -445,8 +511,10 @@
             var month = yearMonth % 100;
             var days = generateDays(year, month);
             var expenses = new Array(days.length).fill(0);
+            var totalExpenseThisMonth = 0;
             $.each(expenseMap[yearMonth], function (i, item) {
                 expenses[item.dayInMonth - 1] += item.amountInCents;
+                totalExpenseThisMonth += item.amountInCents;
             });
             $("#expenseChartContainer").empty();
             $("#expenseChartContainer").append("<canvas id='expenseChart'></canvas>");
@@ -465,7 +533,7 @@
                 options: {
                     title: {
                         display: true,
-                        text: year + '年' + month + '月支出情况',
+                        text: year + '年' + month + '月支出情况：' + totalExpenseThisMonth + '分',
                         fontSize: 36
                     },
                     scales: {
@@ -492,8 +560,10 @@
             var month = yearMonth % 100;
             var days = generateDays(year, month);
             var incomes = new Array(days.length).fill(0);
+            var totalIncomeThisMonth = 0;
             $.each(incomeMap[yearMonth], function (i, item) {
                 incomes[item.dayInMonth - 1] += item.amountInCents;
+                totalIncomeThisMonth += item.amountInCents;
             });
             $("#incomeChartContainer").empty();
             $("#incomeChartContainer").append("<canvas id='incomeChart'></canvas>");
@@ -512,7 +582,7 @@
                 options: {
                     title: {
                         display: true,
-                        text: year + '年' + month + '月收入情况',
+                        text: year + '年' + month + '月收入情况：' + totalIncomeThisMonth + '分',
                         fontSize: 36
                     },
                     scales: {

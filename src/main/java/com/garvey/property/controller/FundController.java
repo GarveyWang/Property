@@ -36,13 +36,6 @@ public class FundController {
 
     @GetMapping("/fund")
     public String fundPage(User user, Model model) {
-        //Map<Integer, List<IncomeItem>> monthlyIncomeItems = fundService.getMonthlyIncomeItems(user.getCredentials());
-        //Map<Integer, List<IncomeItem>> monthlyIncomeItems = fundService.mockMonthlyIncomeItems(user.getCredentials());
-        //Map<Integer, List<ExpenseItem>> monthlyExpenseItems = fundService.getMonthlyExpenseItems(user.getCredentials());
-        //Map<Integer, List<ExpenseItem>> monthlyExpenseItems = fundService.mockMonthlyExpenseItems(user.getCredentials());
-
-        //model.addAttribute("monthlyIncomeItems", monthlyIncomeItems);
-        //model.addAttribute("monthlyExpenseItems", monthlyExpenseItems);
         model.addAttribute("user", user);
         return "fund";
     }
@@ -50,13 +43,13 @@ public class FundController {
     @PostMapping("/income")
     @ResponseBody
     public Map<Integer, List<IncomeItem>> getMonthlyIncomeItems(User user){
-        return fundService.mockMonthlyIncomeItems(user.getCredentials());
+        return fundService.getMonthlyIncomeItems(user.getCredentials());
     }
 
     @PostMapping("/expense")
     @ResponseBody
     public Map<Integer, List<ExpenseItem>> getMonthlyExpenseItems(User user){
-        return fundService.mockMonthlyExpenseItems(user.getCredentials());
+        return fundService.getMonthlyExpenseItems(user.getCredentials());
     }
 
     @PostMapping("/addIncome")

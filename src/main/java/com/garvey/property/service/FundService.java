@@ -42,9 +42,9 @@ public class FundService {
         for (int i = incomeItemsCount - 1; i >= 0; --i) {
             IncomeItem incomeItem = web3Util.getIncomeItem(i, credentials);
             if (incomeItem != null) {
-                Integer yearMonth = getYearMonth(incomeItem.getTimestamp());
                 int dayInMonth = getDayInMonth(incomeItem.getTimestamp());
                 incomeItem.setDayInMonth(dayInMonth);
+                Integer yearMonth = getYearMonth(incomeItem.getTimestamp());
                 List<IncomeItem> incomeItems = monthlyIncomeItems.getOrDefault(yearMonth, new ArrayList<>());
                 incomeItems.add(incomeItem);
                 monthlyIncomeItems.put(yearMonth, incomeItems);
@@ -82,6 +82,8 @@ public class FundService {
         for (int i = expenseItemsCount - 1; i >= 0; --i) {
             ExpenseItem expenseItem = web3Util.getExpenseItem(i, credentials);
             if (expenseItem != null) {
+                int dayInMonth = getDayInMonth(expenseItem.getTimestamp());
+                expenseItem.setDayInMonth(dayInMonth);
                 Integer yearMonth = getYearMonth(expenseItem.getTimestamp());
                 List<ExpenseItem> expenseItems = monthlyExpenseItems.getOrDefault(yearMonth, new ArrayList<>());
                 expenseItems.add(expenseItem);
