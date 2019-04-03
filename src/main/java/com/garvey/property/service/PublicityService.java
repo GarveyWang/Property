@@ -1,6 +1,7 @@
 package com.garvey.property.service;
 
 import com.garvey.property.constant.BasicConst;
+import com.garvey.property.dao.PublicityInfoPropMapper;
 import com.garvey.property.model.PublicityInfo;
 import com.garvey.property.model.PublicityInfoProp;
 import com.garvey.property.model.User;

@@ -1,29 +1,37 @@
 package com.garvey.property.model;
 
+import java.util.Map;
+
 /**
  * @author GarveyWong
  * @date 2019/4/2
  */
 public class ExpenseItem {
+    private long idx;
     private String payee;
-    private String recorder;
+    private String payeeName;
+    private String recorderHash;
+    private String recorderName;
     private long amountInCents;
     private String desc;
-    private String fileHashes;
-    private String fileNames;
+    private Map<String, String> attachments;
     private long timestamp;
 
-    public ExpenseItem() {
+
+    public long getIdx() {
+        return idx;
     }
 
-    public ExpenseItem(String payee, String recorder, long amountInCents, String desc, String fileHashes, String fileNames, long timestamp) {
-        this.payee = payee;
-        this.recorder = recorder;
-        this.amountInCents = amountInCents;
-        this.desc = desc;
-        this.fileHashes = fileHashes;
-        this.fileNames = fileNames;
-        this.timestamp = timestamp;
+    public void setIdx(long idx) {
+        this.idx = idx;
+    }
+
+    public String getPayeeName() {
+        return payeeName;
+    }
+
+    public void setPayeeName(String payeeName) {
+        this.payeeName = payeeName;
     }
 
     public String getPayee() {
@@ -34,12 +42,20 @@ public class ExpenseItem {
         this.payee = payee;
     }
 
-    public String getRecorder() {
-        return recorder;
+    public String getRecorderHash() {
+        return recorderHash;
     }
 
-    public void setRecorder(String recorder) {
-        this.recorder = recorder;
+    public void setRecorderHash(String recorderHash) {
+        this.recorderHash = recorderHash;
+    }
+
+    public String getRecorderName() {
+        return recorderName;
+    }
+
+    public void setRecorderName(String recorderName) {
+        this.recorderName = recorderName;
     }
 
     public long getAmountInCents() {
@@ -58,20 +74,12 @@ public class ExpenseItem {
         this.desc = desc;
     }
 
-    public String getFileHashes() {
-        return fileHashes;
+    public Map<String, String> getAttachments() {
+        return attachments;
     }
 
-    public void setFileHashes(String fileHashes) {
-        this.fileHashes = fileHashes;
-    }
-
-    public String getFileNames() {
-        return fileNames;
-    }
-
-    public void setFileNames(String fileNames) {
-        this.fileNames = fileNames;
+    public void setAttachments(Map<String, String> attachments) {
+        this.attachments = attachments;
     }
 
     public long getTimestamp() {

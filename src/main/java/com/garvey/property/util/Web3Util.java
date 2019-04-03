@@ -1,6 +1,8 @@
 package com.garvey.property.util;
 
 import com.garvey.property.contract.PropertyContract;
+import com.garvey.property.model.ExpenseItem;
+import com.garvey.property.model.IncomeItem;
 import com.garvey.property.model.PublicityInfo;
 import com.garvey.property.model.User;
 import org.springframework.cache.annotation.CacheEvict;
@@ -12,6 +14,7 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tuples.generated.Tuple4;
 import org.web3j.tuples.generated.Tuple6;
+import org.web3j.tuples.generated.Tuple7;
 import org.web3j.tx.exceptions.ContractCallException;
 import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.DefaultGasProvider;
@@ -133,13 +136,223 @@ public class Web3Util {
             StringBuilder fileHashes = new StringBuilder();
             StringBuilder fileNames = new StringBuilder();
             if (publicityInfo.getAttachments() != null && !publicityInfo.getAttachments().isEmpty()) {
-                for (String fileHash: publicityInfo.getAttachments().keySet()){
+                for (String fileHash : publicityInfo.getAttachments().keySet()) {
                     fileHashes.append(fileHash).append(":");
                     fileNames.append(publicityInfo.getAttachments().get(fileHash)).append(":");
                 }
             }
             try {
                 contract.addPublicityInfo(publicityInfo.getTitle(), publicityInfo.getContent(), fileHashes.toString(), fileNames.toString(), BigInteger.valueOf(System.currentTimeMillis())).send();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Cacheable(value = "expenseItemCount", key = "")
+    public int getExpenseItemCount(Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    BigInteger count = contract.getExpenseItemCount().send();
+                    System.out.println("【getExpenseItemCount】重试次数：" + retryTimes);
+                    return count.intValue();
+                } catch (ContractCallException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return -1;
+                }
+            }
+            System.out.println("【getExpenseItemCount】未找到");
+        }
+        return -1;
+    }
+
+    @Cacheable(value = "expenseItem", key = "#idx", unless = "#result == null")
+    public ExpenseItem getExpenseItem(long idx, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    Tuple7<String, String, BigInteger, String, String, String, BigInteger> tuple = contract.getExpenseItem(BigInteger.valueOf(idx)).send();
+                    if (tuple.getValue7().longValue() == 0) {
+                        return null;
+                    }
+
+                    ExpenseItem expenseItem = new ExpenseItem();
+                    expenseItem.setIdx(idx);
+                    //Payee
+                    expenseItem.setPayee(tuple.getValue1());
+                    if (expenseItem.getPayee().startsWith("0x") && expenseItem.getPayee().length() == 34) {
+                        User payee = getUser(credentials, expenseItem.getPayee());
+                        if (payee != null) {
+                            expenseItem.setPayeeName(payee.getNickName());
+                        }
+                    }
+                    //Recorder
+                    expenseItem.setRecorderHash(tuple.getValue2());
+                    User recorder = getUser(credentials, expenseItem.getRecorderHash());
+                    expenseItem.setRecorderName(recorder.getNickName());
+
+                    expenseItem.setAmountInCents(tuple.getValue3().longValue());
+                    expenseItem.setDesc(tuple.getValue4());
+
+                    //Attachments
+                    String[] fileHashes = tuple.getValue5().split(":");
+                    String[] fileNames = tuple.getValue6().split(":");
+                    Map<String, String> attachments = new HashMap<>(fileHashes.length);
+                    for (int i = 0; i < fileHashes.length; ++i) {
+                        if (!fileHashes[i].isEmpty()) {
+                            attachments.put(fileHashes[i], fileNames[i]);
+                        }
+                    }
+                    expenseItem.setAttachments(attachments);
+
+                    expenseItem.setTimestamp(tuple.getValue7().longValue());
+
+                    System.out.println("【getExpenseItem】重试次数：" + retryTimes);
+                    return expenseItem;
+                } catch (IndexOutOfBoundsException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+            System.out.println("【getPublicityInfo】未找到");
+        }
+        return null;
+    }
+
+    @CacheEvict(value = "expenseItemCount", allEntries = true)
+    public void addExpenseItem(ExpenseItem expenseItem, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            StringBuilder fileHashes = new StringBuilder();
+            StringBuilder fileNames = new StringBuilder();
+            if (expenseItem.getAttachments() != null && !expenseItem.getAttachments().isEmpty()) {
+                for (String fileHash : expenseItem.getAttachments().keySet()) {
+                    fileHashes.append(fileHash).append(":");
+                    fileNames.append(expenseItem.getAttachments().get(fileHash)).append(":");
+                }
+            }
+            try {
+                contract.addExpenseItem(expenseItem.getPayee(),
+                        BigInteger.valueOf(expenseItem.getAmountInCents()),
+                        expenseItem.getDesc(),
+                        fileHashes.toString(),
+                        fileNames.toString(),
+                        BigInteger.valueOf(System.currentTimeMillis())
+                ).send();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Cacheable(value = "incomeItemCount", key = "")
+    public int getIncomeItemCount(Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    BigInteger count = contract.getIncomeItemCount().send();
+                    System.out.println("【getIncomeItemCount】重试次数：" + retryTimes);
+                    return count.intValue();
+                } catch (ContractCallException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return -1;
+                }
+            }
+            System.out.println("【getIncomeItemCount】未找到");
+        }
+        return -1;
+    }
+
+    @Cacheable(value = "incomeItem", key = "#idx", unless = "#result == null")
+    public IncomeItem getIncomeItem(long idx, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    Tuple7<String, String, BigInteger, String, String, String, BigInteger> tuple = contract.getIncomeItem(BigInteger.valueOf(idx)).send();
+                    if (tuple.getValue7().longValue() == 0) {
+                        return null;
+                    }
+
+                    IncomeItem incomeItem = new IncomeItem();
+                    incomeItem.setIdx(idx);
+                    //Payee
+                    incomeItem.setPayer(tuple.getValue1());
+                    if (incomeItem.getPayer().startsWith("0x") && incomeItem.getPayer().length() == 34) {
+                        User payer = getUser(credentials, incomeItem.getPayer());
+                        if (payer != null) {
+                            incomeItem.setPayerName(payer.getNickName());
+                        }
+                    }
+                    //Recorder
+                    incomeItem.setRecorderHash(tuple.getValue2());
+                    User recorder = getUser(credentials, incomeItem.getRecorderHash());
+                    incomeItem.setRecorderName(recorder.getNickName());
+
+                    incomeItem.setAmountInCents(tuple.getValue3().longValue());
+                    incomeItem.setDesc(tuple.getValue4());
+
+                    //Attachments
+                    String[] fileHashes = tuple.getValue5().split(":");
+                    String[] fileNames = tuple.getValue6().split(":");
+                    Map<String, String> attachments = new HashMap<>(fileHashes.length);
+                    for (int i = 0; i < fileHashes.length; ++i) {
+                        if (!fileHashes[i].isEmpty()) {
+                            attachments.put(fileHashes[i], fileNames[i]);
+                        }
+                    }
+                    incomeItem.setAttachments(attachments);
+
+                    incomeItem.setTimestamp(tuple.getValue7().longValue());
+
+                    System.out.println("【getIncomeItem】重试次数：" + retryTimes);
+                    return incomeItem;
+                } catch (IndexOutOfBoundsException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+            System.out.println("【getIncomeItem】未找到");
+        }
+        return null;
+    }
+
+    @CacheEvict(value = "incomeItemCount", allEntries = true)
+    public void addIncomeItem(IncomeItem incomeItem, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            StringBuilder fileHashes = new StringBuilder();
+            StringBuilder fileNames = new StringBuilder();
+            if (incomeItem.getAttachments() != null && !incomeItem.getAttachments().isEmpty()) {
+                for (String fileHash : incomeItem.getAttachments().keySet()) {
+                    fileHashes.append(fileHash).append(":");
+                    fileNames.append(incomeItem.getAttachments().get(fileHash)).append(":");
+                }
+            }
+            try {
+                contract.addIncomeItem(incomeItem.getPayer(),
+                        BigInteger.valueOf(incomeItem.getAmountInCents()),
+                        incomeItem.getDesc(),
+                        fileHashes.toString(),
+                        fileNames.toString(),
+                        BigInteger.valueOf(System.currentTimeMillis())
+                ).send();
             } catch (Exception e) {
                 e.printStackTrace();
             }
