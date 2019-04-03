@@ -34,7 +34,7 @@ public class Web3Util {
     private ThreadLocal<PropertyContract> contractThreadLocal;
 
     static {
-        contractAddress = "0xc87e35baf89448de28986a9915843126442697b5";
+        contractAddress = "0x8067cf23642e15e5804d9ea3bf3ccb734acebe6a";
         gethAddress = "http://localhost:8545";
         web3j = Web3j.build(new HttpService(gethAddress));
         gasProvider = new DefaultGasProvider();
@@ -49,13 +49,13 @@ public class Web3Util {
             //可能是web3j的问题，查询有时会返回空结果异常，没有规律，所以多次重试获取
             while (retryTimes < maxRetryTimes) {
                 try {
-                    Tuple4<String, String, String, BigInteger> tuple = contract.getUser(addr).send();
+                    Tuple4<String, String, String, BigInteger> tuple = contract.getUserByAddr(addr).send();
                     if (tuple.getValue4().intValue() == 0) {
                         return null;
                     }
                     User user = new User(tuple.getValue1(), tuple.getValue2(), tuple.getValue3(), tuple.getValue4().intValue());
                     user.setCredentials(credentials);
-                    System.out.println("【getUser】重试次数：" + retryTimes);
+                    System.out.println("【getUserByAddr】重试次数：" + retryTimes);
                     return user;
                 } catch (IndexOutOfBoundsException e) {
                     ++retryTimes;
@@ -64,7 +64,7 @@ public class Web3Util {
                     return null;
                 }
             }
-            System.out.println("【getUser】未找到");
+            System.out.println("【getUserByAddr】未找到");
         }
         return null;
     }
@@ -170,10 +170,10 @@ public class Web3Util {
             int retryTimes = 0;
             while (retryTimes < 200) {
                 try {
-//                    Tuple4<String, String, String, BigInteger> tuple = contract.getUser(credentials.getAddress()).send();
+//                    Tuple4<String, String, String, BigInteger> tuple = contract.getUserByAddr(credentials.getAddress()).send();
 //                    User user = new User(tuple.getValue1(), tuple.getValue2(), tuple.getValue3(), tuple.getValue4().intValue());
 //                    user.setCredentials(credentials);
-//                    System.out.println("【getUser】重试次数：" + retryTimes);
+//                    System.out.println("【getUserByAddr】重试次数：" + retryTimes);
 //                    System.out.println(contract.getPublicityInfo(BigInteger.valueOf(0)).send());
                     System.out.println(contract.getPublicityInfo(BigInteger.valueOf(9)).send());
                     break;

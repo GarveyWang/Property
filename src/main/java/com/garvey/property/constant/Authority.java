@@ -16,7 +16,7 @@ public enum Authority {
     DELETE_PROPOSAL(64, "删除提议权限"),
 
     PUBLISH_ANNOUNCEMENT(128, "发布公告权限"),
-    DELETE_ANNOUNCEMENT(256, "删除公告权限"),
+    PUBLISH_FUND(256, "发布资金权限"),
 
     ADD_PROPRIETOR_ACCOUNT(512, "添加业主账号权限"),
     ADD_PROPERTY_ACCOUNT(1024, "添加物业账号权限"),
@@ -53,7 +53,7 @@ public enum Authority {
         return BASIC_READ.getValue()
                 + PUBLISH_DISCUSSION.getValue() + PARTICIPATE_DISCUSSION.getValue() + DELETE_DISCUSSION.getValue()
                 + PUBLISH_PROPOSAL.getValue() + VOTE_PROPOSAL.getValue() + DELETE_PROPOSAL.getValue()
-                + PUBLISH_ANNOUNCEMENT.getValue() + DELETE_ANNOUNCEMENT.getValue()
+                + PUBLISH_ANNOUNCEMENT.getValue() + PUBLISH_FUND.getValue()
                 + ADD_PROPRIETOR_ACCOUNT.getValue();
     }
 

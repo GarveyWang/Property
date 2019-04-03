@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.garvey.property.dao.ExpenseItemPropMapper">
+  <resultMap id="BaseResultMap" type="com.garvey.property.model.ExpenseItemProp">
+    <id column="idx" jdbcType="BIGINT" property="idx" />
+    <result column="group_id" jdbcType="BIGINT" property="groupId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    idx, group_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from expense_item_prop
+    where idx = #{idx,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from expense_item_prop
+    where idx = #{idx,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.garvey.property.model.ExpenseItemProp">
+    insert into expense_item_prop (idx, group_id)
+    values (#{idx,jdbcType=BIGINT}, #{groupId,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.garvey.property.model.ExpenseItemProp">
+    insert into expense_item_prop
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="idx != null">
+        idx,
+      </if>
+      <if test="groupId != null">
+        group_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="idx != null">
+        #{idx,jdbcType=BIGINT},
+      </if>
+      <if test="groupId != null">
+        #{groupId,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.garvey.property.model.ExpenseItemProp">
+    update expense_item_prop
+    <set>
+      <if test="groupId != null">
+        group_id = #{groupId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where idx = #{idx,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.garvey.property.model.ExpenseItemProp">
+    update expense_item_prop
+    set group_id = #{groupId,jdbcType=BIGINT}
+    where idx = #{idx,jdbcType=BIGINT}
+  </update>
+</mapper>

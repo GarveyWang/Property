@@ -80,4 +80,83 @@
     set visible = #{visible,jdbcType=TINYINT}
     where idx = #{idx,jdbcType=BIGINT}
   </update>
+  <resultMap id="BaseResultMap" type="com.garvey.property.model.PublicityInfoProp">
+    <id column="idx" jdbcType="BIGINT" property="idx" />
+    <result column="visible" jdbcType="TINYINT" property="visible" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.garvey.property.model.PublicityInfoProp">
+    <result column="remark" jdbcType="LONGVARCHAR" property="remark" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    idx, visible
+  </sql>
+  <sql id="Blob_Column_List">
+    remark
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from publicity_info_prop
+    where idx = #{idx,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from publicity_info_prop
+    where idx = #{idx,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.garvey.property.model.PublicityInfoProp">
+    insert into publicity_info_prop (idx, visible, remark
+      )
+    values (#{idx,jdbcType=BIGINT}, #{visible,jdbcType=TINYINT}, #{remark,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.garvey.property.model.PublicityInfoProp">
+    insert into publicity_info_prop
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="idx != null">
+        idx,
+      </if>
+      <if test="visible != null">
+        visible,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="idx != null">
+        #{idx,jdbcType=BIGINT},
+      </if>
+      <if test="visible != null">
+        #{visible,jdbcType=TINYINT},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.garvey.property.model.PublicityInfoProp">
+    update publicity_info_prop
+    <set>
+      <if test="visible != null">
+        visible = #{visible,jdbcType=TINYINT},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where idx = #{idx,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.garvey.property.model.PublicityInfoProp">
+    update publicity_info_prop
+    set visible = #{visible,jdbcType=TINYINT},
+      remark = #{remark,jdbcType=LONGVARCHAR}
+    where idx = #{idx,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.garvey.property.model.PublicityInfoProp">
+    update publicity_info_prop
+    set visible = #{visible,jdbcType=TINYINT}
+    where idx = #{idx,jdbcType=BIGINT}
+  </update>
 </mapper>

@@ -51,7 +51,7 @@ public class DeployContract {
             System.out.println("【createContract】Transaction receipt");
         }
 
-//        Tuple4<String, String, String, BigInteger> userTuple = contract.getUser(credentials.getAddress()).sendAsync().get();
+//        Tuple4<String, String, String, BigInteger> userTuple = contract.getUserByAddr(credentials.getAddress()).sendAsync().get();
 //        System.out.println(userTuple);
 
 //        PropertyContract loadContract = PropertyContract.load(contract.getContractAddress(), web3j, credentials, new DefaultGasProvider());
@@ -61,7 +61,7 @@ public class DeployContract {
 //        while (true) {
 //            try {
 //                //System.out.println("test: " + contract.getNickName(credentials.getAddress()).send());
-//                Tuple4<String, String, String, BigInteger> userTuple = loadContract.getUser(credentials.getAddress()).send();
+//                Tuple4<String, String, String, BigInteger> userTuple = loadContract.getUserByAddr(credentials.getAddress()).send();
 //                System.out.println(userTuple);
 //                break;
 //            } catch (ContractCallException e) {
