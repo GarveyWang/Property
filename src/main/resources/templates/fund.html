@@ -7,6 +7,7 @@
     <title>资金公告</title>
     <link href="../static/css/bootstrap/fileinput.min.css" rel="stylesheet">
     <link href="../static/css/Chart.min.css" rel="stylesheet">
+    <link href="../static/css/bootstrap/bootstrap-table.min.css" rel="stylesheet">
 </head>
 <body>
 <h2 layout:fragment="title">
@@ -16,15 +17,25 @@
     <div id="displayFundPanel">
         <div class="clearfix" style="margin-bottom: 10px">
             <div style="float: right">
-                <button th:if="${user.canPublishFund()}" class="btn btn-default" id="showAddIncomeBtn" onclick="showAddIncomePanel()">
+                <button class="btn btn-default" onclick="showChartPanel()">
+                    查看收支图表
+                </button>
+                <button class="btn btn-default" onclick="showIncomeDetailPanel()">
+                    查看收入明细
+                </button>
+                <button class="btn btn-default" onclick="showExpenseDetailPanel()">
+                    查看支出明细
+                </button>
+                <button th:if="${user.canPublishFund()}" class="btn btn-default" onclick="showAddIncomePanel()">
                     添加收入条目
                 </button>
-                <button th:if="${user.canPublishFund()}" class="btn btn-default" id="showAddExpenseBtn" onclick="showAddExpensePanel()">
+                <button th:if="${user.canPublishFund()}" class="btn btn-default" onclick="showAddExpensePanel()">
                     添加支出条目
                 </button>
             </div>
         </div>
-        <div>
+
+        <div id="chartPanel">
             <div>
                 <div class="clearfix">
                     <label for="expenseMonth" class="col-sm-1">月支出情况</label>
@@ -48,6 +59,14 @@
                 <div id="incomeChartContainer">
                 </div>
             </div>
+        </div>
+
+        <div id="expenseDetailPanel" hidden="hidden">
+            <table id="expenseDetailTable" class="table-striped"></table>
+        </div>
+
+        <div id="incomeDetailPanel" hidden="hidden">
+            <table id="incomeDetailTable" class="table-striped"></table>
         </div>
     </div>
 
@@ -124,6 +143,8 @@
     <script type="text/javascript" src="../static/js/bootstrap/fileinput.min.js"></script>
     <script type="text/javascript" src="../static/js/bootstrap/fileinput-locale-zh.js"></script>
     <script type="text/javascript" src="../static/js/Chart.min.js"></script>
+    <script type="text/javascript" src="../static/js/bootstrap/bootstrap-table.min.js"></script>
+    <script type="text/javascript" src="../static/js/bootstrap/bootstrap-table-zh-CN.min.js"></script>
     <script type="text/javascript">
         var expenseMap;
         var incomeMap;
@@ -139,14 +160,76 @@
                 contentType : 'application/json',
                 dataType : 'json',
                 success:function (data) {
+                    var expenses = [];
                     expenseMap = data;
                     for (var month in expenseMap){
                         $("#expenseMonth").append(
                             "<option value=" + month +">" + month + "</option>"
-                        )
+                        );
+                        expenses = expenses.concat(expenseMap[month]);
                     }
                     $("#expenseMonth option:last").attr('selected', true);
-                    changeExpenseChart()
+                    changeExpenseChart();
+                    $('#expenseDetailTable').bootstrapTable({
+                        striped: true,
+                        cache: false,
+                        pagination: true,
+                        pageSize: 15,
+                        columns: [
+                            [
+                                {
+                                    title: "支出明细",
+                                    halign:"center",
+                                    align:"center",
+                                    colspan: 6
+                                }
+                            ],
+                            [
+                                {
+                                    field: 'idx',
+                                    title: '交易序号'
+                                },
+                                {
+                                    field: 'payee',
+                                    title: '收款方',
+                                    formatter: function (value, row, index) {
+                                        if (row.payeeName == null || row.payeeName == ""){
+                                            return row.payee;
+                                        } else{
+                                            return row.payeeName + '(' + row.payee + ')';
+                                        }
+                                    }
+                                },
+                                {
+                                    field: 'recorderHash',
+                                    title: '记录人',
+                                    formatter: function (value, row, index) {
+                                        if (row.recorderName == null || row.recorderName == ""){
+                                            return row.recorderHash;
+                                        } else{
+                                            return row.recorderName + '(' + row.recorderHash + ')';
+                                        }
+                                    }
+                                },
+                                {
+                                    field: 'amountInCents',
+                                    title: '金额（分）'
+                                },
+                                {
+                                    field: 'desc',
+                                    title: '描述'
+                                },
+                                {
+                                    field: 'timestamp',
+                                    title: '时间',
+                                    formatter: function (value, row, index) {
+                                        return timestampToTime(value);
+                                    }
+                                }
+                            ]
+                        ],
+                        data: expenses
+                    })
                 }
             });
 
@@ -156,14 +239,76 @@
                 contentType : 'application/json',
                 dataType : 'json',
                 success:function (data) {
+                    var incomes = [];
                     incomeMap = data;
                     for (var month in incomeMap){
                         $("#incomeMonth").append(
                             "<option value=" + month +">" + month + "</option>"
-                        )
+                        );
+                        incomes = incomes.concat(incomeMap[month]);
                     }
                     $("#incomeMonth option:last").attr('selected', true);
-                    changeIncomeChart()
+                    changeIncomeChart();
+                    $('#incomeDetailTable').bootstrapTable({
+                        striped: true,
+                        cache: false,
+                        pagination: true,
+                        pageSize: 15,
+                        columns: [
+                            [
+                                {
+                                    title: "收入明细",
+                                    halign:"center",
+                                    align:"center",
+                                    colspan: 6
+                                }
+                            ],
+                            [
+                                {
+                                    field: 'idx',
+                                    title: '交易序号'
+                                },
+                                {
+                                    field: 'payer',
+                                    title: '付款方',
+                                    formatter: function (value, row, index) {
+                                        if (row.payerName == null || row.payerName == ""){
+                                            return row.payer;
+                                        } else{
+                                            return row.payerName + '(' + row.payer + ')';
+                                        }
+                                    }
+                                },
+                                {
+                                    field: 'recorderHash',
+                                    title: '记录人',
+                                    formatter: function (value, row, index) {
+                                        if (row.recorderName == null || row.recorderName == ""){
+                                            return row.recorderHash;
+                                        } else{
+                                            return row.recorderName + '(' + row.recorderHash + ')';
+                                        }
+                                    }
+                                },
+                                {
+                                    field: 'amountInCents',
+                                    title: '金额（分）'
+                                },
+                                {
+                                    field: 'desc',
+                                    title: '描述'
+                                },
+                                {
+                                    field: 'timestamp',
+                                    title: '时间',
+                                    formatter: function (value, row, index) {
+                                        return timestampToTime(value);
+                                    }
+                                }
+                            ]
+                        ],
+                        data: incomes
+                    })
                 }
             });
 
@@ -268,6 +413,24 @@
             $("#addExpensePanel").show();
         }
 
+        function showChartPanel() {
+            $("#expenseDetailPanel").hide();
+            $("#incomeDetailPanel").hide();
+            $("#chartPanel").show();
+        }
+
+        function showExpenseDetailPanel() {
+            $("#incomeDetailPanel").hide();
+            $("#chartPanel").hide();
+            $("#expenseDetailPanel").show();
+        }
+
+        function showIncomeDetailPanel() {
+            $("#expenseDetailPanel").hide();
+            $("#chartPanel").hide();
+            $("#incomeDetailPanel").show();
+        }
+
         function addIncome() {
             $("#incomeAttachments").fileinput("upload");
         }
@@ -278,12 +441,12 @@
 
         function changeExpenseChart() {
             var yearMonth =  $("#expenseMonth").val();
-            var year = yearMonth / 100;
+            var year = parseInt(yearMonth / 100);
             var month = yearMonth % 100;
             var days = generateDays(year, month);
             var expenses = new Array(days.length).fill(0);
             $.each(expenseMap[yearMonth], function (i, item) {
-                expenses[item.dayInMonth] += item.amountInCents;
+                expenses[item.dayInMonth - 1] += item.amountInCents;
             });
             $("#expenseChartContainer").empty();
             $("#expenseChartContainer").append("<canvas id='expenseChart'></canvas>");
@@ -293,23 +456,44 @@
                 data: {
                     labels: days,
                     datasets: [{
-                        label: '支出情况',
-                        backgroundColor: 'rgb(128, 128, 128, 0.7)',
-                        borderColor: 'rgb(128, 128, 128, 0.7)',
+                        label: '单位（分）',
+                        backgroundColor: 'rgb(128, 128, 128, 0.8)',
+                        borderColor: 'rgb(128, 128, 128, 0.8)',
                         data: expenses
                     }]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: year + '年' + month + '月支出情况',
+                        fontSize: 36
+                    },
+                    scales: {
+                        yAxes:[{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "金额，单位（分）"
+                            }
+                        }],
+                        xAxes:[{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "单位（日）"
+                            }
+                        }]
+                    }
                 }
             });
         }
 
         function changeIncomeChart() {
             var yearMonth =  $("#incomeMonth").val();
-            var year = yearMonth / 100;
+            var year = parseInt(yearMonth / 100);
             var month = yearMonth % 100;
             var days = generateDays(year, month);
             var incomes = new Array(days.length).fill(0);
             $.each(incomeMap[yearMonth], function (i, item) {
-                incomes[item.dayInMonth] += item.amountInCents;
+                incomes[item.dayInMonth - 1] += item.amountInCents;
             });
             $("#incomeChartContainer").empty();
             $("#incomeChartContainer").append("<canvas id='incomeChart'></canvas>");
@@ -317,13 +501,34 @@
             var incomeChart = new Chart(incomeChartCtx, {
                 type: 'bar',
                 data: {
-                    labels: new Array(30).fill(0),
+                    labels: days,
                     datasets: [{
-                        label: '收入情况',
+                        label: '单位（分）',
                         backgroundColor: 'rgb(128, 128, 128, 0.7)',
                         borderColor: 'rgb(128, 128, 128, 0.7)',
                         data: incomes
-                    }]
+                    }],
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: year + '年' + month + '月收入情况',
+                        fontSize: 36
+                    },
+                    scales: {
+                        yAxes:[{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "单位（分）"
+                            }
+                        }],
+                        xAxes:[{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "单位（日）"
+                            }
+                        }]
+                    }
                 }
             });
         }
@@ -336,7 +541,25 @@
             }
             return days;
         }
+
+        function timestampToTime(timestamp) {
+            var date = new Date(timestamp);
+            Y = date.getFullYear() + '-';
+            M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+            D = date.getDate() + ' ';
+            h = date.getHours() + ':';
+            m = (date.getMinutes() < 10 ? '0'+(date.getMinutes()) : date.getMinutes()) + ':';
+            s = (date.getSeconds() < 10 ? '0'+(date.getSeconds()) : date.getSeconds());
+            return Y+M+D+h+m+s;
+        }
     </script>
+
+    <style type="text/css">
+        .table-striped > tbody > tr:nth-child(2n+1) > td,
+        .table-striped > tbody > tr:nth-child(2n+1) > th {
+            background-color: rgb(242, 245, 247);
+        }
+    </style>
 </th:block>
 </body>
 </html>

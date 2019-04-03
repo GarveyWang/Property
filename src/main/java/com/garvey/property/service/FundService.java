@@ -58,9 +58,13 @@ public class FundService {
         int incomeItemsCount = 20;
         for (int i = incomeItemsCount - 1; i >= 0; --i) {
             IncomeItem incomeItem = new IncomeItem();
+            incomeItem.setIdx(i);
             incomeItem.setDesc("收入Mock " + i);
             incomeItem.setAmountInCents(i + 100);
             incomeItem.setPayer("Garvey");
+            incomeItem.setPayerName("Wong");
+            incomeItem.setRecorderHash("Hash");
+            incomeItem.setRecorderName("Name");
             incomeItem.setTimestamp(1554277649000L - i * 86400000L);
             Integer yearMonth = getYearMonth(incomeItem.getTimestamp());
             int dayInMonth = getDayInMonth(incomeItem.getTimestamp());
@@ -89,12 +93,16 @@ public class FundService {
 
     public Map<Integer, List<ExpenseItem>> mockMonthlyExpenseItems(Credentials credentials) {
         Map<Integer, List<ExpenseItem>> monthlyIncomeItems = new HashMap<>();
-        int incomeItemsCount = 20;
+        int incomeItemsCount = 200;
         for (int i = incomeItemsCount - 1; i >= 0; --i) {
             ExpenseItem expenseItem = new ExpenseItem();
+            expenseItem.setIdx(i);
             expenseItem.setDesc("收入Mock " + i);
             expenseItem.setAmountInCents(i + 100);
             expenseItem.setPayee("Garvey");
+            expenseItem.setPayeeName("Wong");
+            expenseItem.setRecorderHash("Hash");
+            expenseItem.setRecorderName("Name");
             expenseItem.setTimestamp(1554277649000L - i * 86400000L);
             Integer yearMonth = getYearMonth(expenseItem.getTimestamp());
             int dayInMonth = getDayInMonth(expenseItem.getTimestamp());
