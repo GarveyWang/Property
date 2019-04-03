@@ -53,7 +53,6 @@ public class PublicityService {
         for (int i = fromIdx; i > endIdx; --i) {
             PublicityInfo info = web3Util.getPublicityInfo(i, credentials);
             if (info != null) {
-                info.setIdx(i);
                 setProp(info);
                 publicityInfoList.add(info);
             }

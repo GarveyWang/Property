@@ -64,4 +64,8 @@ public class User {
     public boolean canPublishInfo(){
         return Authority.contain(authority, Authority.PUBLISH_ANNOUNCEMENT);
     }
+
+    public boolean canPublishFund(){
+        return Authority.contain(authority, Authority.PUBLISH_FUND);
+    }
 }

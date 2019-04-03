@@ -74,12 +74,12 @@ public class PublicityController {
                         attachmentsMap.put(hash, multipartFile.getOriginalFilename());
                     }
                 }
-                info.setAttachments(attachmentsMap);
             } catch (IOException e) {
-                return "200";
+                return "400";
             }
+            info.setAttachments(attachmentsMap);
         }
         publicityService.addPublicityInfo(info, user);
-        return "400";
+        return "200";
     }
 }

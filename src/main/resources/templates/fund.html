@@ -5,21 +5,337 @@
 
 <head>
     <title>资金公告</title>
+    <link href="../static/css/bootstrap/fileinput.min.css" rel="stylesheet">
+    <link href="../static/css/Chart.min.css" rel="stylesheet">
 </head>
 <body>
 <h2 layout:fragment="title">
     资金公告
 </h2>
 <div layout:fragment="content" style="width:90%;">
-    资金公告
+    <div id="displayFundPanel">
+        <div class="clearfix" style="margin-bottom: 10px">
+            <div style="float: right">
+                <button th:if="${user.canPublishFund()}" class="btn btn-default" id="showAddIncomeBtn" onclick="showAddIncomePanel()">
+                    添加收入条目
+                </button>
+                <button th:if="${user.canPublishFund()}" class="btn btn-default" id="showAddExpenseBtn" onclick="showAddExpensePanel()">
+                    添加支出条目
+                </button>
+            </div>
+        </div>
+        <div>
+            <div>
+                <div class="clearfix">
+                    <label for="expenseMonth" class="col-sm-1">月支出情况</label>
+                    <div class="col-sm-2">
+                        <select class="form-control" id="expenseMonth" onchange="changeExpenseChart()">
+                        </select>
+                    </div>
+                </div>
+                <div id="expenseChartContainer">
+                </div>
+
+            </div>
+            <div>
+                <div class="form-group clearfix">
+                    <label for="incomeMonth" class="col-sm-1 control-label">月收入情况</label>
+                    <div class="col-sm-2">
+                        <select class="form-control" id="incomeMonth" onchange="changeIncomeChart()">
+                        </select>
+                    </div>
+                </div>
+                <div id="incomeChartContainer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="addIncomePanel" class="form-horizontal" hidden="hidden">
+        <h3  class="col-sm-offset-1" style="text-align: center"><b>添加收入条目</b></h3>
+        <div class="form-group">
+            <div class="form-group clearfix">
+                <label for="incomePayer" class="col-sm-1 control-label">付款方</label>
+                <div class="col-sm-3">
+                    <input type="text" name="payer" class="form-control" id="incomePayer" placeholder="请输入付款方">
+                </div>
+                <label for="incomeAmountInCents" class="col-sm-1 control-label">金额(分)</label>
+                <div class="col-sm-3">
+                    <input type="text" name="amountInCents" class="form-control" id="incomeAmountInCents" placeholder="请输入金额，单位分">
+                </div>
+            </div>
+            <div class="form-group clearfix">
+                <label for="incomeDesc" class="col-sm-1 control-label">描述</label>
+                <div class="col-sm-11">
+                    <textarea rows="4" name="content" class="form-control" id="incomeDesc" placeholder="请输入描述（255字以内）"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="incomeAttachments" class="col-sm-1 control-label">添加附件</label>
+            <div class="col-sm-11 form-inline">
+                <input id="incomeAttachments" multiple type="file" name="attachments" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-10 col-sm-2">
+                <button class="btn btn-default" onclick="showDisplayFundPanel()">取消</button>
+                <button class="btn btn-primary" onclick="addIncome()">发布</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addExpensePanel" class="form-horizontal" hidden="hidden">
+        <h3  class="col-sm-offset-1" style="text-align: center"><b>添加支出条目</b></h3>
+        <div class="form-group">
+            <div class="form-group clearfix">
+                <label for="expensePayee" class="col-sm-1 control-label">收款方</label>
+                <div class="col-sm-3">
+                    <input type="text" name="payee" class="form-control" id="expensePayee" placeholder="请输入收款方">
+                </div>
+                <label for="expenseAmountInCents" class="col-sm-1 control-label">金额(分)</label>
+                <div class="col-sm-3">
+                    <input type="text" name="amountInCents" class="form-control" id="expenseAmountInCents" placeholder="请输入金额，单位分">
+                </div>
+            </div>
+            <div class="form-group clearfix">
+                <label for="expenseDesc" class="col-sm-1 control-label">描述</label>
+                <div class="col-sm-11">
+                    <textarea rows="4" name="content" class="form-control" id="expenseDesc" placeholder="请输入描述（255字以内）"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="expenseAttachments" class="col-sm-1 control-label">添加附件</label>
+            <div class="col-sm-11 form-inline">
+                <input id="expenseAttachments" multiple type="file" name="attachments" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-10 col-sm-2">
+                <button class="btn btn-default" onclick="showDisplayFundPanel()">取消</button>
+                <button class="btn btn-primary" onclick="addExpense()">发布</button>
+            </div>
+        </div>
+    </div>
 </div>
+
 <th:block layout:fragment="bottomScriptBlock">
+    <script type="text/javascript" src="../static/js/bootstrap/fileinput.min.js"></script>
+    <script type="text/javascript" src="../static/js/bootstrap/fileinput-locale-zh.js"></script>
+    <script type="text/javascript" src="../static/js/Chart.min.js"></script>
     <script type="text/javascript">
+        var expenseMap;
+        var incomeMap;
+
         $(function () {
             $('.nav-item').children('ul').slideUp(300);
             $("#infoNav").slideDown(300);
             $("#infoNav").parent('li').addClass('nav-show').siblings('li').removeClass('nav-show');
-        })
+
+            $.ajax({
+                type:"POST",
+                url:"/publicity/expense",
+                contentType : 'application/json',
+                dataType : 'json',
+                success:function (data) {
+                    expenseMap = data;
+                    for (var month in expenseMap){
+                        $("#expenseMonth").append(
+                            "<option value=" + month +">" + month + "</option>"
+                        )
+                    }
+                    $("#expenseMonth option:last").attr('selected', true);
+                    changeExpenseChart()
+                }
+            });
+
+            $.ajax({
+                type:"POST",
+                url:"/publicity/income",
+                contentType : 'application/json',
+                dataType : 'json',
+                success:function (data) {
+                    incomeMap = data;
+                    for (var month in incomeMap){
+                        $("#incomeMonth").append(
+                            "<option value=" + month +">" + month + "</option>"
+                        )
+                    }
+                    $("#incomeMonth option:last").attr('selected', true);
+                    changeIncomeChart()
+                }
+            });
+
+            $("#incomeAttachments").fileinput({
+                language: 'zh', //设置语言
+                uploadUrl: "/publicity/addIncome", //上传的地址
+                allowedFileExtensions: ['jpg', 'gif', 'png','doc','docx','pdf','ppt','pptx','xls','xlsx'],//接收的文件后缀
+                uploadAsync: false, //默认异步上传
+                showUpload: false, //是否显示上传按钮
+                showRemove : true, //显示移除按钮
+                showPreview : true, //是否显示预览
+                showCaption: false,//是否显示标题
+                browseClass: "btn btn-primary", //按钮样式
+                //dropZoneEnabled: true,//是否显示拖拽区域
+                //minImageWidth: 50, //图片的最小宽度
+                //minImageHeight: 50,//图片的最小高度
+                //maxImageWidth: 1000,//图片的最大宽度
+                //maxImageHeight: 1000,//图片的最大高度
+                maxFileSize: 10000,//单位为kb，如果为0表示不限制文件大小
+                //minFileCount: 0,
+                //maxFileCount: 10, //表示允许同时上传的最大文件个数
+                enctype: 'multipart/form-data',
+                validateInitialCount:true,
+                previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+                msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+                layoutTemplates :{
+                    // actionDelete:'', //去除上传预览的缩略图中的删除图标
+                    actionUpload:'',//去除上传预览缩略图中的上传图片；
+                    actionZoom:''   //去除上传预览缩略图中的查看详情预览的缩略图标。
+                },
+                uploadExtraData:function () {
+                    return {
+                        "payer": $("#incomePayer").val(),
+                        "amountInCents": $("#incomeAmountInCents").val(),
+                        "desc":$("#incomeDesc").val()
+                    };
+                }
+            }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
+                alert('添加成功！');
+                window.location.href="/publicity/fund";
+            }).on('filebatchuploaderror', function(event, data, msg) {
+                alert('添加失败！');
+            });
+
+            $("#expenseAttachments").fileinput({
+                language: 'zh', //设置语言
+                uploadUrl: "/publicity/addExpense", //上传的地址
+                allowedFileExtensions: ['jpg', 'gif', 'png','doc','docx','pdf','ppt','pptx','xls','xlsx'],//接收的文件后缀
+                uploadAsync: false, //默认异步上传
+                showUpload: false, //是否显示上传按钮
+                showRemove : true, //显示移除按钮
+                showPreview : true, //是否显示预览
+                showCaption: false,//是否显示标题
+                browseClass: "btn btn-primary", //按钮样式
+                //dropZoneEnabled: true,//是否显示拖拽区域
+                //minImageWidth: 50, //图片的最小宽度
+                //minImageHeight: 50,//图片的最小高度
+                //maxImageWidth: 1000,//图片的最大宽度
+                //maxImageHeight: 1000,//图片的最大高度
+                maxFileSize: 10000,//单位为kb，如果为0表示不限制文件大小
+                //minFileCount: 0,
+                //maxFileCount: 10, //表示允许同时上传的最大文件个数
+                enctype: 'multipart/form-data',
+                validateInitialCount:true,
+                previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+                msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+                layoutTemplates :{
+                    // actionDelete:'', //去除上传预览的缩略图中的删除图标
+                    actionUpload:'',//去除上传预览缩略图中的上传图片；
+                    actionZoom:''   //去除上传预览缩略图中的查看详情预览的缩略图标。
+                },
+                uploadExtraData:function () {
+                    return {
+                        "payee": $("#expensePayee").val(),
+                        "amountInCents": $("#expenseAmountInCents").val(),
+                        "desc":$("#expenseDesc").val()
+                    };
+                }
+            }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
+                alert('添加成功！');
+                window.location.href="/publicity/fund";
+            }).on('filebatchuploaderror', function(event, data, msg) {
+                alert('添加失败！');
+            });
+        });
+
+        function showDisplayFundPanel() {
+            $("#addExpensePanel").hide();
+            $("#addIncomePanel").hide();
+            $("#displayFundPanel").show();
+        }
+
+        function showAddIncomePanel() {
+            $("#displayFundPanel").hide();
+            $("#addExpensePanel").hide();
+            $("#addIncomePanel").show();
+        }
+
+        function showAddExpensePanel() {
+            $("#displayFundPanel").hide();
+            $("#addIncomePanel").hide();
+            $("#addExpensePanel").show();
+        }
+
+        function addIncome() {
+            $("#incomeAttachments").fileinput("upload");
+        }
+
+        function addExpense() {
+            $("#expenseAttachments").fileinput("upload");
+        }
+
+        function changeExpenseChart() {
+            var yearMonth =  $("#expenseMonth").val();
+            var year = yearMonth / 100;
+            var month = yearMonth % 100;
+            var days = generateDays(year, month);
+            var expenses = new Array(days.length).fill(0);
+            $.each(expenseMap[yearMonth], function (i, item) {
+                expenses[item.dayInMonth] += item.amountInCents;
+            });
+            $("#expenseChartContainer").empty();
+            $("#expenseChartContainer").append("<canvas id='expenseChart'></canvas>");
+            var expenseChartCtx = document.getElementById('expenseChart').getContext('2d');
+            var expenseChart = new Chart(expenseChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: '支出情况',
+                        backgroundColor: 'rgb(128, 128, 128, 0.7)',
+                        borderColor: 'rgb(128, 128, 128, 0.7)',
+                        data: expenses
+                    }]
+                }
+            });
+        }
+
+        function changeIncomeChart() {
+            var yearMonth =  $("#incomeMonth").val();
+            var year = yearMonth / 100;
+            var month = yearMonth % 100;
+            var days = generateDays(year, month);
+            var incomes = new Array(days.length).fill(0);
+            $.each(incomeMap[yearMonth], function (i, item) {
+                incomes[item.dayInMonth] += item.amountInCents;
+            });
+            $("#incomeChartContainer").empty();
+            $("#incomeChartContainer").append("<canvas id='incomeChart'></canvas>");
+            var incomeChartCtx = document.getElementById('incomeChart').getContext('2d');
+            var incomeChart = new Chart(incomeChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: new Array(30).fill(0),
+                    datasets: [{
+                        label: '收入情况',
+                        backgroundColor: 'rgb(128, 128, 128, 0.7)',
+                        borderColor: 'rgb(128, 128, 128, 0.7)',
+                        data: incomes
+                    }]
+                }
+            });
+        }
+
+        function generateDays(year, month) {
+            var daysNumber = new Date(year, month, 0).getDate();
+            var days = [];
+            for (var i = 0; i < daysNumber; ++i) {
+                days[i] = i + 1;
+            }
+            return days;
+        }
     </script>
 </th:block>
 </body>
