@@ -82,16 +82,4 @@ public class PublicityController {
         publicityService.addPublicityInfo(info, user);
         return "400";
     }
-
-    @GetMapping("/fund")
-    public String fundPage(User user, Model model) {
-        model.addAttribute("user", user);
-        return "fund";
-    }
-
-    @GetMapping("/log")
-    public String logPage(User user, Model model) {
-        model.addAttribute("user", user);
-        return "log";
-    }
 }

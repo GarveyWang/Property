@@ -1,7 +1,9 @@
 package com.garvey.property.dao;
 
 import com.garvey.property.model.ExpenseItemProp;
+import org.apache.ibatis.annotations.Mapper;
 
+@Mapper
 public interface ExpenseItemPropMapper {
     int deleteByPrimaryKey(Long idx);
 

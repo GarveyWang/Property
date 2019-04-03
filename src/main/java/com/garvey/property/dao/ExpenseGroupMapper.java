@@ -1,7 +1,9 @@
 package com.garvey.property.dao;
 
 import com.garvey.property.model.ExpenseGroup;
+import org.apache.ibatis.annotations.Mapper;
 
+@Mapper
 public interface ExpenseGroupMapper {
     int deleteByPrimaryKey(Long id);
 
