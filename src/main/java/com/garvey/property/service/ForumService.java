@@ -49,6 +49,10 @@ public class ForumService {
         return discussions;
     }
 
+    public Reply getReply(long replyId){
+        return replyMapper.selectByPrimaryKey(replyId);
+    }
+
     public List<Reply> getReplies(long discussionId, Credentials credentials, int page, int pageSize) {
         int offset = (page - 1) * pageSize;
         List<Reply> replies = replyMapper.getReplies(discussionId, pageSize, offset);
@@ -93,5 +97,14 @@ public class ForumService {
 
     public int updateDiscussion(Discussion discussion) {
        return discussionMapper.updateByPrimaryKeySelective(discussion);
+    }
+
+    public int deleteDiscussion(long discussionId) {
+        replyMapper.deleteByDiscussionId(discussionId);
+        return discussionMapper.deleteByPrimaryKey(discussionId);
+    }
+
+    public int deleteReply(long replyId) {
+        return replyMapper.deleteByPrimaryKey(replyId);
     }
 }

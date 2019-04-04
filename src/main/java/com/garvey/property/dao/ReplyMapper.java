@@ -26,4 +26,5 @@ public interface ReplyMapper {
 
     List<Reply> getReplies(@Param("discussionId") long discussionId, @Param("pageSize") int pageSize, @Param("offset") int offset);
 
+    int deleteByDiscussionId(@Param("discussionId") long discussionId);
 }

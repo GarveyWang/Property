@@ -84,4 +84,8 @@ public class User {
     public boolean canPublishDiscussion() {
         return Authority.contain(authority, Authority.PUBLISH_DISCUSSION);
     }
+
+    public boolean canDeleteDiscussion() {
+        return Authority.contain(authority, Authority.DELETE_DISCUSSION);
+    }
 }

@@ -37,6 +37,9 @@
                                 <small>最新回复于 <span th:text="${#dates.format(discussion.updateTime, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
                             </div>
                         </div>
+                        <button th:if="${user.address == discussion.authorId || user.canDeleteDiscussion()}" class="btn btn-warning" onclick="deleteDiscussion(this)" style="float:right" th:attr = "discussionId = ${discussion.id}">
+                            删除讨论
+                        </button>
                         <a class="btn btn-default" style="float:right" th:href="@{/forum/discussion(id=${discussion.id},forumPage=${page})}">
                             查看详情
                         </a>
@@ -123,6 +126,21 @@
                 },
                 success:function (data) {
                     alert("发布成功");
+                    window.location.reload();
+                }
+            })
+        }
+
+        function deleteDiscussion(discussion) {
+            $.ajax({
+                type:"POST",
+                url:"/forum/discussion/delete",
+                dataType : 'json',
+                data:{
+                    "id": $(discussion).attr("discussionId")
+                },
+                success:function (data) {
+                    alert("删除成功");
                     window.location.reload();
                 }
             })

@@ -41,12 +41,18 @@
                 <HR style="FILTER: alpha(opacity = 0,finishopacity = 100,style = 1)" width="100%" color=#333333 SIZE=6>
 
                 <div th:each="reply,iterstat: ${replies}">
-                    <div class="info panel panel-info col-sm-12" th:id="'reply'+${reply.id}" >
+                    <div class="info panel panel-info col-sm-12">
                         <div class="panel-heading">
                             <h3 class="panel-title"><span th:text="${reply.authorName}"></span> 回复于 <span th:text="${#dates.format(reply.createTime, 'yyyy-MM-dd HH:mm:ss')}"></span></h3>
                         </div>
                         <div class="panel-body">
                             <p th:text="${reply.content}" style="display: -webkit-box;-webkit-line-clamp: 1;-webkit-box-orient: vertical;overflow: hidden;">内容</p>
+                        </div>
+                        <div class="panel-footer" th:if="${user.address == reply.authorId || user.canDeleteDiscussion()}">
+                            <button class="btn btn-warning" onclick="deleteReply(this)" style="float:right" th:attr = "replyId = ${reply.id}">
+                                删除回复
+                            </button>
+                            <div class="clearfix"></div>
                         </div>
                     </div>
                 </div>
@@ -112,6 +118,21 @@
                 },
                 success:function (data) {
                     alert("回复成功");
+                    window.location.reload();
+                }
+            })
+        }
+
+        function deleteReply(reply) {
+            $.ajax({
+                type:"POST",
+                url:"/forum/reply/delete",
+                dataType : 'json',
+                data:{
+                    "id": $(reply).attr("replyId")
+                },
+                success:function (data) {
+                    alert("删除成功");
                     window.location.reload();
                 }
             })

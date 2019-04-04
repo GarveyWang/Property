@@ -43,6 +43,10 @@
     delete from reply
     where id = #{id,jdbcType=BIGINT}
   </delete>
+  <delete id="deleteByDiscussionId" parameterType="java.lang.Long">
+    delete from reply
+    where discussion_id = #{discussionId}
+  </delete>
   <insert id="insert" parameterType="com.garvey.property.model.Reply">
     insert into reply (id, author_id, discussion_id, 
       create_time, content)

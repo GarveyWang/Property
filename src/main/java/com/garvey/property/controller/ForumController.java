@@ -68,13 +68,27 @@ public class ForumController {
         return String.valueOf(forumService.addDiscussion(discussion));
     }
 
+    @PostMapping("/discussion/delete")
+    @ResponseBody
+    public String deleteDiscussion(@RequestParam("id") long id, User user) {
+        Discussion discussion = forumService.getDiscussion(user.getCredentials(), id);
+        if (discussion != null) {
+            if (discussion.getAuthorId().equals(user.getAddress())
+                    || user.canDeleteDiscussion()){
+                forumService.deleteDiscussion(id);
+            }
+            return "400";
+        }
+        return "200";
+    }
+
     @PostMapping("/reply/add")
     @ResponseBody
     @NeededAuthority(authorities = {Authority.PARTICIPATE_DISCUSSION})
     public String addReply(@RequestParam("discussionId") long discussionId, @RequestParam("content") String content,
                            User user) {
         Discussion discussion = forumService.getDiscussion(user.getCredentials(), discussionId);
-        if (discussion != null){
+        if (discussion != null) {
             Reply reply = new Reply();
             reply.setAuthorId(user.getAddress());
             reply.setDiscussionId(discussionId);
@@ -82,11 +96,25 @@ public class ForumController {
             long now = System.currentTimeMillis();
             reply.setCreateTime(now);
             int result = forumService.addReply(reply);
-            if (result == 1){
+            if (result == 1) {
                 discussion.setUpdateTime(System.currentTimeMillis());
                 return String.valueOf(forumService.updateDiscussion(discussion));
             }
         }
         return "400";
+    }
+
+    @PostMapping("/reply/delete")
+    @ResponseBody
+    public String deleteReply(@RequestParam("id") long id, User user) {
+        Reply reply = forumService.getReply(id);
+        if (reply != null) {
+            if (reply.getAuthorId().equals(user.getAddress())
+                    || user.canDeleteDiscussion()){
+                forumService.deleteReply(id);
+            }
+            return "400";
+        }
+        return "200";
     }
 }
