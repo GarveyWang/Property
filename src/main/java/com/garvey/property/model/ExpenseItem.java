@@ -16,7 +16,6 @@ public class ExpenseItem {
     private String desc;
     private Map<String, String> attachments;
     private long timestamp;
-    private ExpenseItemProp prop;
     private int dayInMonth;
 
     public long getIdx() {
@@ -89,14 +88,6 @@ public class ExpenseItem {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public ExpenseItemProp getProp() {
-        return prop;
-    }
-
-    public void setProp(ExpenseItemProp prop) {
-        this.prop = prop;
     }
 
     public int getDayInMonth() {

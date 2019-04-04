@@ -43,13 +43,15 @@ public class DeployContract {
         EthGetBalance balance = web3j.ethGetBalance(credentials.getAddress(), DefaultBlockParameterName.LATEST).send();
         System.out.println("【init】Balance: " + balance.getBalance().longValue());
 
-        PropertyContract contract = PropertyContract.deploy(web3j, credentials, new DefaultGasProvider(), encryptPsw, "110", "nick").send();
+        PropertyContract contract = PropertyContract.deploy(web3j, credentials, new DefaultGasProvider(), encryptPsw, "5f93f983524def3dca464469d2cf9f3e", "nick").send();
         Optional<TransactionReceipt> tr = contract.getTransactionReceipt();
         System.out.println("合同addr:" + contract.getContractAddress());
 
         if (tr.isPresent()) {
             System.out.println("【createContract】Transaction receipt");
         }
+
+
 
 //        Tuple4<String, String, String, BigInteger> userTuple = contract.getUserByAddr(credentials.getAddress()).sendAsync().get();
 //        System.out.println(userTuple);

@@ -75,15 +75,21 @@
         <h3  class="col-sm-offset-1" style="text-align: center"><b>添加收入条目</b></h3>
         <div class="form-group">
             <div class="form-group clearfix">
-                <label for="incomePayer" class="col-sm-1 control-label">付款方</label>
-                <div class="col-sm-3">
-                    <input type="text" name="payer" class="form-control" id="incomePayer" placeholder="请输入付款方">
+                <div class="col-sm-6">
+                    <label for="incomePayer" class="col-sm-2 control-label">付款方</label>
+                    <div class="input-group">
+                        <input type="text" name="payer" class="form-control" id="incomePayer" placeholder="请输入付款方">
+                        <span class="input-group-btn">
+							<button class="btn btn-default" onclick="showSearchPhoneModal('#incomePayer')" >查找账号</button>
+						</span>
+                    </div>
                 </div>
-                <label for="incomeAmountInCents" class="col-sm-1 control-label">金额(分)</label>
-                <div class="col-sm-3">
+                <div class="col-sm-6 form-inline">
+                    <label for="incomeAmountInCents" class="col-sm-2 control-label">金额(分)</label>
                     <input type="text" name="amountInCents" class="form-control" id="incomeAmountInCents" placeholder="请输入金额，单位分">
                 </div>
             </div>
+
             <div class="form-group clearfix">
                 <label for="incomeDesc" class="col-sm-1 control-label">描述</label>
                 <div class="col-sm-11">
@@ -108,13 +114,19 @@
     <div id="addExpensePanel" class="form-horizontal" hidden="hidden">
         <h3  class="col-sm-offset-1" style="text-align: center"><b>添加支出条目</b></h3>
         <div class="form-group">
+
             <div class="form-group clearfix">
-                <label for="expensePayee" class="col-sm-1 control-label">收款方</label>
-                <div class="col-sm-3">
-                    <input type="text" name="payee" class="form-control" id="expensePayee" placeholder="请输入收款方">
+                <div class="col-sm-6">
+                    <label for="expensePayee" class="col-sm-2 control-label">收款方</label>
+                    <div class="input-group">
+                        <input type="text" name="payer" class="form-control" id="expensePayee" placeholder="请输入收款方">
+                        <span class="input-group-btn">
+							<button class="btn btn-default" onclick="showSearchPhoneModal('#expensePayee')" >查找账号</button>
+						</span>
+                    </div>
                 </div>
-                <label for="expenseAmountInCents" class="col-sm-1 control-label">金额(分)</label>
-                <div class="col-sm-3">
+                <div class="col-sm-6 form-inline">
+                    <label for="expenseAmountInCents" class="col-sm-2 control-label">金额(分)</label>
                     <input type="text" name="amountInCents" class="form-control" id="expenseAmountInCents" placeholder="请输入金额，单位分">
                 </div>
             </div>
@@ -138,9 +150,36 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="phoneSearchModal" tabindex="-1" role="dialog" aria-labelledby="editTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                    </button>
+                    <h4 class="modal-title" id="editTitle">
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="writeBackSelector">
+                    <label for="phone">手机号</label>
+                    <input id="phone" class="form-control" type="text">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="searchUserByPhone()">
+                        确定
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <th:block layout:fragment="bottomScriptBlock">
+    <script type="text/javascript" src="../static/js/jquery/jquery.md5.js"></script>
     <script type="text/javascript" src="../static/js/bootstrap/fileinput.min.js"></script>
     <script type="text/javascript" src="../static/js/bootstrap/fileinput-locale-zh.js"></script>
     <script type="text/javascript" src="../static/js/Chart.min.js"></script>
@@ -601,6 +640,32 @@
                     }
                 }
             });
+        }
+
+        function showSearchPhoneModal(selector) {
+            $('#writeBackSelector').val(selector);
+            $('#phone').val("");
+            $('#phoneSearchModal').modal("show");
+        }
+
+        function searchUserByPhone() {
+            var writeBackSelector = $("#writeBackSelector").val();
+            $.ajax({
+                type:"POST",
+                url:"/user/searchByPhone",
+                dataType : 'json',
+                data: {
+                    "encryptedPhone": $.md5($("#phone").val())
+                },
+                success:function (data) {
+                    if (data != null){
+                        $(writeBackSelector).val(data.address);
+                        $("#phoneSearchModal").modal("hide");
+                    } else{
+                        alert("用户未找到");
+                    }
+                }
+            })
         }
 
         function generateDays(year, month) {

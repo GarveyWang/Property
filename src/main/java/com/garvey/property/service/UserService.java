@@ -26,4 +26,8 @@ public class UserService {
         }
         return null;
     }
+
+    public User getUserByPhone(Credentials credentials, String encryptedPhone){
+        return web3Util.getUserByPhone(credentials, encryptedPhone);
+    }
 }

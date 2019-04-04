@@ -1,9 +1,5 @@
 package com.garvey.property.service;
 
-import com.garvey.property.dao.ExpenseGroupMapper;
-import com.garvey.property.dao.ExpenseItemPropMapper;
-import com.garvey.property.dao.IncomeGroupMapper;
-import com.garvey.property.dao.IncomeItemPropMapper;
 import com.garvey.property.model.ExpenseItem;
 import com.garvey.property.model.IncomeItem;
 import com.garvey.property.model.User;
@@ -22,19 +18,6 @@ import java.util.*;
 public class FundService {
     @Autowired
     private Web3Util web3Util;
-
-    @Autowired
-    private ExpenseGroupMapper expenseGroupMapper;
-
-    @Autowired
-    private ExpenseItemPropMapper expenseItemPropMapper;
-
-    @Autowired
-    private IncomeGroupMapper incomeGroupMapper;
-
-    @Autowired
-    private IncomeItemPropMapper incomeItemPropMapper;
-
 
     public Map<Integer, List<IncomeItem>> getMonthlyIncomeItems(Credentials credentials) {
         Map<Integer, List<IncomeItem>> monthlyIncomeItems = new HashMap<>();

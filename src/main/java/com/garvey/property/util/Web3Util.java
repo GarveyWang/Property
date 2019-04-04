@@ -12,7 +12,7 @@ import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
-import org.web3j.tuples.generated.Tuple4;
+import org.web3j.tuples.generated.Tuple5;
 import org.web3j.tuples.generated.Tuple6;
 import org.web3j.tuples.generated.Tuple7;
 import org.web3j.tx.exceptions.ContractCallException;
@@ -37,7 +37,7 @@ public class Web3Util {
     private ThreadLocal<PropertyContract> contractThreadLocal;
 
     static {
-        contractAddress = "0x8067cf23642e15e5804d9ea3bf3ccb734acebe6a";
+        contractAddress = "0x4776f36a356e51ac014c416e5e20d75b3d388772";
         gethAddress = "http://localhost:8545";
         web3j = Web3j.build(new HttpService(gethAddress));
         gasProvider = new DefaultGasProvider();
@@ -52,11 +52,11 @@ public class Web3Util {
             //可能是web3j的问题，查询有时会返回空结果异常，没有规律，所以多次重试获取
             while (retryTimes < maxRetryTimes) {
                 try {
-                    Tuple4<String, String, String, BigInteger> tuple = contract.getUserByAddr(addr).send();
-                    if (tuple.getValue4().intValue() == 0) {
+                    Tuple5<String, String, String, String, BigInteger> tuple = contract.getUserByAddr(addr).send();
+                    if (tuple.getValue5().intValue() == 0) {
                         return null;
                     }
-                    User user = new User(tuple.getValue1(), tuple.getValue2(), tuple.getValue3(), tuple.getValue4().intValue());
+                    User user = new User(tuple.getValue1(), tuple.getValue2(), tuple.getValue3(), tuple.getValue4(), tuple.getValue5().intValue());
                     user.setCredentials(credentials);
                     System.out.println("【getUserByAddr】重试次数：" + retryTimes);
                     return user;
@@ -68,6 +68,32 @@ public class Web3Util {
                 }
             }
             System.out.println("【getUserByAddr】未找到");
+        }
+        return null;
+    }
+
+    public User getUserByPhone(Credentials credentials, String encryptedPhone) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    Tuple5<String, String, String, String, BigInteger> tuple = contract.getUserByPhone(encryptedPhone).send();
+                    if (tuple.getValue5().intValue() == 0) {
+                        return null;
+                    }
+                    User user = new User(tuple.getValue1(), tuple.getValue2(), tuple.getValue3(), tuple.getValue4(), tuple.getValue5().intValue());
+                    user.setCredentials(credentials);
+                    System.out.println("【getUserByPhone】重试次数：" + retryTimes);
+                    return user;
+                } catch (IndexOutOfBoundsException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+            System.out.println("【getUserByPhone】未找到");
         }
         return null;
     }
@@ -399,5 +425,4 @@ public class Web3Util {
             System.out.println("重试次数" + retryTimes);
         }
     }
-
 }

@@ -1,24 +1,36 @@
 package com.garvey.property.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.garvey.property.constant.Authority;
 import org.web3j.crypto.Credentials;
 
 public class User {
+    private String address;
     private String encryptedPwd;
     private String encryptedPhone;
     private String nickName;
     private int authority;
+    @JsonIgnore
     private Credentials credentials;
 
     public User() {
 
     }
 
-    public User(String encryptedPwd, String encryptedPhone, String nickName, int authority) {
+    public User(String address, String encryptedPwd, String encryptedPhone, String nickName, int authority) {
+        this.address = address;
         this.encryptedPwd = encryptedPwd;
         this.encryptedPhone = encryptedPhone;
         this.nickName = nickName;
         this.authority = authority;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getEncryptedPwd() {
