@@ -27,7 +27,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/publicity")
 @NeededAuthority(authorities = {Authority.BASIC_READ})
-public class PublicityController {
+public class InfoController {
     @Autowired
     private IpfsUtil ipfsUtil;
 

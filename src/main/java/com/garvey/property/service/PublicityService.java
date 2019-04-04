@@ -34,10 +34,10 @@ public class PublicityService {
         if (count == 0) {
             return 1;
         }
-        if (count % BasicConst.PAGE_SIZE == 0) {
-            return count / BasicConst.PAGE_SIZE;
+        if (count % BasicConst.PUBLICITY_INFO_PAGE_SIZE == 0) {
+            return count / BasicConst.PUBLICITY_INFO_PAGE_SIZE;
         }
-        return count / BasicConst.PAGE_SIZE + 1;
+        return count / BasicConst.PUBLICITY_INFO_PAGE_SIZE + 1;
     }
 
     public int getPublicityInfoCount(Credentials credentials) {
@@ -45,10 +45,10 @@ public class PublicityService {
     }
 
     public List<PublicityInfo> getPublicityInfoList(Credentials credentials, int pageNum) {
-        List<PublicityInfo> publicityInfoList = new ArrayList<>(BasicConst.PAGE_SIZE);
+        List<PublicityInfo> publicityInfoList = new ArrayList<>(BasicConst.PUBLICITY_INFO_PAGE_SIZE);
         int lastIdx = web3Util.getPublicityInfoCount(credentials) - 1;
-        int fromIdx = lastIdx - (pageNum - 1) * BasicConst.PAGE_SIZE;
-        int endIdx = fromIdx - BasicConst.PAGE_SIZE;
+        int fromIdx = lastIdx - (pageNum - 1) * BasicConst.PUBLICITY_INFO_PAGE_SIZE;
+        int endIdx = fromIdx - BasicConst.PUBLICITY_INFO_PAGE_SIZE;
         endIdx = (endIdx > -1) ? endIdx : -1;
         for (int i = fromIdx; i > endIdx; --i) {
             PublicityInfo info = web3Util.getPublicityInfo(i, credentials);

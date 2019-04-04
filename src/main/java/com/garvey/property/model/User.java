@@ -73,11 +73,15 @@ public class User {
         this.credentials = credentials;
     }
 
-    public boolean canPublishInfo(){
+    public boolean canPublishInfo() {
         return Authority.contain(authority, Authority.PUBLISH_ANNOUNCEMENT);
     }
 
-    public boolean canPublishFund(){
+    public boolean canPublishFund() {
         return Authority.contain(authority, Authority.PUBLISH_FUND);
+    }
+
+    public boolean canPublishDiscussion() {
+        return Authority.contain(authority, Authority.PUBLISH_DISCUSSION);
     }
 }

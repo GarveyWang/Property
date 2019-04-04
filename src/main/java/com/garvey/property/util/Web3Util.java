@@ -72,6 +72,7 @@ public class Web3Util {
         return null;
     }
 
+    @Cacheable(value = "user", key = "#encryptedPhone", unless = "#result == null")
     public User getUserByPhone(Credentials credentials, String encryptedPhone) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {

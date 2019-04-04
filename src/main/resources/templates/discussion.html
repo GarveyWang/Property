@@ -16,30 +16,42 @@
         <div class="clearfix" style="margin-bottom: 10px">
             <div style="float: right">
                 <button th:if="${user.canPublishDiscussion()}" class="btn btn-default" id="publishInfoBtn" onclick="showAddDiscussionPanel()">
-                    新建讨论
+                    新建回复
                 </button>
             </div>
         </div>
-        <div th:each="discussion,iterstat: ${discussions}">
-            <div class="info panel panel-default col-sm-6" th:id="'discussion'+${discussion.id}" >
-                <div class="panel-heading">
-                    <h3 class="panel-title" th:text="${discussion.title}">标题</h3>
+
+        <div class="info panel panel-default col-sm-6" th:id="'discussion'+${discussion.id}" >
+            <div class="panel-heading">
+                <h3 class="panel-title" th:text="${discussion.title}">标题</h3>
+            </div>
+            <div class="panel-body">
+                <p th:text="${discussion.content}" style="display: -webkit-box;-webkit-line-clamp: 1;-webkit-box-orient: vertical;overflow: hidden;">内容</p>
+                <HR style="FILTER: alpha(opacity = 0,finishopacity = 100,style = 1)" width="100%" color=#333333 SIZE=3>
+                <div class="clearfix">
+                    <div style="float:left">
+                        <div>
+                            <small><span th:text="${discussion.authorName}"></span>发布于<span th:text="${#dates.format(discussion.createTime, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
+                        </div>
+                        <div>
+                            <small>更新于<span th:text="${#dates.format(discussion.updateTime, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </div>
+
+        <div th:each="reply,iterstat: ${replies}">
+            <div class="info panel panel-default col-sm-12" th:id="'reply'+${reply.id}" >
                 <div class="panel-body">
-                    <p th:text="${discussion.content}" style="display: -webkit-box;-webkit-line-clamp: 1;-webkit-box-orient: vertical;overflow: hidden;">内容</p>
+                    <p th:text="${reply.content}" style="display: -webkit-box;-webkit-line-clamp: 1;-webkit-box-orient: vertical;overflow: hidden;">内容</p>
                     <HR style="FILTER: alpha(opacity = 0,finishopacity = 100,style = 1)" width="100%" color=#333333 SIZE=3>
                     <div class="clearfix">
                         <div style="float:left">
                             <div>
-                                <small><span th:text="${discussion.authorName}"></span>发布于<span th:text="${#dates.format(discussion.createTime, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
-                            </div>
-                            <div>
-                                <small>更新于<span th:text="${#dates.format(discussion.updateTime, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
+                                <small><span th:text="${reply.authorName}"></span>发布于<span th:text="${#dates.format(reply.createTime, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
                             </div>
                         </div>
-                        <a class="btn btn-default" style="float:right" th:href="@{/forum/discuss(id=${discussion.id},forumPage=${page})}">
-                            查看详情
-                        </a>
                     </div>
                 </div>
             </div>
