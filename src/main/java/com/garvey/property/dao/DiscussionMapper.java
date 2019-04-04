@@ -22,7 +22,9 @@ public interface DiscussionMapper {
 
     int updateByPrimaryKey(Discussion record);
 
-    List<Discussion> getDiscussions(@Param("pageSize") Integer pageSize,@Param("offset") Integer offset);
+    List<Discussion> getDiscussions(@Param("pageSize") Integer pageSize, @Param("offset") Integer offset);
 
     long getDiscussionsCount();
+
+    List<Discussion> getDiscussionsWithAuthorId(@Param("authorId") String authorId, @Param("pageSize") int pageSize, @Param("offset") int offset);
 }

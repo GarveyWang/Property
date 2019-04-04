@@ -27,11 +27,18 @@ public class ForumController {
 
     @GetMapping
     public String showDiscussions(@RequestParam(value = "page", defaultValue = "1") int page,
+                                  @RequestParam(value = "mine", defaultValue = "false") boolean showMine,
                                   User user, Model model) {
-        List<Discussion> discussions = forumService.getDiscussions(user.getCredentials(), page, BasicConst.FORUM_DISCUSSION_PAGE_SIZE);
+        List<Discussion> discussions;
+        if (showMine){
+            discussions = forumService.getDiscussionsWithAuthorId(user, page, BasicConst.FORUM_DISCUSSION_PAGE_SIZE);
+        }else {
+            discussions = forumService.getDiscussions(user.getCredentials(), page, BasicConst.FORUM_DISCUSSION_PAGE_SIZE);
+        }
         model.addAttribute("totalPage", forumService.getDiscussionTotalPageCount());
         model.addAttribute("page", page);
         model.addAttribute("discussions", discussions);
+        model.addAttribute("mine", showMine);
         model.addAttribute("user", user);
         return "forum";
     }
@@ -40,6 +47,7 @@ public class ForumController {
     public String showDetailDiscussion(@RequestParam(value = "page", defaultValue = "1") int page,
                                        @RequestParam("id") long discussionId,
                                        @RequestParam(value = "forumPage", defaultValue = "1") int forumPage,
+                                       @RequestParam(value = "mine", defaultValue = "false") boolean showMine,
                                        User user, Model model) {
         Discussion discussion = forumService.getDiscussion(user.getCredentials(), discussionId);
         List<Reply> replies = forumService.getReplies(discussionId, user.getCredentials(), page, BasicConst.FORUM_REPLY_PAGE_SIZE);
@@ -49,6 +57,7 @@ public class ForumController {
         model.addAttribute("forumPage", forumPage);
         model.addAttribute("discussion", discussion);
         model.addAttribute("replies", replies);
+        model.addAttribute("mine",showMine);
         model.addAttribute("user", user);
         return "discussion";
     }

@@ -49,6 +49,15 @@ public class ForumService {
         return discussions;
     }
 
+    public List<Discussion> getDiscussionsWithAuthorId(User user, int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        List<Discussion> discussions = discussionMapper.getDiscussionsWithAuthorId(user.getAddress(), pageSize, offset);
+        for (Discussion discussion: discussions){
+            discussion.setAuthorName(user.getNickName());
+        }
+        return discussions;
+    }
+
     public Reply getReply(long replyId){
         return replyMapper.selectByPrimaryKey(replyId);
     }

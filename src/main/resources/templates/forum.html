@@ -40,7 +40,7 @@
                         <button th:if="${user.address == discussion.authorId || user.canDeleteDiscussion()}" class="btn btn-warning" onclick="deleteDiscussion(this)" style="float:right" th:attr = "discussionId = ${discussion.id}">
                             删除讨论
                         </button>
-                        <a class="btn btn-default" style="float:right" th:href="@{/forum/discussion(id=${discussion.id},forumPage=${page})}">
+                        <a class="btn btn-default" style="float:right" th:href="@{/forum/discussion(id=${discussion.id},forumPage=${page},mine=${mine})}">
                             查看详情
                         </a>
                     </div>
@@ -100,7 +100,7 @@
                     }
                 },
                 pageUrl:function (type, page, current) {
-                    return "/forum?page=" + page;
+                    return "/forum?page=" + page + "&mine=" + [[${mine}]];
                 }
             });
         })

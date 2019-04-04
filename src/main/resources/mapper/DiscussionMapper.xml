@@ -34,6 +34,16 @@
     order by update_time desc
     limit #{pageSize} offset #{offset}
   </select>
+    <select id="getDiscussionsWithAuthorId" resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="Base_Column_List" />
+        ,
+        <include refid="Blob_Column_List" />
+        from discussion
+        where author_id = #{authorId}
+        order by update_time desc
+        limit #{pageSize} offset #{offset}
+    </select>
   <select id="getDiscussionsCount" resultType="java.lang.Long">
     select count(*)
     from discussion

@@ -15,7 +15,7 @@
     <div id="displayDiscussionPanel">
         <div class="clearfix" style="margin-bottom: 10px">
             <div style="float: left">
-                <a class="btn btn-default" th:href="@{/forum(page=${forumPage})}">
+                <a class="btn btn-default" th:href="@{/forum(page=${forumPage}, mine=${mine})}">
                     ←返回
                 </a>
             </div>
@@ -102,7 +102,7 @@
                     }
                 },
                 pageUrl:function (type, page, current) {
-                    return "/forum/discussion?id=" + [[${discussion.id}]] + "&page=" + page + "&forumPage=" + [[${forumPage}]];
+                    return "/forum/discussion?id=" + [[${discussion.id}]] + "&page=" + page + "&forumPage=" + [[${forumPage}]] + "&mine=" + [[${mine}]];
                 }
             });
         });
