@@ -82,4 +82,16 @@ public class ForumService {
         }
         return totalReplyCount / BasicConst.FORUM_REPLY_PAGE_SIZE + 1;
     }
+
+    public int addDiscussion(Discussion discussion) {
+        return discussionMapper.insert(discussion);
+    }
+
+    public int addReply(Reply reply) {
+        return replyMapper.insert(reply);
+    }
+
+    public int updateDiscussion(Discussion discussion) {
+       return discussionMapper.updateByPrimaryKeySelective(discussion);
+    }
 }

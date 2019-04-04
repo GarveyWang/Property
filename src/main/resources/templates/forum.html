@@ -12,7 +12,7 @@
 </h2>
 
 <div layout:fragment="content" style="width:90%;">
-    <div id="displayInfoPanel">
+    <div id="displayDiscussionsPanel">
         <div class="clearfix" style="margin-bottom: 10px">
             <div style="float: right">
                 <button th:if="${user.canPublishDiscussion()}" class="btn btn-default" id="publishInfoBtn" onclick="showAddDiscussionPanel()">
@@ -34,10 +34,10 @@
                                 <small><span th:text="${discussion.authorName}"></span>发布于<span th:text="${#dates.format(discussion.createTime, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
                             </div>
                             <div>
-                                <small>更新于<span th:text="${#dates.format(discussion.updateTime, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
+                                <small>最新回复于 <span th:text="${#dates.format(discussion.updateTime, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
                             </div>
                         </div>
-                        <a class="btn btn-default" style="float:right" th:href="@{/forum/discuss(id=${discussion.id},forumPage=${page})}">
+                        <a class="btn btn-default" style="float:right" th:href="@{/forum/discussion(id=${discussion.id},forumPage=${page})}">
                             查看详情
                         </a>
                     </div>
@@ -46,6 +46,28 @@
         </div>
         <div class="clearfix"></div>
         <div id="paginator" style="text-align: center"> <ul id="pageLimit"></ul> </div>
+    </div>
+
+    <div id="addDiscussionPanel" class="form-horizontal" hidden="hidden">
+        <h3  class="col-sm-offset-1" style="text-align: center"><b>新建讨论</b></h3>
+        <div class="form-group">
+            <label for="discussionTitle" class="col-sm-1 control-label">标题</label>
+            <div class="col-sm-11">
+                <input type="text" name="title" class="form-control" id="discussionTitle" placeholder="请输入标题">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="discussionContent" class="col-sm-1 control-label">内容</label>
+            <div class="col-sm-11">
+                <textarea rows="10" name="content" class="form-control" id="discussionContent" placeholder="请输入内容"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-10 col-sm-2">
+                <button class="btn btn-default" onclick="showDisplayDiscussionsPanel()">取消</button>
+                <button class="btn btn-primary" onclick="submitDiscussion()">发布</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -79,6 +101,32 @@
                 }
             });
         })
+
+        function showDisplayDiscussionsPanel() {
+            $("#addDiscussionPanel").hide();
+            $("#displayDiscussionsPanel").show();
+        }
+
+        function showAddDiscussionPanel() {
+            $("#displayDiscussionsPanel").hide();
+            $("#addDiscussionPanel").show();
+        }
+
+        function submitDiscussion() {
+            $.ajax({
+                type:"POST",
+                url:"/forum/discussion/add",
+                dataType : 'json',
+                data:{
+                    "title": $("#discussionTitle").val(),
+                    "content": $("#discussionContent").val()
+                },
+                success:function (data) {
+                    alert("发布成功");
+                    window.location.reload();
+                }
+            })
+        }
     </script>
 </th:block>
 </body>

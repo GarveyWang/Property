@@ -12,47 +12,57 @@
 </h2>
 
 <div layout:fragment="content" style="width:90%;">
-    <div id="displayInfoPanel">
+    <div id="displayDiscussionPanel">
         <div class="clearfix" style="margin-bottom: 10px">
-            <div style="float: right">
-                <button th:if="${user.canPublishDiscussion()}" class="btn btn-default" id="publishInfoBtn" onclick="showAddDiscussionPanel()">
-                    新建回复
-                </button>
+            <div style="float: left">
+                <a class="btn btn-default" th:href="@{/forum(page=${forumPage})}">
+                    ←返回
+                </a>
             </div>
         </div>
 
-        <div class="info panel panel-default col-sm-6" th:id="'discussion'+${discussion.id}" >
+        <div class="info panel panel-default" th:id="'discussion'+${discussion.id}" >
             <div class="panel-heading">
-                <h3 class="panel-title" th:text="${discussion.title}">标题</h3>
+                <h3 class="panel-title" th:text="${discussion.title}" style="text-align: center">标题</h3>
             </div>
             <div class="panel-body">
                 <p th:text="${discussion.content}" style="display: -webkit-box;-webkit-line-clamp: 1;-webkit-box-orient: vertical;overflow: hidden;">内容</p>
                 <HR style="FILTER: alpha(opacity = 0,finishopacity = 100,style = 1)" width="100%" color=#333333 SIZE=3>
                 <div class="clearfix">
-                    <div style="float:left">
+                    <div style="float:right">
                         <div>
                             <small><span th:text="${discussion.authorName}"></span>发布于<span th:text="${#dates.format(discussion.createTime, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
                         </div>
                         <div>
-                            <small>更新于<span th:text="${#dates.format(discussion.updateTime, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
+                            <small>最新回复于<span th:text="${#dates.format(discussion.updateTime, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
+                        </div>
+                    </div>
+                </div>
+                <HR style="FILTER: alpha(opacity = 0,finishopacity = 100,style = 1)" width="100%" color=#333333 SIZE=6>
+
+                <div th:each="reply,iterstat: ${replies}">
+                    <div class="info panel panel-info col-sm-12" th:id="'reply'+${reply.id}" >
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><span th:text="${reply.authorName}"></span> 回复于 <span th:text="${#dates.format(reply.createTime, 'yyyy-MM-dd HH:mm:ss')}"></span></h3>
+                        </div>
+                        <div class="panel-body">
+                            <p th:text="${reply.content}" style="display: -webkit-box;-webkit-line-clamp: 1;-webkit-box-orient: vertical;overflow: hidden;">内容</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div th:each="reply,iterstat: ${replies}">
-            <div class="info panel panel-default col-sm-12" th:id="'reply'+${reply.id}" >
-                <div class="panel-body">
-                    <p th:text="${reply.content}" style="display: -webkit-box;-webkit-line-clamp: 1;-webkit-box-orient: vertical;overflow: hidden;">内容</p>
-                    <HR style="FILTER: alpha(opacity = 0,finishopacity = 100,style = 1)" width="100%" color=#333333 SIZE=3>
-                    <div class="clearfix">
-                        <div style="float:left">
-                            <div>
-                                <small><span th:text="${reply.authorName}"></span>发布于<span th:text="${#dates.format(reply.createTime, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
-                            </div>
-                        </div>
-                    </div>
+        <div id="addDiscussionPanel" class="form-horizontal">
+            <div class="form-group">
+                <label for="replyContent" class="col-sm-1 control-label">回复</label>
+                <div class="col-sm-11">
+                    <textarea rows="6" name="content" class="form-control" id="replyContent" placeholder="请输入回复"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <div style="float: right">
+                    <button class="btn btn-primary" onclick="submitReply()">回复</button>
                 </div>
             </div>
         </div>
@@ -62,7 +72,6 @@
 </div>
 
 <th:block layout:fragment="bottomScriptBlock">
-
     <script type="text/javascript" src="../static/js/bootstrap/bootstrap-paginator.min.js"></script>
     <script type="text/javascript">
         $(function () {
@@ -87,10 +96,26 @@
                     }
                 },
                 pageUrl:function (type, page, current) {
-                    return "/forum?page=" + page;
+                    return "/forum/discussion?id=" + [[${discussion.id}]] + "&page=" + page + "&forumPage=" + [[${forumPage}]];
                 }
             });
-        })
+        });
+
+        function submitReply() {
+            $.ajax({
+                type:"POST",
+                url:"/forum/reply/add",
+                dataType : 'json',
+                data:{
+                    "discussionId": [[${discussion.id}]],
+                    "content": $("#replyContent").val()
+                },
+                success:function (data) {
+                    alert("回复成功");
+                    window.location.reload();
+                }
+            })
+        }
     </script>
 </th:block>
 </body>

@@ -16,7 +16,7 @@
     <div id="displayInfoPanel">
         <div class="clearfix" style="margin-bottom: 10px">
             <div style="float: right">
-                <button th:if="${user.canPublishInfo()}" class="btn btn-default" id="publishInfoBtn" onclick="showPublishInfoPanel()">
+                <button th:if="${user.canPublishInfo()}" class="btn btn-default" onclick="showPublishInfoPanel()">
                     发布公告
                 </button>
                 <label for="hideOrShowInfoTrigger">显示隐藏公告</label>

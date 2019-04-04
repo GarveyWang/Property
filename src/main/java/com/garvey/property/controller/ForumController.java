@@ -10,9 +10,7 @@ import com.garvey.property.service.ForumService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -38,7 +36,7 @@ public class ForumController {
         return "forum";
     }
 
-    @GetMapping("/discuss")
+    @GetMapping("/discussion")
     public String showDetailDiscussion(@RequestParam(value = "page", defaultValue = "1") int page,
                                        @RequestParam("id") long discussionId,
                                        @RequestParam(value = "forumPage", defaultValue = "1") int forumPage,
@@ -48,10 +46,47 @@ public class ForumController {
 
         model.addAttribute("totalPage", forumService.getReplyTotalPageCount(discussionId));
         model.addAttribute("page", page);
+        model.addAttribute("forumPage", forumPage);
         model.addAttribute("discussion", discussion);
         model.addAttribute("replies", replies);
         model.addAttribute("user", user);
         return "discussion";
     }
 
+    @PostMapping("/discussion/add")
+    @ResponseBody
+    @NeededAuthority(authorities = {Authority.PUBLISH_DISCUSSION})
+    public String addDiscussion(@RequestParam("title") String title, @RequestParam("content") String content,
+                                User user) {
+        Discussion discussion = new Discussion();
+        discussion.setAuthorId(user.getAddress());
+        discussion.setTitle(title);
+        discussion.setContent(content);
+        long now = System.currentTimeMillis();
+        discussion.setCreateTime(now);
+        discussion.setUpdateTime(now);
+        return String.valueOf(forumService.addDiscussion(discussion));
+    }
+
+    @PostMapping("/reply/add")
+    @ResponseBody
+    @NeededAuthority(authorities = {Authority.PARTICIPATE_DISCUSSION})
+    public String addReply(@RequestParam("discussionId") long discussionId, @RequestParam("content") String content,
+                           User user) {
+        Discussion discussion = forumService.getDiscussion(user.getCredentials(), discussionId);
+        if (discussion != null){
+            Reply reply = new Reply();
+            reply.setAuthorId(user.getAddress());
+            reply.setDiscussionId(discussionId);
+            reply.setContent(content);
+            long now = System.currentTimeMillis();
+            reply.setCreateTime(now);
+            int result = forumService.addReply(reply);
+            if (result == 1){
+                discussion.setUpdateTime(System.currentTimeMillis());
+                return String.valueOf(forumService.updateDiscussion(discussion));
+            }
+        }
+        return "400";
+    }
 }
