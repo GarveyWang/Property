@@ -11,9 +11,9 @@ public enum Authority {
     PARTICIPATE_DISCUSSION(4, "参与讨论权限"),
     DELETE_DISCUSSION(8, "删除讨论权限"),
 
-    PUBLISH_PROPOSAL(16, "发布提议权限"),
-    VOTE_PROPOSAL(32, "表决提议权限"),
-    DELETE_PROPOSAL(64, "删除提议权限"),
+    PUBLISH_MOTION(16, "发布提议权限"),
+    VOTE_MOTION(32, "表决提议权限"),
+    DELETE_MOTION(64, "删除提议权限"),
 
     PUBLISH_ANNOUNCEMENT(128, "发布公告权限"),
     PUBLISH_FUND(256, "发布资金权限"),
@@ -46,13 +46,13 @@ public enum Authority {
     public static int getDefaultProprietorAuthValue() {
         return BASIC_READ.getValue()
                 + PUBLISH_DISCUSSION.getValue() + PARTICIPATE_DISCUSSION.getValue()
-                + VOTE_PROPOSAL.getValue();
+                + VOTE_MOTION.getValue();
     }
 
     public static int getDefaultPropertyAuthValue() {
         return BASIC_READ.getValue()
                 + PUBLISH_DISCUSSION.getValue() + PARTICIPATE_DISCUSSION.getValue() + DELETE_DISCUSSION.getValue()
-                + PUBLISH_PROPOSAL.getValue() + VOTE_PROPOSAL.getValue() + DELETE_PROPOSAL.getValue()
+                + PUBLISH_MOTION.getValue() + VOTE_MOTION.getValue() + DELETE_MOTION.getValue()
                 + PUBLISH_ANNOUNCEMENT.getValue() + PUBLISH_FUND.getValue()
                 + ADD_PROPRIETOR_ACCOUNT.getValue();
     }

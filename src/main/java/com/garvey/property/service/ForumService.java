@@ -84,6 +84,17 @@ public class ForumService {
         }
         return totalDiscussionCount / BasicConst.FORUM_DISCUSSION_PAGE_SIZE + 1;
     }
+    public long getMyDiscussionTotalPageCount(String authorId) {
+        long totalDiscussionCount = discussionMapper.getMyDiscussionsCount(authorId);
+        if (totalDiscussionCount == 0) {
+            return 1;
+        }
+        if (totalDiscussionCount % BasicConst.FORUM_DISCUSSION_PAGE_SIZE == 0) {
+            return totalDiscussionCount / BasicConst.FORUM_DISCUSSION_PAGE_SIZE;
+        }
+        return totalDiscussionCount / BasicConst.FORUM_DISCUSSION_PAGE_SIZE + 1;
+    }
+
 
     public long getReplyTotalPageCount(long discussionId) {
         long totalReplyCount = replyMapper.getRepliesCount(discussionId);

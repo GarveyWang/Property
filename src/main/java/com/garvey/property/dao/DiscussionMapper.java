@@ -27,4 +27,6 @@ public interface DiscussionMapper {
     long getDiscussionsCount();
 
     List<Discussion> getDiscussionsWithAuthorId(@Param("authorId") String authorId, @Param("pageSize") int pageSize, @Param("offset") int offset);
+
+    long getMyDiscussionsCount(@Param("authorId") String authorId);
 }

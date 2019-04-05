@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="dashboard">
+
+<head>
+    <title>提案管理</title>
+    <link href="../static/css/bootstrap/fileinput.min.css" rel="stylesheet">
+    <link href="../static/css/bootstrap/bootstrap-toggle.min.css" rel="stylesheet">
+</head>
+<body>
+<h2 layout:fragment="title">
+    提案管理
+</h2>
+<div layout:fragment="content" style="width:90%;">
+    <div id="displayMotionPanel">
+        <div class="clearfix" style="margin-bottom: 10px">
+            <div style="float: right">
+                <button th:if="${user.canPublishMotion()}" class="btn btn-default" onclick="showPublishMotionPanel()">
+                    发布提案
+                </button>
+            </div>
+        </div>
+        <div th:each="motion,iterstat: ${motions}">
+            <div class="info panel panel-default col-sm-6" th:id="'motion'+${motion.idx}">
+                <div class="panel-heading">
+                    <h3 class="panel-title" th:text="${motion.title}">标题</h3>
+                </div>
+                <div class="panel-body">
+                    <input type="hidden" th:id="'title'+${motion.idx}" th:value="${motion.title}">
+                    <input type="hidden" th:id="'content'+${motion.idx}" th:value="${motion.content}">
+                    <input type="hidden" th:id="'authorName'+${motion.idx}" th:value="${motion.authorName}">
+                    <input type="hidden" th:id="'authorHash'+${motion.idx}" th:value="${motion.authorHash}">
+                    <input type="hidden" th:id="'publishTime'+${motion.idx}" th:value="${#dates.format(motion.timestamp, 'yyyy-MM-dd HH:mm:ss')}">
+                    <input type="hidden" th:id="'fileCount'+${motion.idx}" th:value="${motion.attachments.size()}">
+                    <div th:each="fileHash,fileStat : ${motion.attachments}" th:if="${not #maps.isEmpty(motion.attachments)}">
+                        <input type="hidden" th:id="'file-'+${motion.idx} + '-' +${fileStat.index}" th:attr="fileHash = ${fileStat.current.key}, fileName = ${fileStat.current.value}">
+                    </div>
+                    <div th:each="option,optionStat : ${motion.options}">
+                        <input type="hidden" th:if="${optionStat.index > 0}" th:id="'option-'+${motion.idx} + '-' +${optionStat.index}" th:attr="option = ${option}">
+                    </div>
+                    <div th:each="vote,voteStat : ${motion.votes}">
+                        <input type="hidden" th:if="${voteStat.index > 0}" th:id="'vote-'+${motion.idx} + '-' +${voteStat.index}" th:attr="vote = ${vote}">
+                    </div>
+
+                    <p th:text="${motion.content}" style="display: -webkit-box;-webkit-line-clamp: 1;-webkit-box-orient: vertical;overflow: hidden;">内容</p>
+                    <HR style="FILTER: alpha(opacity = 0,finishopacity = 100,style = 1)" width="100%" color=#333333 SIZE=3>
+                    <div class="clearfix">
+                        <small>发布于<span th:text="${#dates.format(motion.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
+                        <button class="btn btn-default" onclick="showDetail(this)" style="float:right" th:attr = "idx = ${motion.idx}">
+                            查看详情
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div id="paginator" style="text-align: center"> <ul id="pageLimit"></ul> </div>
+    </div>
+
+    <div id="publishMotionPanel" class="form-horizontal" hidden="hidden">
+        <h3  class="col-sm-offset-1" style="text-align: center"><b>发布提案</b></h3>
+        <div class="form-group">
+            <label for="motionTitle" class="col-sm-1 control-label">标题</label>
+            <div class="col-sm-11">
+                <input type="text" name="title" class="form-control" id="motionTitle" placeholder="请输入标题">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="motionContent" class="col-sm-1 control-label">内容</label>
+            <div class="col-sm-11">
+                <textarea rows="8" name="content" class="form-control" id="motionContent" placeholder="请输入内容"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="multipleVoteTrigger" class="col-sm-1 control-label">单选/多选</label>
+            <div class="col-sm-11">
+                <input id="multipleVoteTrigger" data-toggle="toggle" data-on="多选" data-off="单选" type="checkbox">
+                <button class="btn btn-default" onclick="addOption()">添加选项</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="options" class="col-sm-1 control-label">选项</label>
+            <div class="col-sm-11" id="options">
+                <div class='input-group'>
+                    <input type='text' class='form-control option' placeholder='请输入选项'>
+                    <span class='input-group-btn'>
+                        <button class='btn btn-warning' onclick='deleteOption(this)'>删除该项</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="attachments" class="col-sm-1 control-label">添加附件</label>
+            <div class="col-sm-11 form-inline">
+                <input id="attachments" multiple type="file" name="attachments" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-10 col-sm-2">
+                <button class="btn btn-default" onclick="showDisplayMotionPanel()">取消</button>
+                <button class="btn btn-primary" onclick="submitMotion()">发布</button>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="bottomScriptBlock">
+    <script type="text/javascript" src="../static/js/bootstrap/fileinput.min.js"></script>
+    <script type="text/javascript" src="../static/js/bootstrap/fileinput-locale-zh.js"></script>
+    <script type="text/javascript" src="../static/js/bootstrap/bootstrap-toggle.min.js"></script>
+    <script type="text/javascript" src="../static/js/bootstrap/bootstrap-paginator.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $('.nav-item').children('ul').slideUp(300);
+            $("#motionNav").slideDown(300);
+            $("#motionNav").parent('li').addClass('nav-show').siblings('li').removeClass('nav-show');
+            
+            $(".info").each(function () {
+                if ($(this).attr("visible")==0){
+                    $(this).hide();
+                }
+            });
+
+            $("#attachments").fileinput({
+                language: 'zh', //设置语言
+                uploadUrl: "/motion/add", //上传的地址
+                allowedFileExtensions: ['jpg', 'gif', 'png','doc','docx','pdf','ppt','pptx','xls','xlsx'],//接收的文件后缀
+                uploadAsync: false, //默认异步上传
+                showUpload: false, //是否显示上传按钮
+                showRemove : true, //显示移除按钮
+                showPreview : true, //是否显示预览
+                showCaption: false,//是否显示标题
+                browseClass: "btn btn-primary", //按钮样式
+                //dropZoneEnabled: true,//是否显示拖拽区域
+                //minImageWidth: 50, //图片的最小宽度
+                //minImageHeight: 50,//图片的最小高度
+                //maxImageWidth: 1000,//图片的最大宽度
+                //maxImageHeight: 1000,//图片的最大高度
+                maxFileSize: 10000,//单位为kb，如果为0表示不限制文件大小
+                //minFileCount: 0,
+                //maxFileCount: 10, //表示允许同时上传的最大文件个数
+                enctype: 'multipart/form-data',
+                validateInitialCount:true,
+                previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+                msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+                layoutTemplates :{
+                    // actionDelete:'', //去除上传预览的缩略图中的删除图标
+                    actionUpload:'',//去除上传预览缩略图中的上传图片；
+                    actionZoom:''   //去除上传预览缩略图中的查看详情预览的缩略图标。
+                },
+                uploadExtraData:function () {
+                    var options = [""];
+                    $(".option").each(function (index, element) {
+                        options.push($(element).val());
+                    });
+                    return {
+                        "title": $("#motionTitle").val(),
+                        "content": $("#motionContent").val(),
+                        "multipleVote": $("#multipleVoteTrigger").prop("checked"),
+                        "options": options
+                    };
+                }
+            }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
+                alert('提案发布成功！');
+                window.location.reload();
+            }).on('filebatchuploaderror', function(event, data, msg) {
+                alert('提案发布失败！');
+            });
+
+            $('#pageLimit').bootstrapPaginator({
+                currentPage: [[${page}]],
+                totalPages: [[${totalPage}]],
+                size:"normal",
+                bootstrapMajorVersion: 3,
+                alignment:"right",
+                numberOfPages:5,
+                itemTexts: function (type, page, current) {
+                    switch (type) {
+                        case "first": return "首页";
+                        case "prev": return "上一页";
+                        case "next": return "下一页";
+                        case "last": return "末页";
+                        case "page": return page;
+                    }
+                },
+                pageUrl:function (type, page, current) {
+                    return "/motion?page=" + page;
+                }
+            });
+
+            var info = "[[${info}]]";
+            if (info != null && info.length>0){
+                alert(info);
+            }
+        });
+
+        function addOption() {
+            $("#options").append("<div class='input-group'>" +
+                "                    <input type='text' class='form-control option' placeholder='请输入选项'>" +
+                "                    <span class='input-group-btn'>" +
+                "                        <button class='btn btn-warning' onclick='deleteOption(this)'>删除该项</button>" +
+                "                    </span>" +
+                "                </div>");
+        }
+
+        function deleteOption(obj) {
+            $(obj).parent().parent().remove();
+        }
+
+        function submitMotion() {
+            $("#attachments").fileinput("upload");
+        }
+        function showPublishMotionPanel() {
+            $("#detailMotionPanel").hide();
+            $("#displayMotionPanel").hide();
+            $("#publishMotionPanel").show();
+        }
+        function showDisplayMotionPanel() {
+            $("#detailMotionPanel").hide();
+            $("#publishMotionPanel").hide();
+            $("#displayMotionPanel").show();
+        }
+        function showDetail(motion){
+            $("#publishMotionPanel").hide();
+            $("#displayMotionPanel").hide();
+
+            var idx = $(info).attr("idx");
+
+            var title = "<b>【标题】</b>" + $("#title"+idx).val();
+            $("#detailTitle").html(title);
+
+            var content = "<p><b>【正文】</b></p>" + $("#content"+idx).val();
+            $("#detailContent").html(content);
+
+            var remark = "<p><b>【备注】</b></p>" + $("#remark"+idx).val();
+            $("#detailInfoRemark").html(remark);
+
+            if ($("#visible"+idx).val() == 1){
+                $("#detailInfoVisible").html("正常");
+            } else{
+                $("#detailInfoVisible").html("隐藏");
+            }
+            $("#detailAuthor").html($("#authorName"+idx).val() + '(' + $("#authorHash"+idx).val() + ')');
+            $("#detailPublishTime").html($("#publishTime"+idx).val());
+            var fileCount = $("#fileCount" + idx).val();
+            if (fileCount == 0){
+                $("#detailFiles").hide();
+            } else{
+                var ul = '<p>【附件】</p><ul class="list-group">';
+                for (var i= 0; i<fileCount; ++i){
+                    var fileId = "#file-"+idx+"-"+i;
+                    var fileHash = $(fileId).attr("fileHash");
+                    var fileName = $(fileId).attr("fileName");
+                    ul += '<li class="list-group-item">';
+                    ul += '<a onclick="downloadFile(\'' + fileHash + '\',\'' + fileName +'\')" >';
+                    ul += fileName;
+                    ul += '</a></li>';
+                }
+                ul += '</ul>'
+                $("#detailFiles").html(ul);
+                $("#detailFiles").show();
+            }
+            $("#detailInfoPanel").show();
+        }
+
+    </script>
+</th:block>
+</body>
+</html>

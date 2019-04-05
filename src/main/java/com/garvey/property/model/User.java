@@ -85,6 +85,10 @@ public class User {
         return Authority.contain(authority, Authority.PUBLISH_DISCUSSION);
     }
 
+    public boolean canPublishMotion() {
+        return Authority.contain(authority, Authority.PUBLISH_MOTION);
+    }
+
     public boolean canDeleteDiscussion() {
         return Authority.contain(authority, Authority.DELETE_DISCUSSION);
     }

@@ -30,12 +30,15 @@ public class ForumController {
                                   @RequestParam(value = "mine", defaultValue = "false") boolean showMine,
                                   User user, Model model) {
         List<Discussion> discussions;
+        long totalPage;
         if (showMine){
             discussions = forumService.getDiscussionsWithAuthorId(user, page, BasicConst.FORUM_DISCUSSION_PAGE_SIZE);
+            totalPage = forumService.getMyDiscussionTotalPageCount(user.getAddress());
         }else {
             discussions = forumService.getDiscussions(user.getCredentials(), page, BasicConst.FORUM_DISCUSSION_PAGE_SIZE);
+            totalPage = forumService.getDiscussionTotalPageCount();
         }
-        model.addAttribute("totalPage", forumService.getDiscussionTotalPageCount());
+        model.addAttribute("totalPage", totalPage);
         model.addAttribute("page", page);
         model.addAttribute("discussions", discussions);
         model.addAttribute("mine", showMine);

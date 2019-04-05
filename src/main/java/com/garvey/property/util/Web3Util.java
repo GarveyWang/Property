@@ -1,10 +1,9 @@
 package com.garvey.property.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.garvey.property.contract.PropertyContract;
-import com.garvey.property.model.ExpenseItem;
-import com.garvey.property.model.IncomeItem;
-import com.garvey.property.model.PublicityInfo;
-import com.garvey.property.model.User;
+import com.garvey.property.model.*;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -15,6 +14,7 @@ import org.web3j.protocol.http.HttpService;
 import org.web3j.tuples.generated.Tuple5;
 import org.web3j.tuples.generated.Tuple6;
 import org.web3j.tuples.generated.Tuple7;
+import org.web3j.tuples.generated.Tuple8;
 import org.web3j.tx.exceptions.ContractCallException;
 import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.DefaultGasProvider;
@@ -33,11 +33,12 @@ public class Web3Util {
     private static Web3j web3j;
     private static ContractGasProvider gasProvider;
     private static int maxRetryTimes;
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     private ThreadLocal<PropertyContract> contractThreadLocal;
 
     static {
-        contractAddress = "0x4776f36a356e51ac014c416e5e20d75b3d388772";
+        contractAddress = "0xb09ce4de75d82a741edb3f206b33b2e9b0e09ccf";
         gethAddress = "http://localhost:8545";
         web3j = Web3j.build(new HttpService(gethAddress));
         gasProvider = new DefaultGasProvider();
@@ -384,6 +385,191 @@ public class Web3Util {
                 e.printStackTrace();
             }
         }
+    }
+
+    public int getMotionCount(Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    BigInteger count = contract.getMotionCount().send();
+                    System.out.println("【getMotionCount】重试次数：" + retryTimes);
+                    return count.intValue();
+                } catch (ContractCallException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return -1;
+                }
+            }
+            System.out.println("【getMotionCount】未找到");
+        }
+        return -1;
+    }
+
+    public Motion getMotion(long motionIdx, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    Tuple8<String, String, String, String, String, BigInteger, Boolean, String> tuple = contract.getMotion(BigInteger.valueOf(motionIdx)).send();
+                    if (tuple.getValue6().longValue() == 0) {
+                        return null;
+                    }
+                    Motion motion = new Motion();
+                    motion.setIdx(motionIdx);
+
+                    motion.setTitle(tuple.getValue1());
+                    motion.setContent(tuple.getValue2());
+
+                    //Attachments
+                    String[] fileHashes = tuple.getValue3().split(":");
+                    String[] fileNames = tuple.getValue4().split(":");
+                    Map<String, String> attachments = new HashMap<>(fileHashes.length);
+                    for (int i = 0; i < fileHashes.length; ++i) {
+                        if (!fileHashes[i].isEmpty()) {
+                            attachments.put(fileHashes[i], fileNames[i]);
+                        }
+                    }
+                    motion.setAttachments(attachments);
+
+                    motion.setAuthorHash(tuple.getValue5());
+                    User author = getUser(credentials, motion.getAuthorHash());
+                    motion.setAuthorName(author.getNickName());
+
+                    motion.setTimestamp(tuple.getValue6().longValue());
+                    motion.setMultipleVote(tuple.getValue7());
+
+                    motion.setOptionsJson(tuple.getValue8());
+                    String[] options = objectMapper.readValue(motion.getOptionsJson(), new TypeReference<String[]>() {
+                    });
+                    motion.setOptions(options);
+
+                    motion.setLength(options.length);
+                    int[] votes = new int[options.length];
+                    for (int i = 0; i < votes.length; ++i) {
+                        votes[i] = getVote(motionIdx, i, credentials);
+                    }
+                    motion.setVotes(votes);
+
+                    System.out.println("【getMotion】重试次数：" + retryTimes);
+                    return motion;
+                } catch (IndexOutOfBoundsException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+            System.out.println("【getMotion】未找到");
+        }
+        return null;
+    }
+
+    public int getVote(long motionIdx, long voteIdx, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    BigInteger vote = contract.getVote(BigInteger.valueOf(motionIdx), BigInteger.valueOf(voteIdx)).send();
+                    System.out.println("【getVote】重试次数：" + retryTimes);
+                    return vote.intValue();
+                } catch (ContractCallException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return 0;
+                }
+            }
+            System.out.println("【getVote】未找到");
+        }
+        return 0;
+    }
+
+    public int getOptionLength(long motionIdx, Credentials credentials){
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    BigInteger count = contract.getOptionLength(BigInteger.valueOf(motionIdx)).send();
+                    System.out.println("【getOptionLength】重试次数：" + retryTimes);
+                    return count.intValue();
+                } catch (ContractCallException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return -1;
+                }
+            }
+            System.out.println("【getOptionLength】未找到");
+        }
+        return -1;
+    }
+
+    public void addMotion(Motion motion, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            StringBuilder fileHashes = new StringBuilder();
+            StringBuilder fileNames = new StringBuilder();
+            if (motion.getAttachments() != null && !motion.getAttachments().isEmpty()) {
+                for (String fileHash : motion.getAttachments().keySet()) {
+                    fileHashes.append(fileHash).append(":");
+                    fileNames.append(motion.getAttachments().get(fileHash)).append(":");
+                }
+            }
+            try {
+                contract.addMotion(motion.getTitle(),
+                        motion.getContent(),
+                        fileHashes.toString(),
+                        fileNames.toString(),
+                        BigInteger.valueOf(System.currentTimeMillis()),
+                        motion.isMultipleVote(),
+                        motion.getOptionsJson(),
+                        BigInteger.valueOf(motion.getLength())
+                ).send();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void vote(long motionIdx, long voteIdx, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            try {
+                contract.vote(
+                        BigInteger.valueOf(motionIdx),
+                        BigInteger.valueOf(voteIdx)
+                ).send();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public boolean hasVote(long motionIdx, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    Boolean hasVote = contract.hasVote(BigInteger.valueOf(motionIdx)).send();
+                    System.out.println("【hasVote】重试次数：" + retryTimes);
+                    return hasVote;
+                } catch (ContractCallException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+            System.out.println("【getVote】未找到");
+        }
+        return false;
     }
 
     private PropertyContract getPropertyContract(Credentials credentials) {
