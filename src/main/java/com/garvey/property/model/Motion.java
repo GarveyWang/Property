@@ -15,10 +15,12 @@ public class Motion {
     private String authorName;
     private long timestamp;
     private boolean multipleVote;
-    private int length;
     private String optionsJson;
     private String[] options;
-    private int[] votes;
+    private int[] totalVotes;
+
+    private int[] votedOptionIndexes;
+    private boolean hasVoted;
 
     public long getIdx() {
         return idx;
@@ -84,14 +86,6 @@ public class Motion {
         this.multipleVote = multipleVote;
     }
 
-    public int getLength() {
-        return length;
-    }
-
-    public void setLength(int length) {
-        this.length = length;
-    }
-
     public String getOptionsJson() {
         return optionsJson;
     }
@@ -108,11 +102,27 @@ public class Motion {
         this.options = options;
     }
 
-    public int[] getVotes() {
-        return votes;
+    public int[] getTotalVotes() {
+        return totalVotes;
     }
 
-    public void setVotes(int[] votes) {
-        this.votes = votes;
+    public void setTotalVotes(int[] totalVotes) {
+        this.totalVotes = totalVotes;
+    }
+
+    public int[] getVotedOptionIndexes() {
+        return votedOptionIndexes;
+    }
+
+    public void setVotedOptionIndexes(int[] votedOptionIndexes) {
+        this.votedOptionIndexes = votedOptionIndexes;
+    }
+
+    public boolean isHasVoted() {
+        return hasVoted;
+    }
+
+    public void setHasVoted(boolean hasVoted) {
+        this.hasVoted = hasVoted;
     }
 }

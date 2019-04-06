@@ -32,13 +32,22 @@ public class MotionService {
         for (int i = fromIdx; i > endIdx; --i) {
             Motion motion = web3Util.getMotion(i, credentials);
             if (motion != null) {
+                boolean hasVoted = web3Util.hasVoted(motion.getIdx(), credentials);
+                motion.setHasVoted(hasVoted);
+
+                int voteCount = web3Util.getVoteCount(motion.getIdx(), credentials);
+                int[] votedOptionIndexes = new int[voteCount];
+                for (int j = 0; j < voteCount; ++j) {
+                    votedOptionIndexes[j] = web3Util.getVoteIndex(motion.getIdx(), j, credentials);
+                }
+                motion.setVotedOptionIndexes(votedOptionIndexes);
                 motions.add(motion);
             }
         }
         return motions;
     }
 
-    public void addMotion(Motion motion, Credentials credentials){
+    public void addMotion(Motion motion, Credentials credentials) {
         try {
             String optionJson = objectMapper.writeValueAsString(motion.getOptions());
             motion.setOptionsJson(optionJson);
@@ -57,5 +66,12 @@ public class MotionService {
             return totalMotionCount / BasicConst.MOTION_PAGE_SIZE;
         }
         return totalMotionCount / BasicConst.MOTION_PAGE_SIZE + 1;
+    }
+
+    public void vote(int motionIdx, int[] optionIndexes, Credentials credentials) {
+        for (int i = 0; i < optionIndexes.length; ++i) {
+            boolean finished = (i == (optionIndexes.length - 1));
+            web3Util.voteOption(motionIdx, optionIndexes[i], finished, credentials);
+        }
     }
 }

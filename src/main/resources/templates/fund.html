@@ -577,6 +577,9 @@
                     },
                     scales: {
                         yAxes:[{
+                            ticks : {
+                                beginAtZero:true
+                            },
                             scaleLabel: {
                                 display: true,
                                 labelString: "金额，单位（分）"
@@ -626,6 +629,10 @@
                     },
                     scales: {
                         yAxes:[{
+                            ticks : {
+                                beginAtZero:true,
+                                steps:1
+                            },
                             scaleLabel: {
                                 display: true,
                                 labelString: "单位（分）"

@@ -18,6 +18,7 @@ import org.web3j.tuples.generated.Tuple8;
 import org.web3j.tx.exceptions.ContractCallException;
 import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.DefaultGasProvider;
+import org.web3j.tx.gas.StaticGasProvider;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -38,7 +39,7 @@ public class Web3Util {
     private ThreadLocal<PropertyContract> contractThreadLocal;
 
     static {
-        contractAddress = "0xb09ce4de75d82a741edb3f206b33b2e9b0e09ccf";
+        contractAddress = "0x77bff927648d25fa1669b3042119fdfe7ca296f7";
         gethAddress = "http://localhost:8545";
         web3j = Web3j.build(new HttpService(gethAddress));
         gasProvider = new DefaultGasProvider();
@@ -447,12 +448,11 @@ public class Web3Util {
                     });
                     motion.setOptions(options);
 
-                    motion.setLength(options.length);
                     int[] votes = new int[options.length];
                     for (int i = 0; i < votes.length; ++i) {
-                        votes[i] = getVote(motionIdx, i, credentials);
+                        votes[i] = getTotalVote(motionIdx, i, credentials);
                     }
-                    motion.setVotes(votes);
+                    motion.setTotalVotes(votes);
 
                     System.out.println("【getMotion】重试次数：" + retryTimes);
                     return motion;
@@ -468,13 +468,13 @@ public class Web3Util {
         return null;
     }
 
-    public int getVote(long motionIdx, long voteIdx, Credentials credentials) {
+    public int getTotalVote(long motionIdx, long voteIdx, Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
             int retryTimes = 0;
             while (retryTimes < maxRetryTimes) {
                 try {
-                    BigInteger vote = contract.getVote(BigInteger.valueOf(motionIdx), BigInteger.valueOf(voteIdx)).send();
+                    BigInteger vote = contract.getTotalVote(BigInteger.valueOf(motionIdx), BigInteger.valueOf(voteIdx)).send();
                     System.out.println("【getVote】重试次数：" + retryTimes);
                     return vote.intValue();
                 } catch (ContractCallException e) {
@@ -489,25 +489,46 @@ public class Web3Util {
         return 0;
     }
 
-    public int getOptionLength(long motionIdx, Credentials credentials){
+    public int getVoteCount(long motionIdx, Credentials credentials){
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
             int retryTimes = 0;
             while (retryTimes < maxRetryTimes) {
                 try {
-                    BigInteger count = contract.getOptionLength(BigInteger.valueOf(motionIdx)).send();
-                    System.out.println("【getOptionLength】重试次数：" + retryTimes);
-                    return count.intValue();
+                    BigInteger voteCount = contract.getVoteCount(BigInteger.valueOf(motionIdx)).send();
+                    System.out.println("【getVoteCount】重试次数：" + retryTimes);
+                    return voteCount.intValue();
                 } catch (ContractCallException e) {
                     ++retryTimes;
                 } catch (Exception e) {
                     e.printStackTrace();
-                    return -1;
+                    return 0;
                 }
             }
-            System.out.println("【getOptionLength】未找到");
+            System.out.println("【getVoteCount】未找到");
         }
-        return -1;
+        return 0;
+    }
+
+    public int getVoteIndex(long motionIdx, long idx, Credentials credentials){
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    BigInteger voteIndex = contract.getVoteIndex(BigInteger.valueOf(motionIdx), BigInteger.valueOf(idx)).send();
+                    System.out.println("【getVoteIndex】重试次数：" + retryTimes);
+                    return voteIndex.intValue();
+                } catch (ContractCallException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return 0;
+                }
+            }
+            System.out.println("【getVoteIndex】未找到");
+        }
+        return 0;
     }
 
     public void addMotion(Motion motion, Credentials credentials) {
@@ -529,7 +550,7 @@ public class Web3Util {
                         BigInteger.valueOf(System.currentTimeMillis()),
                         motion.isMultipleVote(),
                         motion.getOptionsJson(),
-                        BigInteger.valueOf(motion.getLength())
+                        BigInteger.valueOf(motion.getOptions().length)
                 ).send();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -537,13 +558,14 @@ public class Web3Util {
         }
     }
 
-    public void vote(long motionIdx, long voteIdx, Credentials credentials) {
+    public void voteOption(long motionIdx, long voteIdx, boolean finished, Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
             try {
-                contract.vote(
+                contract.voteOption(
                         BigInteger.valueOf(motionIdx),
-                        BigInteger.valueOf(voteIdx)
+                        BigInteger.valueOf(voteIdx),
+                        finished
                 ).send();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -551,14 +573,14 @@ public class Web3Util {
         }
     }
 
-    public boolean hasVote(long motionIdx, Credentials credentials) {
+    public boolean hasVoted(long motionIdx, Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
             int retryTimes = 0;
             while (retryTimes < maxRetryTimes) {
                 try {
-                    Boolean hasVote = contract.hasVote(BigInteger.valueOf(motionIdx)).send();
-                    System.out.println("【hasVote】重试次数：" + retryTimes);
+                    Boolean hasVote = contract.hasVoted(BigInteger.valueOf(motionIdx)).send();
+                    System.out.println("【hasVoteFinished】重试次数：" + retryTimes);
                     return hasVote;
                 } catch (ContractCallException e) {
                     ++retryTimes;
@@ -567,7 +589,7 @@ public class Web3Util {
                     return false;
                 }
             }
-            System.out.println("【getVote】未找到");
+            System.out.println("【hasVoteFinished】未找到");
         }
         return false;
     }

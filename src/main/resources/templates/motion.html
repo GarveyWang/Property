@@ -7,6 +7,7 @@
     <title>提案管理</title>
     <link href="../static/css/bootstrap/fileinput.min.css" rel="stylesheet">
     <link href="../static/css/bootstrap/bootstrap-toggle.min.css" rel="stylesheet">
+    <link href="../static/css/Chart.min.css" rel="stylesheet">
 </head>
 <body>
 <h2 layout:fragment="title">
@@ -21,33 +22,42 @@
                 </button>
             </div>
         </div>
-        <div th:each="motion,iterstat: ${motions}">
-            <div class="info panel panel-default col-sm-6" th:id="'motion'+${motion.idx}">
+        <div th:each="motion,iterstat: ${motions}" th:id="motion + ${motion.idx}">
+            <div class="info panel panel-default col-sm-6">
                 <div class="panel-heading">
                     <h3 class="panel-title" th:text="${motion.title}">标题</h3>
                 </div>
                 <div class="panel-body">
                     <input type="hidden" th:id="'title'+${motion.idx}" th:value="${motion.title}">
                     <input type="hidden" th:id="'content'+${motion.idx}" th:value="${motion.content}">
-                    <input type="hidden" th:id="'authorName'+${motion.idx}" th:value="${motion.authorName}">
-                    <input type="hidden" th:id="'authorHash'+${motion.idx}" th:value="${motion.authorHash}">
-                    <input type="hidden" th:id="'publishTime'+${motion.idx}" th:value="${#dates.format(motion.timestamp, 'yyyy-MM-dd HH:mm:ss')}">
                     <input type="hidden" th:id="'fileCount'+${motion.idx}" th:value="${motion.attachments.size()}">
                     <div th:each="fileHash,fileStat : ${motion.attachments}" th:if="${not #maps.isEmpty(motion.attachments)}">
                         <input type="hidden" th:id="'file-'+${motion.idx} + '-' +${fileStat.index}" th:attr="fileHash = ${fileStat.current.key}, fileName = ${fileStat.current.value}">
                     </div>
+                    <input type="hidden" th:id="'authorName'+${motion.idx}" th:value="${motion.authorName}">
+                    <input type="hidden" th:id="'authorHash'+${motion.idx}" th:value="${motion.authorHash}">
+                    <input type="hidden" th:id="'publishTime'+${motion.idx}" th:value="${#dates.format(motion.timestamp, 'yyyy-MM-dd HH:mm:ss')}">
+                    <input type="hidden" th:id="'multipleVote'+${motion.idx}" th:value="${motion.multipleVote}">
+                    <input type="hidden" th:id="'optionCount'+${motion.idx}" th:value="${motion.options.length}">
                     <div th:each="option,optionStat : ${motion.options}">
-                        <input type="hidden" th:if="${optionStat.index > 0}" th:id="'option-'+${motion.idx} + '-' +${optionStat.index}" th:attr="option = ${option}">
+                        <input type="hidden" th:id="'option-'+${motion.idx} + '-' +${optionStat.index}" th:value="${option}">
                     </div>
-                    <div th:each="vote,voteStat : ${motion.votes}">
-                        <input type="hidden" th:if="${voteStat.index > 0}" th:id="'vote-'+${motion.idx} + '-' +${voteStat.index}" th:attr="vote = ${vote}">
+                    <input type="hidden" th:id="'totalVotesCount'+${motion.idx}" th:value="${motion.totalVotes.length}">
+                    <div th:each="totalVote,totalVoteStat : ${motion.totalVotes}">
+                        <input type="hidden" th:id="'totalVote-'+${motion.idx} + '-' +${totalVoteStat.index}" th:value="${totalVote}">
                     </div>
+
+                    <input type="hidden" th:id="'votedOptionIndexesCount'+${motion.idx}" th:value="${motion.votedOptionIndexes.length}">
+                    <div th:each="votedOptionIndex, votedOptionIndexStat : ${motion.votedOptionIndexes}">
+                        <input type="hidden" th:id="'votedOptionIndex-'+${motion.idx} + '-' +${votedOptionIndexStat.index}" th:value="${votedOptionIndex}">
+                    </div>
+                    <input type="hidden" th:id="'hasVoted'+${motion.idx}" th:value="${motion.hasVoted}">
 
                     <p th:text="${motion.content}" style="display: -webkit-box;-webkit-line-clamp: 1;-webkit-box-orient: vertical;overflow: hidden;">内容</p>
                     <HR style="FILTER: alpha(opacity = 0,finishopacity = 100,style = 1)" width="100%" color=#333333 SIZE=3>
                     <div class="clearfix">
                         <small>发布于<span th:text="${#dates.format(motion.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
-                        <button class="btn btn-default" onclick="showDetail(this)" style="float:right" th:attr = "idx = ${motion.idx}">
+                        <button class="btn btn-default" th:onclick="'showDetail(' + ${motion.idx} + ')'" style="float:right">
                             查看详情
                         </button>
                     </div>
@@ -88,6 +98,12 @@
                         <button class='btn btn-warning' onclick='deleteOption(this)'>删除该项</button>
                     </span>
                 </div>
+                <div class='input-group'>
+                    <input type='text' class='form-control option' placeholder='请输入选项'>
+                    <span class='input-group-btn'>
+                        <button class='btn btn-warning' onclick='deleteOption(this)'>删除该项</button>
+                    </span>
+                </div>
             </div>
         </div>
         <div class="form-group">
@@ -103,10 +119,36 @@
             </div>
         </div>
     </div>
+
+    <div id="detailMotionPanel" hidden="hidden">
+        <button class="btn btn-default" onclick="showDisplayMotionPanel()" style="margin-bottom: 10px">←返回</button>
+        <p><small>* 数据来自<b>区块链</b></small></p>
+        <p><small>* 附件来自<b>IPFS</b></small></p>
+        <div class="panel panel-default">
+            <div class="panel-heading" style="text-align: center">
+                <h2 id="detailTitle"></h2>
+                <small><b id="detailAuthor"></b> 发布于 <b id="detailPublishTime"></b></small>
+            </div>
+            <div class="panel-body">
+                <p id="detailContent"></p>
+                <HR style="FILTER: alpha(opacity = 0,finishopacity = 100,style = 1)" width="80%" color=#333333 SIZE=4>
+                <div>
+                    <div>
+                        【类型】<span id="optionType"></span>
+                    </div>
+                    <div id="optionsPanel"></div>
+                    <div id="chartContainer"></div>
+                </div>
+            </div>
+            <div class="panel-footer" id="detailFiles">
+            </div>
+        </div>
+    </div>
 </div>
 <th:block layout:fragment="bottomScriptBlock">
     <script type="text/javascript" src="../static/js/bootstrap/fileinput.min.js"></script>
     <script type="text/javascript" src="../static/js/bootstrap/fileinput-locale-zh.js"></script>
+    <script type="text/javascript" src="../static/js/Chart.min.js"></script>
     <script type="text/javascript" src="../static/js/bootstrap/bootstrap-toggle.min.js"></script>
     <script type="text/javascript" src="../static/js/bootstrap/bootstrap-paginator.min.js"></script>
     <script type="text/javascript">
@@ -149,7 +191,7 @@
                     actionZoom:''   //去除上传预览缩略图中的查看详情预览的缩略图标。
                 },
                 uploadExtraData:function () {
-                    var options = [""];
+                    var options = [];
                     $(".option").each(function (index, element) {
                         options.push($(element).val());
                     });
@@ -162,7 +204,7 @@
                 }
             }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
                 alert('提案发布成功！');
-                window.location.reload();
+                window.location.href = "/motion";
             }).on('filebatchuploaderror', function(event, data, msg) {
                 alert('提案发布失败！');
             });
@@ -188,9 +230,9 @@
                 }
             });
 
-            var info = "[[${info}]]";
-            if (info != null && info.length>0){
-                alert(info);
+            var motionIdx = [[${motionIdx}]];
+            if (motionIdx >= 0) {
+                showDetail(motionIdx);
             }
         });
 
@@ -204,6 +246,10 @@
         }
 
         function deleteOption(obj) {
+            if ($(".option").length <= 2){
+                alert("至少需要2个选项！");
+                return;
+            }
             $(obj).parent().parent().remove();
         }
 
@@ -220,11 +266,12 @@
             $("#publishMotionPanel").hide();
             $("#displayMotionPanel").show();
         }
-        function showDetail(motion){
+        function showDetail(idx){
+            if ($("#title"+idx).val() == undefined){
+                return;
+            }
             $("#publishMotionPanel").hide();
             $("#displayMotionPanel").hide();
-
-            var idx = $(info).attr("idx");
 
             var title = "<b>【标题】</b>" + $("#title"+idx).val();
             $("#detailTitle").html(title);
@@ -232,16 +279,16 @@
             var content = "<p><b>【正文】</b></p>" + $("#content"+idx).val();
             $("#detailContent").html(content);
 
-            var remark = "<p><b>【备注】</b></p>" + $("#remark"+idx).val();
-            $("#detailInfoRemark").html(remark);
-
-            if ($("#visible"+idx).val() == 1){
-                $("#detailInfoVisible").html("正常");
-            } else{
-                $("#detailInfoVisible").html("隐藏");
-            }
             $("#detailAuthor").html($("#authorName"+idx).val() + '(' + $("#authorHash"+idx).val() + ')');
             $("#detailPublishTime").html($("#publishTime"+idx).val());
+
+            var multipleVote = ($("#multipleVote"+idx).val()=="true");
+            if (multipleVote){
+                $("#optionType").html("多选")
+            } else {
+                $("#optionType").html("单选")
+            }
+
             var fileCount = $("#fileCount" + idx).val();
             if (fileCount == 0){
                 $("#detailFiles").hide();
@@ -260,9 +307,135 @@
                 $("#detailFiles").html(ul);
                 $("#detailFiles").show();
             }
-            $("#detailInfoPanel").show();
+
+            var hasVoted = ($("#hasVoted"+idx).val() == "true");
+            var votedOptionIndexes = [];
+            if (hasVoted) {
+                var votedOptionIndexesCount = $("#votedOptionIndexesCount" + idx).val();
+                for (var i = 0; i< votedOptionIndexesCount; ++i){
+                    votedOptionIndexes.push(parseInt($("#votedOptionIndex-" + idx + '-' + i).val()));
+                }
+            }
+
+            var optionCount = $("#optionCount" + idx).val();
+            if (optionCount > 0){
+                var votes = [];
+                var content = '<p>【选项】';
+                if (hasVoted){
+                    content+="您已投过票！"
+                } else {
+                    content+="您还未投票！"
+                }
+                content += "</p>";
+
+                content += '<ol class="list-group">';
+                for (var i= 0; i< optionCount; ++i){
+                    var optionId = "#option-"+idx+"-"+i;
+                    var option = $(optionId).val();
+                    content += '<li class="list-group-item">';
+                    if (hasVoted) {
+                        if ($.inArray(i, votedOptionIndexes) >= 0){
+                            content += '<input type="checkbox" id="optionCheckBox' + i + '" checked="checked" disabled> '
+                        }else{
+                            content += '<input type="checkbox" id="optionCheckBox' + i + '" disabled> '
+                        }
+                    } else {
+                        content += '<input type="checkbox" optionIdx=' + i + ' class="optionCheckBox" id="optionCheckBox' + i + '"> '
+                    }
+
+                    content += option;
+                    content += '</li>';
+
+                    var voteId = "#totalVote-"+idx+"-"+i;
+                    var vote = $(voteId).val();
+                    votes.push(vote);
+                }
+                content += '</ol>'
+                if (!hasVoted){
+                    content += "<button class='btn btn-primary' onclick='vote(this)' multipleVote='" + multipleVote + "' motionIdx='" + idx + "' page= '" + [[${page}]] + "'>投票</button>";
+                }
+                $("#optionsPanel").html(content);
+                updateChart(votes);
+            }
+
+            $("#detailMotionPanel").show();
         }
 
+        function updateChart(votes) {
+            var labels = [];
+            for (var i= 0; i< votes.length; ++i){
+                labels.push("选项" + (i+1));
+            }
+            $("#chartContainer").empty();
+            $("#chartContainer").append("<canvas id='voteChart'></canvas>");
+            var voteChartCtx = document.getElementById('voteChart').getContext('2d');
+            var voteChart = new Chart(voteChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '投票情况',
+                        backgroundColor: 'rgb(128, 128, 128, 0.8)',
+                        borderColor: 'rgb(128, 128, 128, 0.8)',
+                        data: votes
+                    }]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: '投票情况',
+                        fontSize: 36
+                    },
+                    scales: {
+                        yAxes:[{
+                            ticks : {
+                                beginAtZero:true
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: "票数"
+                            }
+                        }],
+                        xAxes:[{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "选项"
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+
+        function vote(obj) {
+            var optionIndexes = [];
+            $(".optionCheckBox").each(function (index, element) {
+                if ($(element).prop("checked")){
+                    optionIndexes.push(parseInt($(element).attr("optionIdx")));
+                }
+            })
+            if (optionIndexes.length == 0) {
+                alert("请至少选择一项");
+                return;
+            }else if (optionIndexes.length > 1 && $(obj).attr("multipleVote") == "false"){
+                alert("此提案为单选投票");
+                return;
+            }
+            var motionIdx = $(obj).attr("motionIdx");
+            $.ajax({
+                type:"POST",
+                url:"/motion/vote",
+                dataType : 'json',
+                data: {
+                    "motionIdx": motionIdx,
+                    "optionIndexes": optionIndexes.join(",")
+                },
+                success:function (data) {
+                    alert("投票成功");
+                    window.location.href = "/motion?motionIdx=" + motionIdx + "&page=" + $(obj).attr("page");
+                }
+            })
+        }
     </script>
 </th:block>
 </body>

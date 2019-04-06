@@ -35,10 +35,11 @@ public class MotionController {
 
     @GetMapping
     public String motionPage(@RequestParam(value = "page", defaultValue = "1") int pageNum,
+                             @RequestParam(value = "motionIdx", defaultValue = "-1") int motionIdx,
                              User user, Model model) {
         long totalPage = motionService.getMotionTotalPageCount(user.getCredentials());
         List<Motion> motions = motionService.getMotions(user.getCredentials(), pageNum);
-
+        model.addAttribute("motionIdx", motionIdx);
         model.addAttribute("totalPage", totalPage);
         model.addAttribute("page", pageNum);
         model.addAttribute("motions", motions);
@@ -51,14 +52,16 @@ public class MotionController {
     @ResponseBody
     public String addMotion(@RequestParam("title") String title, @RequestParam("content") String content,
                             @RequestParam("multipleVote") boolean multipleVote, @RequestParam("options") String[] options,
-                             @RequestParam("attachments") MultipartFile[] attachments,
+                            @RequestParam("attachments") MultipartFile[] attachments,
                             User user) {
+        if (options.length < 2){
+            return "400";
+        }
         Motion motion = new Motion();
         motion.setTitle(title);
         motion.setContent(content);
         motion.setMultipleVote(multipleVote);
         motion.setOptions(options);
-        motion.setLength(options.length);
         if (attachments != null && attachments.length > 0) {
             Map<String, String> attachmentsMap = new HashMap<>(attachments.length);
             try {
@@ -77,5 +80,16 @@ public class MotionController {
         }
         motionService.addMotion(motion, user.getCredentials());
         return "200";
+    }
+
+    @PostMapping("/vote")
+    @NeededAuthority(authorities = Authority.VOTE_MOTION)
+    @ResponseBody
+    public String vote(@RequestParam("motionIdx") int motionIdx, @RequestParam("optionIndexes") int[] optionIndexes, User user) {
+        if (optionIndexes.length > 0){
+            motionService.vote(motionIdx, optionIndexes, user.getCredentials());
+            return "200";
+        }
+        return "400";
     }
 }
