@@ -204,7 +204,7 @@
                 }
             }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
                 alert('提案发布成功！');
-                window.location.href = "/motion";
+                window.location.href = "/motion?mine=" + [[${mine}]];
             }).on('filebatchuploaderror', function(event, data, msg) {
                 alert('提案发布失败！');
             });
@@ -226,7 +226,7 @@
                     }
                 },
                 pageUrl:function (type, page, current) {
-                    return "/motion?page=" + page;
+                    return "/motion?page=" + page + "&mine=" + [[${mine}]];
                 }
             });
 
@@ -432,7 +432,7 @@
                 },
                 success:function (data) {
                     alert("投票成功");
-                    window.location.href = "/motion?motionIdx=" + motionIdx + "&page=" + $(obj).attr("page");
+                    window.location.href = "/motion?motionIdx=" + motionIdx + "&page=" + $(obj).attr("page") + "&mine=" + [[${mine}]];
                 }
             })
         }
