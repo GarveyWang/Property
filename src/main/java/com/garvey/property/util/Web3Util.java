@@ -6,6 +6,7 @@ import com.garvey.property.contract.PropertyContract;
 import com.garvey.property.model.*;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Component;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
@@ -18,7 +19,6 @@ import org.web3j.tuples.generated.Tuple8;
 import org.web3j.tx.exceptions.ContractCallException;
 import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.DefaultGasProvider;
-import org.web3j.tx.gas.StaticGasProvider;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -388,6 +388,7 @@ public class Web3Util {
         }
     }
 
+    @Cacheable(value = "motionCount", key = "")
     public int getMotionCount(Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
@@ -409,6 +410,7 @@ public class Web3Util {
         return -1;
     }
 
+    @Cacheable(value = "motion", key = "#motionIdx", unless = "#result == null")
     public Motion getMotion(long motionIdx, Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
@@ -468,6 +470,7 @@ public class Web3Util {
         return null;
     }
 
+    @Cacheable(value = "totalVote", key = "T(String).valueOf(#motionIdx).concat('-').concat(#voteIdx)")
     public int getTotalVote(long motionIdx, long voteIdx, Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
@@ -489,7 +492,8 @@ public class Web3Util {
         return 0;
     }
 
-    public int getVoteCount(long motionIdx, Credentials credentials){
+    @Cacheable(value = "voteCount", key = "T(String).valueOf(#motionIdx).concat('-').concat(#credentials.address)")
+    public int getVoteCount(long motionIdx, Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
             int retryTimes = 0;
@@ -510,7 +514,8 @@ public class Web3Util {
         return 0;
     }
 
-    public int getVoteIndex(long motionIdx, long idx, Credentials credentials){
+    @Cacheable(value = "voteIndex", key = "T(String).valueOf(#motionIdx).concat('-').concat(#idx).concat('-').concat(#credentials.address)")
+    public int getVoteIndex(long motionIdx, long idx, Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
             int retryTimes = 0;
@@ -531,6 +536,7 @@ public class Web3Util {
         return 0;
     }
 
+    @CacheEvict(value = "motionCount", allEntries = true)
     public void addMotion(Motion motion, Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
@@ -558,6 +564,12 @@ public class Web3Util {
         }
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "totalVote", key = "T(String).valueOf(#motionIdx).concat('-').concat(#voteIdx)"),
+            @CacheEvict(value = "hasVoted", key = "T(String).valueOf(#motionIdx).concat('-').concat(#credentials.address)"),
+            @CacheEvict(value = "motion", key = "#motionIdx"),
+            @CacheEvict(value = "voteCount", key = "T(String).valueOf(#motionIdx).concat('-').concat(#credentials.address)")
+    })
     public void voteOption(long motionIdx, long voteIdx, boolean finished, Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
@@ -573,6 +585,7 @@ public class Web3Util {
         }
     }
 
+    @Cacheable(value = "hasVoted", key = "T(String).valueOf(#motionIdx).concat('-').concat(#credentials.address)")
     public boolean hasVoted(long motionIdx, Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
