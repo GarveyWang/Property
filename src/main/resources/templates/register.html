@@ -62,13 +62,31 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="editTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                    </button>
+                    <h4 class="modal-title">
+                        请下载KeyStore文件，并妥善保存，用于登录
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <a class="btn btn-primary" onclick="downloadKeystore()" >下载KeyStore文件</a>
+                    <a class="btn btn-default" onclick="goToLoginPage()" id="goToLoginPageBtn">前往登录页</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <script type="text/javascript" src="../static/js/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="../static/js/bootstrap/bootstrap.min.js"></script>
 <script type="text/javascript" src="../static/js/jquery/jquery.md5.js"></script>
 <script type="text/javascript">
-     $(function () {
 
-     });
+    var filePath;
 
     function register() {
         var phone = $("#phone").val().trim();
@@ -100,10 +118,34 @@
                 "nickName": nickName
             },
             success:function (data) {
-                alert("添加成功");
-                $("#addPropertyModal").modal("hide");
+                filePath = data.filePath;
+                $("#goToLoginPageBtn").hide();
+                $('#downloadModal').modal("show");
             }
         })
+    }
+
+    function downloadKeystore() {
+        var form=$("<form>");
+        form.attr("style","display:none");
+        form.attr("target","");
+        form.attr("method","post");
+        form.attr("action","/download/keystore");
+
+        var filePathInput = $("<input>")
+        filePathInput.attr("type","text");
+        filePathInput.attr("name","filePath");
+        filePathInput.attr("value",filePath);
+        form.append(filePathInput);
+
+        $("body").append(form);
+        form.submit();
+
+        $("#goToLoginPageBtn").show();
+    }
+
+    function goToLoginPage() {
+        window.location.href="/login";
     }
 </script>
 </body>

@@ -21,7 +21,7 @@ public class DownloadController {
     private IpfsUtil ipfsUtil;
 
     @PostMapping("/download")
-    public String download(@RequestParam("fileHash") String fileHash, @RequestParam("fileName") String fileName,
+    public void download(@RequestParam("fileHash") String fileHash, @RequestParam("fileName") String fileName,
                            HttpServletResponse response) throws UnsupportedEncodingException {
         FileInputStream fileInputStream = ipfsUtil.getFileInputStream(fileHash);
         if (fileInputStream != null) {
@@ -29,25 +29,60 @@ public class DownloadController {
             response.addHeader("Content-Disposition", "attachment;fileName=" + URLEncoder.encode(fileName,"UTF-8"));
             byte[] buffer = new byte[1024];
             BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+            OutputStream outputStream = null;
             try {
-                OutputStream outputStream = response.getOutputStream();
+                outputStream = response.getOutputStream();
                 int i = bufferedInputStream.read(buffer);
                 while (i != -1) {
                     outputStream.write(buffer, 0, i);
                     i = bufferedInputStream.read(buffer);
                 }
-                return "200";
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
                 try {
                     fileInputStream.close();
                     bufferedInputStream.close();
+                    if (outputStream!=null){
+                        outputStream.close();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
-        return "400";
+    }
+
+    @PostMapping("/download/keystore")
+    public void download(@RequestParam("filePath") String filePath, HttpServletResponse response) throws UnsupportedEncodingException, FileNotFoundException {
+        File file = new File(filePath);
+        FileInputStream fileInputStream = new FileInputStream(file);
+        if (fileInputStream != null) {
+            response.setContentType("application/force-download");
+            response.addHeader("Content-Disposition", "attachment;fileName=" + URLEncoder.encode(file.getName(),"UTF-8"));
+            byte[] buffer = new byte[1024];
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+            OutputStream outputStream = null;
+            try {
+                outputStream = response.getOutputStream();
+                int i = bufferedInputStream.read(buffer);
+                while (i != -1) {
+                    outputStream.write(buffer, 0, i);
+                    i = bufferedInputStream.read(buffer);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    fileInputStream.close();
+                    bufferedInputStream.close();
+                    if (outputStream!=null){
+                        outputStream.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

@@ -73,6 +73,10 @@ public class User {
         this.credentials = credentials;
     }
 
+    public boolean canBasicRead() {
+        return Authority.contain(authority, Authority.BASIC_READ);
+    }
+
     public boolean canPublishInfo() {
         return Authority.contain(authority, Authority.PUBLISH_ANNOUNCEMENT);
     }
@@ -85,12 +89,24 @@ public class User {
         return Authority.contain(authority, Authority.PUBLISH_DISCUSSION);
     }
 
-    public boolean canPublishMotion() {
-        return Authority.contain(authority, Authority.PUBLISH_MOTION);
+    public boolean canParticipateDiscussion() {
+        return Authority.contain(authority, Authority.PARTICIPATE_DISCUSSION);
     }
 
     public boolean canDeleteDiscussion() {
         return Authority.contain(authority, Authority.DELETE_DISCUSSION);
+    }
+
+    public boolean canPublishMotion() {
+        return Authority.contain(authority, Authority.PUBLISH_MOTION);
+    }
+
+    public boolean canVoteMotion() {
+        return Authority.contain(authority, Authority.VOTE_MOTION);
+    }
+
+    public boolean canDeleteMotion() {
+        return Authority.contain(authority, Authority.DELETE_MOTION);
     }
 
     public boolean canAddProprietorAccount() {
@@ -99,5 +115,9 @@ public class User {
 
     public boolean canAddPropertyAccount() {
         return Authority.contain(authority, Authority.ADD_PROPERTY_ACCOUNT);
+    }
+
+    public boolean canSuper() {
+        return Authority.contain(authority, Authority.SUPER);
     }
 }

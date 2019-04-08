@@ -46,7 +46,7 @@
              //dropZoneEnabled: true,//是否显示拖拽区域
              dropZoneTitle:"可拖拽上传keystore文件",
              maxFileSize: 20,//单位为kb，如果为0表示不限制文件大小
-             minFileCount: 1,
+             //minFileCount: 0,
              //maxFileCount: 10, //表示允许同时上传的最大文件个数
              enctype: 'multipart/form-data',
              validateInitialCount:true,
@@ -64,10 +64,16 @@
                  };
              }
          }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
-             alert('验证成功！');
-             window.location.href="/account/management";
+             if (data.response == 200){
+                 alert('验证成功！');
+                 window.location.href="/account/management";
+             } else {
+                 alert('验证失败！请检查keystore文件或者密码是否正确');
+                 window.location.reload();
+             }
+
          }).on("filebatchuploaderror", function (event, data, msg) {
-             alert('验证失败！');
+             alert('keystore文件上传失败！');
          });
 
 

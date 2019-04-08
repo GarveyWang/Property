@@ -29,6 +29,6 @@ public class LogController {
             pageNum = 1;
         }
 
-        return "fund";
+        return "log";
     }
 }

@@ -20,6 +20,8 @@ import java.net.URLEncoder;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author GarveyWong
@@ -38,7 +40,7 @@ public class RegisterController {
 
     @PostMapping("/register/property")
     @ResponseBody
-    public String registerPropertyAccount(@RequestParam("activeCode") int activeCode,
+    public Map registerPropertyAccount(@RequestParam("activeCode") int activeCode,
                                           @RequestParam("encryptedPhone") String encryptedPhone,
                                           @RequestParam("md5Psw") String md5Psw,
                                           @RequestParam("nickName") String nickName,
@@ -54,38 +56,14 @@ public class RegisterController {
         user.setCredentials(credentials);
         user.setAddress(credentials.getAddress());
         userService.registerProperty(activeCode, user);
-        File file = new File(filePath);
-        FileInputStream fileInputStream = new FileInputStream(file);
-        if (fileInputStream != null) {
-            response.setContentType("application/force-download");
-            response.addHeader("Content-Disposition", "attachment;fileName=" + URLEncoder.encode(file.getName(),"UTF-8"));
-            byte[] buffer = new byte[1024];
-            BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
-            try {
-                OutputStream outputStream = response.getOutputStream();
-                int i = bufferedInputStream.read(buffer);
-                while (i != -1) {
-                    outputStream.write(buffer, 0, i);
-                    i = bufferedInputStream.read(buffer);
-                }
-                return "200";
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    fileInputStream.close();
-                    bufferedInputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return "400";
+        Map<String, String> map = new HashMap<>();
+        map.put("filePath", filePath);
+        return map;
     }
 
     @PostMapping("/register/proprietor")
     @ResponseBody
-    public String registerProprietorAccount(@RequestParam("activeCode") int activeCode,
+    public Map registerProprietorAccount(@RequestParam("activeCode") int activeCode,
                                             @RequestParam("encryptedPhone") String encryptedPhone,
                                             @RequestParam("md5Psw") String md5Psw,
                                             @RequestParam("nickName") String nickName,
@@ -101,33 +79,9 @@ public class RegisterController {
         user.setCredentials(credentials);
         user.setAddress(credentials.getAddress());
         userService.registerProprietor(activeCode, user);
-        File file = new File(filePath);
-        FileInputStream fileInputStream = new FileInputStream(file);
-        if (fileInputStream != null) {
-            response.setContentType("application/force-download");
-            response.addHeader("Content-Disposition", "attachment;fileName=" + URLEncoder.encode(file.getName(),"UTF-8"));
-            byte[] buffer = new byte[1024];
-            BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
-            try {
-                OutputStream outputStream = response.getOutputStream();
-                int i = bufferedInputStream.read(buffer);
-                while (i != -1) {
-                    outputStream.write(buffer, 0, i);
-                    i = bufferedInputStream.read(buffer);
-                }
-                return "200";
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    fileInputStream.close();
-                    bufferedInputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return "400";
+        Map<String, String> map = new HashMap<>();
+        map.put("filePath", filePath);
+        return map;
     }
 
 }
