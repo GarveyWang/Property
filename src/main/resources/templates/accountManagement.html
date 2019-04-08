@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="dashboard">
+
+<head>
+    <title>账号管理</title>
+</head>
+<body>
+<h2 layout:fragment="title">
+    账号管理
+</h2>
+<div layout:fragment="content" style="width:90%;">
+    <div id="displayAccountPanel">
+        <div class="clearfix" style="margin-bottom: 10px">
+            <div style="float: right">
+                <button th:if="${user.canAddPropertyAccount()}" class="btn btn-default" onclick="showAddPropertyModal()">
+                    添加物业账号
+                </button>
+                <button th:if="${user.canAddProprietorAccount()}" class="btn btn-default" onclick="showAddProprietorModal()">
+                    添加业主账号
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addPropertyModal" tabindex="-1" role="dialog" aria-labelledby="editTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                    </button>
+                    <h4 class="modal-title">添加物业账号激活码</h4>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-top: 10px;">
+                        <label for="propertyPhone">手机号</label>
+                        <input type="text" name="phone" class="form-control" id="propertyPhone" placeholder="请输入注册手机号">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="addPropertyActiveCode()">
+                        添加
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addProprietorModal" tabindex="-1" role="dialog" aria-labelledby="editTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                    </button>
+                    <h4 class="modal-title">添加业主账号激活码</h4>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-top: 10px;">
+                        <label for="proprietorPhone">手机号</label>
+                        <input type="text" name="phone" class="form-control" id="proprietorPhone" placeholder="请输入注册手机号">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="addProprietorActiveCode()">
+                        添加
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<th:block layout:fragment="bottomScriptBlock">
+    <script type="text/javascript" src="../static/js/jquery/jquery.md5.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $('.nav-item').children('ul').slideUp(300);
+            $("#accountNav").slideDown(300);
+            $("#accountNav").parent('li').addClass('nav-show').siblings('li').removeClass('nav-show');
+
+        });
+
+        function showAddPropertyModal() {
+            $('#addPropertyModal').modal("show");
+        }
+
+        function showAddProprietorModal() {
+            $('#addProprietorModal').modal("show");
+        }
+
+        function addPropertyActiveCode() {
+            $.ajax({
+                type:"POST",
+                url:"/account/addPropertyActiveCode",
+                dataType : 'json',
+                data:{
+                    "encryptedPhone": $.md5($("#propertyPhone").val())
+                },
+                success:function (data) {
+                    alert("添加成功");
+                    $("#addPropertyModal").modal("hide");
+                }
+            })
+        }
+
+        function addProprietorActiveCode() {
+            $.ajax({
+                type:"POST",
+                url:"/account/addProprietorActiveCode",
+                dataType : 'json',
+                data:{
+                    "encryptedPhone": $.md5($("#proprietorPhone").val())
+                },
+                success:function (data) {
+                    alert("添加成功");
+                    $("#addProprietorModal").modal("hide");
+                }
+            })
+        }
+
+
+    </script>
+</th:block>
+</body>
+</html>

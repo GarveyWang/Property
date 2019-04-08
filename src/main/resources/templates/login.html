@@ -20,6 +20,9 @@
                 <div>
                     <input id="keystore" type="file" name="keystore" />
                 </div>
+                <div class="clearfix">
+                    <span>没有账号？请前往<a href="/register">注册</a></span>
+                </div>
             </div>
         </div>
     </div>
@@ -62,7 +65,7 @@
              }
          }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
              alert('验证成功！');
-             window.location.href="/motion";
+             window.location.href="/account/management";
          }).on("filebatchuploaderror", function (event, data, msg) {
              alert('验证失败！');
          });

@@ -11,6 +11,10 @@ import org.springframework.stereotype.Component;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.request.Transaction;
+import org.web3j.protocol.core.methods.response.EthCoinbase;
+import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tuples.generated.Tuple5;
 import org.web3j.tuples.generated.Tuple6;
@@ -20,6 +24,7 @@ import org.web3j.tx.exceptions.ContractCallException;
 import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.DefaultGasProvider;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -39,11 +44,15 @@ public class Web3Util {
     private ThreadLocal<PropertyContract> contractThreadLocal;
 
     static {
-        contractAddress = "0x77bff927648d25fa1669b3042119fdfe7ca296f7";
+        contractAddress = "0xa3ed84105a2398c2bc162b646ec3923a02670c46";
         gethAddress = "http://localhost:8545";
         web3j = Web3j.build(new HttpService(gethAddress));
         gasProvider = new DefaultGasProvider();
         maxRetryTimes = 200;
+    }
+
+    public void test(Credentials credentials){
+        PropertyContract contract = getPropertyContract(credentials);
     }
 
     @Cacheable(value = "user", key = "#addr", unless = "#result == null")
@@ -99,6 +108,50 @@ public class Web3Util {
             System.out.println("【getUserByPhone】未找到");
         }
         return null;
+    }
+
+    public boolean addProprietorAccount(int code, User user){
+        try {
+            recharge(user.getCredentials(), 25_000_000_000_000_000_00L);
+        }catch (IOException e){
+            e.printStackTrace();
+            return false;
+        }
+        PropertyContract contract = getPropertyContract(user.getCredentials());
+        if (contract != null) {
+            try {
+                contract.registerProprietor(BigInteger.valueOf(code), user.getEncryptedPwd(), user.getEncryptedPhone(), user.getNickName()).send();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return true;
+    }
+
+    public boolean addPropertyAccount(int code, User user){
+        try {
+            recharge(user.getCredentials(), 25_000_000_000_000_000_00L);
+        }catch (IOException e){
+            e.printStackTrace();
+            return false;
+        }
+
+        PropertyContract contract = getPropertyContract(user.getCredentials());
+        if (contract != null) {
+            try {
+                contract.registerProperty(BigInteger.valueOf(code), user.getEncryptedPwd(), user.getEncryptedPhone(), user.getNickName()).send();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return true;
+    }
+
+    private void recharge(Credentials credentials, long rechargeValue) throws IOException {
+        EthCoinbase coinbase = web3j.ethCoinbase().send();
+        EthGetTransactionCount transactionCount = web3j.ethGetTransactionCount(coinbase.getAddress(), DefaultBlockParameterName.LATEST).send();
+        Transaction transaction = Transaction.createEtherTransaction(coinbase.getAddress(), transactionCount.getTransactionCount(), BigInteger.valueOf(20_000_000_000L), BigInteger.valueOf(21_000), credentials.getAddress(), BigInteger.valueOf(rechargeValue));
+        web3j.ethSendTransaction(transaction).send();
     }
 
     @Cacheable(value = "publicityInfoCount", key = "")
@@ -607,16 +660,72 @@ public class Web3Util {
         return false;
     }
 
+    public void addPropertyActiveCode(String encryptedPhone, int code, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            try {
+                contract.addPropertyRegistryCode(encryptedPhone, BigInteger.valueOf(code)).send();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void addProprietorActiveCode(String encryptedPhone, int code, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            try {
+                contract.addProprietorRegistryCode(encryptedPhone, BigInteger.valueOf(code)).send();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public boolean hasProprietorRegistryCode(String encryptedPhone, Credentials credentials){
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    Boolean hasCode = contract.hasProprietorRegistryCode(encryptedPhone).send();
+                    System.out.println("【hasProprietorRegistryCode】重试次数：" + retryTimes);
+                    return hasCode;
+                } catch (ContractCallException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+            System.out.println("【hasProprietorRegistryCode】未找到");
+        }
+        return false;
+    }
+
+    public boolean hasPropertyRegistryCode(String encryptedPhone, Credentials credentials){
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    Boolean hasCode = contract.hasPropertyRegistryCode(encryptedPhone).send();
+                    System.out.println("【hasPropertyRegistryCode】重试次数：" + retryTimes);
+                    return hasCode;
+                } catch (ContractCallException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+            System.out.println("【hasPropertyRegistryCode】未找到");
+        }
+        return false;
+    }
+
     private PropertyContract getPropertyContract(Credentials credentials) {
-        if (contractThreadLocal == null) {
-            contractThreadLocal = new ThreadLocal<>();
-        }
-        if (contractThreadLocal.get() == null) {
-            PropertyContract contract = PropertyContract.load(contractAddress, web3j, credentials, gasProvider);
-            contractThreadLocal.set(contract);
-            return contract;
-        }
-        return contractThreadLocal.get();
+        return PropertyContract.load(contractAddress, web3j, credentials, gasProvider);
     }
 
     public static void main(String[] args) throws Exception {

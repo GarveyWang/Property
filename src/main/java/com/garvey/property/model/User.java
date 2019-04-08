@@ -92,4 +92,12 @@ public class User {
     public boolean canDeleteDiscussion() {
         return Authority.contain(authority, Authority.DELETE_DISCUSSION);
     }
+
+    public boolean canAddProprietorAccount() {
+        return Authority.contain(authority, Authority.ADD_PROPRIETOR_ACCOUNT);
+    }
+
+    public boolean canAddPropertyAccount() {
+        return Authority.contain(authority, Authority.ADD_PROPERTY_ACCOUNT);
+    }
 }
