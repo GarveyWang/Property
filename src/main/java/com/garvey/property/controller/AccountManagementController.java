@@ -9,6 +9,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 /**
  * @author GarveyWong
@@ -23,6 +25,8 @@ public class AccountManagementController {
 
     @GetMapping("/management")
     public String managementPage(User user, Model model){
+        List<User> userList = userService.getUsers(user.getCredentials());
+        model.addAttribute("userList", userList);
         model.addAttribute("user", user);
         return "accountManagement";
     }

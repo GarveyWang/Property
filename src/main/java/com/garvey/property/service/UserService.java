@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.web3j.crypto.Credentials;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author GarveyWong
  * @date 2019/3/26
@@ -27,35 +30,45 @@ public class UserService {
         return null;
     }
 
-    public User getUserByPhone(Credentials credentials, String encryptedPhone){
+    public List<User> getUsers(Credentials credentials) {
+        int userCount = web3Util.getUserCount(credentials);
+        List<User> users = new ArrayList<>(userCount);
+        for (int i = 0; i < userCount; ++i) {
+            User user = web3Util.getUserByIndex(credentials, i);
+            users.add(user);
+        }
+        return users;
+    }
+
+    public User getUserByPhone(Credentials credentials, String encryptedPhone) {
         return web3Util.getUserByPhone(credentials, encryptedPhone);
     }
 
-    public boolean addProprietorRegistryCode(Credentials credentials, String encryptedPhone){
+    public boolean addProprietorRegistryCode(Credentials credentials, String encryptedPhone) {
         int code = generateCode();
         System.out.println("【业主激活码】" + encryptedPhone + ":" + code);
         web3Util.addProprietorActiveCode(encryptedPhone, code, credentials);
         return web3Util.hasProprietorRegistryCode(encryptedPhone, credentials);
     }
 
-    public boolean addPropertyRegistryCode(Credentials credentials, String encryptedPhone){
+    public boolean addPropertyRegistryCode(Credentials credentials, String encryptedPhone) {
         int code = generateCode();
         System.out.println("【物业激活码】" + encryptedPhone + ":" + code);
         web3Util.addPropertyActiveCode(encryptedPhone, code, credentials);
         return web3Util.hasPropertyRegistryCode(encryptedPhone, credentials);
     }
 
-    public boolean registerProperty(int code, User user){
+    public boolean registerProperty(int code, User user) {
         web3Util.addPropertyAccount(code, user);
         return web3Util.getUser(user.getCredentials(), user.getAddress()) != null;
     }
 
-    public boolean registerProprietor(int code, User user){
+    public boolean registerProprietor(int code, User user) {
         web3Util.addProprietorAccount(code, user);
         return web3Util.getUser(user.getCredentials(), user.getAddress()) != null;
     }
 
-    private int generateCode(){
-        return (int)(1 + Math.random()*(999999));
+    private int generateCode() {
+        return (int) (1 + Math.random() * (999999));
     }
 }

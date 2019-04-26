@@ -41,10 +41,8 @@ public class Web3Util {
     private static int maxRetryTimes;
     private static ObjectMapper objectMapper = new ObjectMapper();
 
-    private ThreadLocal<PropertyContract> contractThreadLocal;
-
     static {
-        contractAddress = "0xa3ed84105a2398c2bc162b646ec3923a02670c46";
+        contractAddress = "0x0d1efb0feffb541d8e541fe1bd10ada549cbe5d0";
         gethAddress = "http://localhost:8545";
         web3j = Web3j.build(new HttpService(gethAddress));
         gasProvider = new DefaultGasProvider();
@@ -110,6 +108,56 @@ public class Web3Util {
         return null;
     }
 
+    @Cacheable(value = "userCount", key = "")
+    public int getUserCount(Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    BigInteger count = contract.getUserCount().send();
+                    System.out.println("【getUserCount】重试次数：" + retryTimes);
+                    return count.intValue();
+                } catch (ContractCallException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return -1;
+                }
+            }
+            System.out.println("【getUserCount】未找到");
+        }
+        return -1;
+    }
+
+    @Cacheable(value = "userByIndex", key = "#index", unless = "#result == null")
+    public User getUserByIndex(Credentials credentials, int index) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    Tuple5<String, String, String, String, BigInteger> tuple = contract.getUserByIndex(BigInteger.valueOf(index)).send();
+                    if (tuple.getValue5().intValue() == 0) {
+                        return null;
+                    }
+                    User user = new User(tuple.getValue1(), tuple.getValue2(), tuple.getValue3(), tuple.getValue4(), tuple.getValue5().intValue());
+                    user.setCredentials(credentials);
+                    System.out.println("【getUserByIndex】重试次数：" + retryTimes);
+                    return user;
+                } catch (IndexOutOfBoundsException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+            System.out.println("【getUserByIndex】未找到");
+        }
+        return null;
+    }
+
+    @CacheEvict(value = "userCount", allEntries = true)
     public boolean addProprietorAccount(int code, User user){
         try {
             recharge(user.getCredentials(), 25_000_000_000_000_000_00L);
@@ -128,6 +176,7 @@ public class Web3Util {
         return true;
     }
 
+    @CacheEvict(value = "userCount", allEntries = true)
     public boolean addPropertyAccount(int code, User user){
         try {
             recharge(user.getCredentials(), 25_000_000_000_000_000_00L);

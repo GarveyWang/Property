@@ -12,6 +12,7 @@ import org.web3j.tx.Contract;
 import org.web3j.tx.exceptions.ContractCallException;
 import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.DefaultGasProvider;
+import org.web3j.tx.gas.StaticGasProvider;
 
 import java.math.BigInteger;
 import java.util.Optional;
@@ -43,6 +44,7 @@ public class DeployContract {
         EthGetBalance balance = web3j.ethGetBalance(credentials.getAddress(), DefaultBlockParameterName.LATEST).send();
         System.out.println("【init】Balance: " + balance.getBalance().longValue());
 
+        //StaticGasProvider gasProvider = new StaticGasProvider(BigInteger.valueOf(4300000L), BigInteger.valueOf(22000000000L));
         PropertyContract contract = PropertyContract.deploy(web3j, credentials, new DefaultGasProvider(), encryptPsw, "5f93f983524def3dca464469d2cf9f3e", "nick").send();
         Optional<TransactionReceipt> tr = contract.getTransactionReceipt();
         System.out.println("合同addr:" + contract.getContractAddress());
