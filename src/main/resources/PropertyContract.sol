@@ -251,50 +251,163 @@ contract PropertyContract {
         return motion.voteFinishMap[msg.sender];
     }
     
-    //权限提案
-    struct AuthMotion{
-        bool settled;
-        uint16 authority;
-        bool turnOn;
-        string reason;
-        address fromAddr;
-        address targetAddr;
-        uint32 approvalCount;
-        uint32 disapprovalCount;
-        uint64 timestamp;
-        mapping(address => uint8) voteMap;
-    }
-    AuthMotion[] authMotionList;
     uint8 settledRatio = 50;
-    uint32 settledMinCount = 3;
-    
+    uint16 settledMinCount = 3;
+
     function getSettledRatio() public view returns(uint8){
         return settledRatio;
     }
-    
+
     function setSettledRatio(uint8 _settledRatio) public {
         if(userMap[msg.sender].authority & 2048 > 0 && _settledRatio <= 100){
             settledRatio = _settledRatio;
         }
     }
-    
+
     function getSettledMinCount() public view returns(uint32){
         return settledMinCount;
     }
-    
-    function setSettledMinCount(uint32 _settledMinCount) public {
+
+    function setSettledMinCount(uint16 _settledMinCount) public {
         if(userMap[msg.sender].authority & 2048 > 0){
             settledMinCount = _settledMinCount;
         }
     }
-    
-    function getAuthMotionCount() public view returns(uint256){
-        return authMotionList.length;
+
+    struct AuthOperation{
+        bool processing;
+        uint16 authority;
+        address targetAddr;
+        uint16 approvalCount;
+        uint16 disapprovalCount;
+		mapping(address => uint8) voteMap;
     }
-   
-    
-    function getAuthMotionVote(uint256 _authMotionIdx) public view returns(uint8){
-        AuthMotion storage authMotion = authMotionList[_authMotionIdx];
-        return authMotion.voteMap[msg.sender];
+    //权限申请
+    AuthOperation[] authApplicationList;
+
+    function getAuthApplicationCount() public view returns(uint256){
+        return authApplicationList.length;
     }
+
+    function getAuthApplication(uint256 _authApplicationIdx) public view returns(bool, uint16, address, uint16, uint24){
+        AuthOperation storage authApplication = authApplicationList[_authApplicationIdx];
+        return (authApplication.processing, authApplication.authority, authApplication.targetAddr, authApplication.approvalCount, authApplication.disapprovalCount);
+    }
+
+    function getAuthApplicationVote(uint256 _authApplicationIdx) public view returns(uint8){
+        AuthOperation storage authApplication = authApplicationList[_authApplicationIdx];
+        return authApplication.voteMap[msg.sender];
+    }
+
+    function addAuthApplication(uint16 _authority) public returns(uint256){
+        if(userMap[msg.sender].authority & 32 > 0){
+            AuthOperation memory authApplication = AuthOperation(true, _authority, msg.sender, 0, 0);
+            return authApplicationList.push(authApplication);
+        }
+    }
+
+    function agreeAuthApplication(uint256 _authApplicationIdx) public{
+        if(userMap[msg.sender].authority & 32 > 0) {
+            AuthOperation storage authApplication = authApplicationList[_authApplicationIdx];
+            if(authApplication.processing && (authApplication.targetAddr != msg.sender) && (authApplication.voteMap[msg.sender] == 0)){
+                authApplication.approvalCount += 1;
+				authApplication.voteMap[msg.sender] = uint8(1);
+            }
+			uint16 totalCount = authApplication.approvalCount + authApplication.disapprovalCount;
+			if(totalCount > settledMinCount){
+				if(authApplication.approvalCount * 100 > totalCount * settledRatio){
+					User storage user = userMap[authApplication.targetAddr];
+					if((user.authority & authApplication.authority) == 0){
+						user.authority += authApplication.authority;
+					}
+				}
+				authApplication.processing = false;
+			}
+        }
+    }
+
+    function disagreeAuthApplication(uint256 _authApplicationIdx) public{
+        if(userMap[msg.sender].authority & 32 > 0) {
+            AuthOperation storage authApplication = authApplicationList[_authApplicationIdx];
+            if(authApplication.processing && (authApplication.targetAddr != msg.sender) && (authApplication.voteMap[msg.sender] == 0)){
+                authApplication.disapprovalCount += 1;
+				authApplication.voteMap[msg.sender] = uint8(2);
+            }
+			uint16 totalCount = authApplication.approvalCount + authApplication.disapprovalCount;
+			if(totalCount > settledMinCount){
+				if(authApplication.disapprovalCount * 100 > totalCount * settledRatio){
+					User storage user = userMap[authApplication.targetAddr];
+					if((user.authority & authApplication.authority) != 0){
+						user.authority -= authApplication.authority;
+					}
+				}
+				authApplication.processing = false;
+			}
+        }
+    }
+
+    //权限注销
+    AuthOperation[] authCancellationList;
+
+    function getAuthCancellationCount() public view returns(uint256){
+        return authCancellationList.length;
+    }
+
+    function getAuthCancellation(uint256 _authApplicationIdx) public view returns(bool, uint16, address, uint16, uint24){
+        AuthOperation storage authCancellation = authCancellationList[_authApplicationIdx];
+        return (authCancellation.processing, authCancellation.authority, authCancellation.targetAddr, authCancellation.approvalCount, authCancellation.disapprovalCount);
+    }
+
+    function getAuthCancellationVote(uint256 _authApplicationIdx) public view returns(uint8){
+        AuthOperation storage authCancellation = authCancellationList[_authApplicationIdx];
+        return authCancellation.voteMap[msg.sender];
+    }
+
+    function addAuthCancellation(uint16 _authority) public returns(uint256){
+        if(userMap[msg.sender].authority & 32 > 0){
+            AuthOperation memory authCancellation = AuthOperation(true, _authority, msg.sender, 0, 0);
+            return authCancellationList.push(authCancellation);
+        }
+    }
+
+    function agreeAuthCancellation(uint256 _authApplicationIdx) public{
+        if(userMap[msg.sender].authority & 32 > 0) {
+            AuthOperation storage authCancellation = authCancellationList[_authApplicationIdx];
+            if(authCancellation.processing && (authCancellation.targetAddr != msg.sender) && (authCancellation.voteMap[msg.sender] == 0)){
+                authCancellation.approvalCount += 1;
+				authCancellation.voteMap[msg.sender] = uint8(1);
+            }
+			uint16 totalCount = authCancellation.approvalCount + authCancellation.disapprovalCount;
+			if(totalCount > settledMinCount){
+				if(authCancellation.approvalCount * 100 > totalCount * settledRatio){
+					User storage user = userMap[authCancellation.targetAddr];
+					if((user.authority & authCancellation.authority) == 0){
+						user.authority += authCancellation.authority;
+					}
+				}
+				authCancellation.processing = false;
+			}
+        }
+    }
+
+    function disagreeAuthCancellation(uint256 _authApplicationIdx) public{
+        if(userMap[msg.sender].authority & 32 > 0) {
+            AuthOperation storage authCancellation = authCancellationList[_authApplicationIdx];
+            if(authCancellation.processing && (authCancellation.targetAddr != msg.sender) && (authCancellation.voteMap[msg.sender] == 0)){
+                authCancellation.disapprovalCount += 1;
+				authCancellation.voteMap[msg.sender] = uint8(2);
+            }
+			uint16 totalCount = authCancellation.approvalCount + authCancellation.disapprovalCount;
+			if(totalCount > settledMinCount){
+				if(authCancellation.disapprovalCount * 100 > totalCount * settledRatio){
+					User storage user = userMap[authCancellation.targetAddr];
+					if((user.authority & authCancellation.authority) != 0){
+						user.authority -= authCancellation.authority;
+					}
+				}
+				authCancellation.processing = false;
+			}
+        }
+    }
+
 }

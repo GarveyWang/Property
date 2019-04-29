@@ -8,6 +8,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Component;
+import org.web3j.abi.datatypes.Bool;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
@@ -42,7 +43,7 @@ public class Web3Util {
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     static {
-        contractAddress = "0x0d1efb0feffb541d8e541fe1bd10ada549cbe5d0";
+        contractAddress = "0xf5ccd0d60cc4852363a44f43f0ab995fb4f6ed2c";
         gethAddress = "http://localhost:8545";
         web3j = Web3j.build(new HttpService(gethAddress));
         gasProvider = new DefaultGasProvider();
@@ -771,6 +772,321 @@ public class Web3Util {
             System.out.println("【hasPropertyRegistryCode】未找到");
         }
         return false;
+    }
+
+    @Cacheable(value = "authApplicationCount", key = "")
+    public int getAuthApplicationCount(Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    BigInteger count = contract.getAuthApplicationCount().send();
+                    System.out.println("【getAuthApplicationCount】重试次数：" + retryTimes);
+                    return count.intValue();
+                } catch (ContractCallException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return -1;
+                }
+            }
+            System.out.println("【getAuthApplicationCount】未找到");
+        }
+        return -1;
+    }
+
+    @Cacheable(value = "authApplication", key = "#idx", unless = "#result == null")
+    public AuthOperation getAuthApplication(long idx, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    Tuple5<Boolean, BigInteger, String, BigInteger, BigInteger> tuple = contract.getAuthApplication(BigInteger.valueOf(idx)).send();
+
+                    AuthOperation authOperation = new AuthOperation();
+                    authOperation.setIdx(idx);
+                    authOperation.setProcessing(tuple.getValue1());
+                    authOperation.setAuthority(tuple.getValue2().intValue());
+                    authOperation.setTargetAddr(tuple.getValue3());
+                    authOperation.setApprovalCount(tuple.getValue4().intValue());
+                    authOperation.setDisapprovalCount(tuple.getValue5().intValue());
+
+                    System.out.println("【getAuthApplication】重试次数：" + retryTimes);
+                    return authOperation;
+                } catch (IndexOutOfBoundsException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+            System.out.println("【getAuthApplication】未找到");
+        }
+        return null;
+    }
+
+    @Cacheable(value = "authApplicationVote", key = "T(String).valueOf(#idx).concat('-').concat(#credentials.address)", unless = "#result == -1")
+    public int getAuthApplicationVote(long idx, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    BigInteger vote = contract.getAuthApplicationVote(BigInteger.valueOf(idx)).send();
+                    System.out.println("【getAuthApplicationVote】重试次数：" + retryTimes);
+                    return vote.intValue();
+                } catch (IndexOutOfBoundsException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return -1;
+                }
+            }
+            System.out.println("【getAuthApplicationVote】未找到");
+        }
+        return -1;
+    }
+
+    @CacheEvict(value = "authApplicationCount", allEntries = true)
+    public void addAuthApplication(int authority, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            try {
+                contract.addAuthApplication(
+                        BigInteger.valueOf(authority)
+                ).send();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @CacheEvict(value = "authApplicationVote", key = "T(String).valueOf(#idx).concat('-').concat(#credentials.address)")
+    public void agreeAuthApplication(long idx, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            if (contract != null) {
+                try {
+                    contract.agreeAuthApplication(
+                            BigInteger.valueOf(idx)
+                    ).send();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @CacheEvict(value = "authApplicationVote", key = "T(String).valueOf(#idx).concat('-').concat(#credentials.address)")
+    public void disagreeAuthApplication(long idx, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            if (contract != null) {
+                try {
+                    contract.disagreeAuthApplication(
+                            BigInteger.valueOf(idx)
+                    ).send();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @Cacheable(value = "authCancellationCount", key = "")
+    public int getAuthCancellationCount(Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    BigInteger count = contract.getAuthCancellationCount().send();
+                    System.out.println("【getAuthCancellationCount】重试次数：" + retryTimes);
+                    return count.intValue();
+                } catch (ContractCallException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return -1;
+                }
+            }
+            System.out.println("【getAuthCancellationCount】未找到");
+        }
+        return -1;
+    }
+
+    @Cacheable(value = "authCancellation", key = "#idx", unless = "#result == null")
+    public AuthOperation getAuthCancellation(long idx, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    Tuple5<Boolean, BigInteger, String, BigInteger, BigInteger> tuple = contract.getAuthCancellation(BigInteger.valueOf(idx)).send();
+
+                    AuthOperation authOperation = new AuthOperation();
+                    authOperation.setIdx(idx);
+                    authOperation.setProcessing(tuple.getValue1());
+                    authOperation.setAuthority(tuple.getValue2().intValue());
+                    authOperation.setTargetAddr(tuple.getValue3());
+                    authOperation.setApprovalCount(tuple.getValue4().intValue());
+                    authOperation.setDisapprovalCount(tuple.getValue5().intValue());
+
+                    System.out.println("【getAuthCancellation】重试次数：" + retryTimes);
+                    return authOperation;
+                } catch (IndexOutOfBoundsException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+            System.out.println("【getAuthApplication】未找到");
+        }
+        return null;
+    }
+
+    @Cacheable(value = "authCancellationVote", key = "T(String).valueOf(#idx).concat('-').concat(#credentials.address)", unless = "#result == -1")
+    public int getAuthCancellationVote(long idx, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    BigInteger vote = contract.getAuthApplicationVote(BigInteger.valueOf(idx)).send();
+                    System.out.println("【getAuthCancellationVote】重试次数：" + retryTimes);
+                    return vote.intValue();
+                } catch (IndexOutOfBoundsException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return -1;
+                }
+            }
+            System.out.println("【getAuthCancellationVote】未找到");
+        }
+        return -1;
+    }
+
+    @CacheEvict(value = "authCancellationCount", allEntries = true)
+    public void addAuthCancellation(int authority, String targetAddress, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            try {
+                contract.addAuthCancellation(
+                        BigInteger.valueOf(authority),
+                        targetAddress
+                ).send();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @CacheEvict(value = "authCancellationVote", key = "T(String).valueOf(#idx).concat('-').concat(#credentials.address)")
+    public void agreeAuthCancellation(long idx, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            if (contract != null) {
+                try {
+                    contract.agreeAuthCancellation(
+                            BigInteger.valueOf(idx)
+                    ).send();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @CacheEvict(value = "authCancellationVote", key = "T(String).valueOf(#idx).concat('-').concat(#credentials.address)")
+    public void disagreeAuthCancellation(long idx, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            if (contract != null) {
+                try {
+                    contract.disagreeAuthCancellation(
+                            BigInteger.valueOf(idx)
+                    ).send();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @Cacheable(value = "settledRatio", key = "")
+    public int getSettledRatio(Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    BigInteger vote = contract.getSettledRatio().send();
+                    System.out.println("【getSettledRatio】重试次数：" + retryTimes);
+                    return vote.intValue();
+                } catch (IndexOutOfBoundsException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return -1;
+                }
+            }
+            System.out.println("【getSettledRatio】未找到");
+        }
+        return -1;
+    }
+
+    @CacheEvict(value = "settledRatio", allEntries = true)
+    public void setSettledRatio(int settledRatio, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            try {
+                contract.setSettledRatio(
+                        BigInteger.valueOf(settledRatio)
+                ).send();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Cacheable(value = "settledMinCount", key = "")
+    public int getSettledMinCount(Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    BigInteger vote = contract.getSettledMinCount().send();
+                    System.out.println("【getSettledMinCount】重试次数：" + retryTimes);
+                    return vote.intValue();
+                } catch (IndexOutOfBoundsException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return -1;
+                }
+            }
+            System.out.println("【getSettledMinCount】未找到");
+        }
+        return -1;
+    }
+
+    @CacheEvict(value = "settledMinCount", allEntries = true)
+    public void setSettledMinCount(int settledMinCount, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            try {
+                contract.setSettledMinCount(
+                        BigInteger.valueOf(settledMinCount)
+                ).send();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private PropertyContract getPropertyContract(Credentials credentials) {

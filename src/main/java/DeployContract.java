@@ -1,4 +1,5 @@
 import com.garvey.property.contract.PropertyContract;
+import org.apache.ibatis.transaction.TransactionException;
 import org.springframework.util.DigestUtils;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
@@ -39,21 +40,19 @@ public class DeployContract {
         Web3j web3j = Web3j.build(new HttpService("http://localhost:8545"));
         EthCoinbase coinbase = web3j.ethCoinbase().send();
         EthGetTransactionCount transactionCount = web3j.ethGetTransactionCount(coinbase.getAddress(), DefaultBlockParameterName.LATEST).send();
-        Transaction transaction = Transaction.createEtherTransaction(coinbase.getAddress(), transactionCount.getTransactionCount(), BigInteger.valueOf(20_000_000_000L), BigInteger.valueOf(21_000), credentials.getAddress(), BigInteger.valueOf(25_000_000_000_000_000_00L));
+        Transaction transaction = Transaction.createEtherTransaction(coinbase.getAddress(), transactionCount.getTransactionCount(), BigInteger.valueOf(20_000_000_000L), BigInteger.valueOf(21_000), credentials.getAddress(), BigInteger.valueOf(90_000_000_000_000_000_00L));
         web3j.ethSendTransaction(transaction).send();
         EthGetBalance balance = web3j.ethGetBalance(credentials.getAddress(), DefaultBlockParameterName.LATEST).send();
         System.out.println("【init】Balance: " + balance.getBalance().longValue());
 
-        //StaticGasProvider gasProvider = new StaticGasProvider(BigInteger.valueOf(4300000L), BigInteger.valueOf(22000000000L));
-        PropertyContract contract = PropertyContract.deploy(web3j, credentials, new DefaultGasProvider(), encryptPsw, "5f93f983524def3dca464469d2cf9f3e", "nick").send();
+        StaticGasProvider gasProvider = new StaticGasProvider(BigInteger.valueOf(22000000000L), BigInteger.valueOf(6000000L));
+        PropertyContract contract = PropertyContract.deploy(web3j, credentials, gasProvider, encryptPsw, "5f93f983524def3dca464469d2cf9f3e", "nick").send();
         Optional<TransactionReceipt> tr = contract.getTransactionReceipt();
         System.out.println("合同addr:" + contract.getContractAddress());
 
         if (tr.isPresent()) {
             System.out.println("【createContract】Transaction receipt");
         }
-
-
 
 //        Tuple4<String, String, String, BigInteger> userTuple = contract.getUserByAddr(credentials.getAddress()).sendAsync().get();
 //        System.out.println(userTuple);
