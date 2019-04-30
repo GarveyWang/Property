@@ -36,7 +36,7 @@ public class AuthService {
     }
 
     public List<AuthOperation> getAuthCancellations(Credentials credentials) {
-        int cancellationsCount = web3Util.getAuthApplicationCount(credentials);
+        int cancellationsCount = web3Util.getAuthCancellationCount(credentials);
         List<AuthOperation> authCancellations = new ArrayList<>(cancellationsCount);
         for (int i = cancellationsCount - 1; i >= 0; --i) {
             AuthOperation authOperation = web3Util.getAuthCancellation(i, credentials);

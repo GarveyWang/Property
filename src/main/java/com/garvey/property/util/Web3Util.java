@@ -43,7 +43,7 @@ public class Web3Util {
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     static {
-        contractAddress = "0xf5ccd0d60cc4852363a44f43f0ab995fb4f6ed2c";
+        contractAddress = "0x0146e669fdcecd4533dcfaf2a86bcdb1f309df8e";
         gethAddress = "http://localhost:8545";
         web3j = Web3j.build(new HttpService(gethAddress));
         gasProvider = new DefaultGasProvider();
@@ -837,7 +837,7 @@ public class Web3Util {
                     BigInteger vote = contract.getAuthApplicationVote(BigInteger.valueOf(idx)).send();
                     System.out.println("【getAuthApplicationVote】重试次数：" + retryTimes);
                     return vote.intValue();
-                } catch (IndexOutOfBoundsException e) {
+                } catch (ContractCallException e) {
                     ++retryTimes;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -943,7 +943,7 @@ public class Web3Util {
                     return null;
                 }
             }
-            System.out.println("【getAuthApplication】未找到");
+            System.out.println("【getAuthCancellation】未找到");
         }
         return null;
     }
@@ -958,7 +958,7 @@ public class Web3Util {
                     BigInteger vote = contract.getAuthApplicationVote(BigInteger.valueOf(idx)).send();
                     System.out.println("【getAuthCancellationVote】重试次数：" + retryTimes);
                     return vote.intValue();
-                } catch (IndexOutOfBoundsException e) {
+                } catch (ContractCallException e) {
                     ++retryTimes;
                 } catch (Exception e) {
                     e.printStackTrace();

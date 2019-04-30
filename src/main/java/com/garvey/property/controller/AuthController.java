@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
@@ -26,13 +27,28 @@ public class AuthController {
 
     @PostMapping("/applicationList")
     @ResponseBody
-    public List<AuthOperation> getAuthApplications(User user){
+    public List<AuthOperation> getAuthApplications(User user) {
         return authService.getAuthApplications(user.getCredentials());
     }
 
     @PostMapping("/cancellationList")
     @ResponseBody
-    public List<AuthOperation> getAuthCancellations(User user){
+    public List<AuthOperation> getAuthCancellations(User user) {
         return authService.getAuthCancellations(user.getCredentials());
+    }
+
+    @PostMapping("/apply")
+    @ResponseBody
+    public String applyAuth(@RequestParam("auth") int auth, User user) {
+        authService.applyAuth(user.getCredentials(), auth);
+        return "200";
+    }
+
+    @PostMapping("/cancel")
+    @ResponseBody
+    public String applyAuth(@RequestParam("auth") int auth, @RequestParam("targetAddr") String targetAddress,
+                            User user) {
+        authService.cancelAuth(user.getCredentials(), auth, targetAddress);
+        return "200";
     }
 }

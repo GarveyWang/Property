@@ -37,73 +37,72 @@
                             <span th:if="${user.canBasicRead()}" class="glyphicon glyphicon-ok"></span>
                             <span th:if="${!user.canBasicRead()}" class="glyphicon glyphicon-remove"></span>
                             基本读权限
-                            <button style="float: right" th:if="${!user.canBasicRead()}" class="btn btn-xs btn-default">申请该权限</button>
                         </li>
                         <li class="list-group-item clearfix">
                             <span th:if="${user.canPublishDiscussion()}" class="glyphicon glyphicon-ok"></span>
                             <span th:if="${!user.canPublishDiscussion()}" class="glyphicon glyphicon-remove"></span>
                             发布讨论权限
-                            <button style="float: right" th:if="${!user.canPublishDiscussion()}" class="btn btn-xs btn-default">申请该权限</button>
+                            <button style="float: right" th:if="${!user.canPublishDiscussion()}" class="btn btn-xs btn-default" onclick="applyAuth(2)">申请该权限</button>
                         </li>
                         <li class="list-group-item clearfix">
                             <span th:if="${user.canParticipateDiscussion()}" class="glyphicon glyphicon-ok"></span>
                             <span th:if="${!user.canParticipateDiscussion()}" class="glyphicon glyphicon-remove"></span>
                             参与讨论权限
-                            <button style="float: right" th:if="${!user.canParticipateDiscussion()}" class="btn btn-xs btn-default">申请该权限</button>
+                            <button style="float: right" th:if="${!user.canParticipateDiscussion()}" class="btn btn-xs btn-default" onclick="applyAuth(4)">申请该权限</button>
                         </li>
                         <li class="list-group-item clearfix">
                             <span th:if="${user.canDeleteDiscussion()}" class="glyphicon glyphicon-ok"></span>
                             <span th:if="${!user.canDeleteDiscussion()}" class="glyphicon glyphicon-remove"></span>
                             删除讨论权限
-                            <button style="float: right" th:if="${!user.canDeleteDiscussion()}" class="btn btn-xs btn-default">申请该权限</button>
+                            <button style="float: right" th:if="${!user.canDeleteDiscussion()}" class="btn btn-xs btn-default" onclick="applyAuth(8)">申请该权限</button>
                         </li>
                         <li class="list-group-item clearfix">
                             <span th:if="${user.canPublishMotion()}" class="glyphicon glyphicon-ok"></span>
                             <span th:if="${!user.canPublishMotion()}" class="glyphicon glyphicon-remove"></span>
                             发布提议权限
-                            <button style="float: right" th:if="${!user.canPublishMotion()}" class="btn btn-xs btn-default">申请该权限</button>
+                            <button style="float: right" th:if="${!user.canPublishMotion()}" class="btn btn-xs btn-default" onclick="applyAuth(16)">申请该权限</button>
                         </li>
                         <li class="list-group-item clearfix">
                             <span th:if="${user.canVoteMotion()}" class="glyphicon glyphicon-ok"></span>
                             <span th:if="${!user.canVoteMotion()}" class="glyphicon glyphicon-remove"></span>
                             表决提议权限
-                            <button style="float: right" th:if="${!user.canVoteMotion()}" class="btn btn-xs btn-default">申请该权限</button>
+                            <button style="float: right" th:if="${!user.canVoteMotion()}" class="btn btn-xs btn-default" onclick="applyAuth(32)">申请该权限</button>
                         </li>
                         <li class="list-group-item clearfix">
                             <span th:if="${user.canDeleteMotion()}" class="glyphicon glyphicon-ok"></span>
                             <span th:if="${!user.canDeleteMotion()}" class="glyphicon glyphicon-remove"></span>
                             删除提议权限
-                            <button style="float: right" th:if="${!user.canDeleteMotion()}" class="btn btn-xs btn-default">申请该权限</button>
+                            <button style="float: right" th:if="${!user.canDeleteMotion()}" class="btn btn-xs btn-default" onclick="applyAuth(64)">申请该权限</button>
                         </li>
                         <li class="list-group-item clearfix">
                             <span th:if="${user.canPublishInfo()}" class="glyphicon glyphicon-ok"></span>
                             <span th:if="${!user.canPublishInfo()}" class="glyphicon glyphicon-remove"></span>
                             发布公告权限
-                            <button style="float: right" th:if="${!user.canPublishInfo()}" class="btn btn-xs btn-default">申请该权限</button>
+                            <button style="float: right" th:if="${!user.canPublishInfo()}" class="btn btn-xs btn-default" onclick="applyAuth(128)">申请该权限</button>
                         </li>
                         <li class="list-group-item clearfix">
                             <span th:if="${user.canPublishFund()}" class="glyphicon glyphicon-ok"></span>
                             <span th:if="${!user.canPublishFund()}" class="glyphicon glyphicon-remove"></span>
                             发布资金流向权限
-                            <button style="float: right" th:if="${!user.canPublishFund()}" class="btn btn-xs btn-default">申请该权限</button>
+                            <button style="float: right" th:if="${!user.canPublishFund()}" class="btn btn-xs btn-default" onclick="applyAuth(256)">申请该权限</button>
                         </li>
                         <li class="list-group-item clearfix">
                             <span th:if="${user.canAddProprietorAccount()}" class="glyphicon glyphicon-ok"></span>
                             <span th:if="${!user.canAddProprietorAccount()}" class="glyphicon glyphicon-remove"></span>
                             添加业主账号权限
-                            <button style="float: right" th:if="${!user.canAddProprietorAccount()}" class="btn btn-xs btn-default">申请该权限</button>
+                            <button style="float: right" th:if="${!user.canAddProprietorAccount()}" class="btn btn-xs btn-default" onclick="applyAuth(512)">申请该权限</button>
                         </li>
                         <li class="list-group-item clearfix">
                             <span th:if="${user.canAddPropertyAccount()}" class="glyphicon glyphicon-ok"></span>
                             <span th:if="${!user.canAddPropertyAccount()}" class="glyphicon glyphicon-remove"></span>
                             添加物业账号权限
-                            <button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-default">申请该权限</button>
+                            <button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-default" onclick="applyAuth(1024)">申请该权限</button>
                         </li>
                         <li class="list-group-item clearfix">
                             <span th:if="${user.canSuper()}" class="glyphicon glyphicon-ok"></span>
                             <span th:if="${!user.canSuper()}" class="glyphicon glyphicon-remove"></span>
                             超级管理员权限
-                            <button style="float: right" th:if="${!user.canSuper()}" class="btn btn-xs btn-default">申请该权限</button>
+                            <button style="float: right" th:if="${!user.canSuper()}" class="btn btn-xs btn-default" onclick="applyAuth(2048)">申请该权限</button>
                         </li>
                     </ul>
                 </div>
@@ -121,7 +120,9 @@
                 <div class="panel-body">
                     <select class="form-control" id="selectUser" onchange="showAuthority()">
                         <option th:each="userItem, itemStat: ${userList}" th:text="${userItem.nickName}"
-                                th:attr="canBasicRead = ${userItem.canBasicRead()},
+                                th:attr="
+                                addr = ${userItem.address},
+                                canBasicRead = ${userItem.canBasicRead()},
                                 canPublishDiscussion = ${userItem.canPublishDiscussion()},
                                 canParticipateDiscussion = ${userItem.canParticipateDiscussion()},
                                 canDeleteDiscussion = ${userItem.canDeleteDiscussion()},
@@ -211,6 +212,13 @@
 
             showAuthority();
 
+            showAuthApplicationTable();
+            showAuthCancellationTable();
+
+        });
+
+        function showAuthApplicationTable() {
+            $('#authApplicationTable').bootstrapTable('destroy');
             $.ajax({
                 type:"POST",
                 url:"/auth/applicationList",
@@ -286,7 +294,10 @@
                     })
                 }
             });
+        }
 
+        function showAuthCancellationTable() {
+            $('#authCancellationTable').bootstrapTable('destroy');
             $.ajax({
                 type:"POST",
                 url:"/auth/cancellationList",
@@ -362,7 +373,7 @@
                     })
                 }
             });
-        });
+        }
 
         function showAddPropertyModal() {
             $('#addPropertyModal').modal("show");
@@ -407,73 +418,73 @@
 
             var html = '<ul class="list-group">';
             if (selectedUser.attr("canBasicRead")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 基本读权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning">申请取消该权限</button></li>';
+                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 基本读权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(1)">申请取消该权限</button></li>';
             }else{
                 html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 基本读权限</li>';
             }
 
             if (selectedUser.attr("canPublishDiscussion")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 发布讨论权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning">申请取消该权限</button></li>';
+                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 发布讨论权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(2)">申请取消该权限</button></li>';
             }else{
                 html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 发布讨论权限</li>';
             }
 
             if (selectedUser.attr("canParticipateDiscussion")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 参与讨论权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning">申请取消该权限</button></li>';
+                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 参与讨论权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(4)">申请取消该权限</button></li>';
             }else{
                 html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 参与讨论权限</li>';
             }
 
             if (selectedUser.attr("canDeleteDiscussion")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 删除讨论权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning">申请取消该权限</button></li>';
+                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 删除讨论权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(8)">申请取消该权限</button></li>';
             }else{
                 html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 删除讨论权限</li>';
             }
 
             if (selectedUser.attr("canPublishMotion")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 发布提议权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning">申请取消该权限</button></li>';
+                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 发布提议权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(16)">申请取消该权限</button></li>';
             }else{
                 html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 发布提议权限</li>';
             }
 
             if (selectedUser.attr("canVoteMotion")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 表决提议权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning">申请取消该权限</button></li>';
+                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 表决提议权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(32)">申请取消该权限</button></li>';
             }else{
                 html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 表决提议权限</li>';
             }
 
             if (selectedUser.attr("canDeleteMotion")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 删除提议权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning">申请取消该权限</button></li>';
+                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 删除提议权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(64)">申请取消该权限</button></li>';
             }else{
                 html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 删除提议权限</li>';
             }
 
             if (selectedUser.attr("canPublishInfo")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 发布公告权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning">申请取消该权限</button></li>';
+                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 发布公告权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(128)">申请取消该权限</button></li>';
             }else{
                 html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 发布公告权限</li>';
             }
 
             if (selectedUser.attr("canPublishFund")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 发布资金流向权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning">申请取消该权限</button></li>';
+                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 发布资金流向权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(256)">申请取消该权限</button></li>';
             }else{
                 html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 发布资金流向权限</li>';
             }
 
             if (selectedUser.attr("canAddProprietorAccount")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 添加业主账号权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning">申请取消该权限</button></li>';
+                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 添加业主账号权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(512)">申请取消该权限</button></li>';
             }else{
                 html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 添加业主账号权限</li>';
             }
 
             if (selectedUser.attr("canAddPropertyAccount")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 添加物业账号权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning">申请取消该权限</button></li>';
+                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 添加物业账号权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(1024)">申请取消该权限</button></li>';
             }else{
                 html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 添加物业账号权限</li>';
             }
 
             if (selectedUser.attr("canSuper")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 超级管理员权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning">申请取消该权限</button></li>';
+                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 超级管理员权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(2048)">申请取消该权限</button></li>';
             }else{
                 html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 超级管理员权限</li>';
             }
@@ -482,7 +493,36 @@
             $("#queryResult").html(html);
         }
 
+        function applyAuth(auth) {
+            $.ajax({
+                type:"POST",
+                url:"/auth/apply",
+                dataType : 'json',
+                data:{
+                    "auth": auth
+                },
+                success:function (data) {
+                    showAuthApplicationTable()
+                }
+            })
+        }
 
+        function cancelAuth(auth) {
+            var selectedUser = $("#selectUser option:selected");
+            var targetAddr = selectedUser.attr("addr");
+            $.ajax({
+                type:"POST",
+                url:"/auth/cancel",
+                dataType : 'json',
+                data:{
+                    "auth": auth,
+                    "targetAddr": targetAddr
+                },
+                success:function (data) {
+                    showAuthCancellationTable();
+                }
+            })
+        }
     </script>
 </th:block>
 </body>
