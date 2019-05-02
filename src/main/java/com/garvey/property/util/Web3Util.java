@@ -1051,7 +1051,7 @@ public class Web3Util {
                     BigInteger settledRatio = contract.getSettledRatio().send();
                     System.out.println("【getSettledRatio】重试次数：" + retryTimes);
                     return settledRatio.intValue();
-                } catch (IndexOutOfBoundsException e) {
+                } catch (ContractCallException e) {
                     ++retryTimes;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -1087,7 +1087,7 @@ public class Web3Util {
                     BigInteger settledMinCount = contract.getSettledMinCount().send();
                     System.out.println("【getSettledMinCount】重试次数：" + retryTimes);
                     return settledMinCount.intValue();
-                } catch (IndexOutOfBoundsException e) {
+                } catch (ContractCallException e) {
                     ++retryTimes;
                 } catch (Exception e) {
                     e.printStackTrace();

@@ -79,4 +79,13 @@ public class AuthController {
         authService.disagreeAuthCancellation(user.getCredentials(), idx);
         return "200";
     }
+
+    @PostMapping("/voteAttr/edit")
+    @ResponseBody
+    public String editVoteAttr(@RequestParam("settledMinCount") int settledMinCount,
+                               @RequestParam("settledRatio") int settledRatio, User user) {
+        authService.setSettledMinCount(settledMinCount, user.getCredentials());
+        authService.setSettledRatio(settledRatio, user.getCredentials());
+        return "200";
+    }
 }

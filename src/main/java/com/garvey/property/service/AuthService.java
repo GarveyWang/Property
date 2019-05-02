@@ -93,7 +93,9 @@ public class AuthService {
     }
 
     public void setSettledRatio(int settledRatio, Credentials credentials) {
-        web3Util.setSettledRatio(settledRatio, credentials);
+        if (settledRatio >= 0 && settledRatio <= 100) {
+            web3Util.setSettledRatio(settledRatio, credentials);
+        }
     }
 
     public int getSettledMinCount(Credentials credentials) {
@@ -101,6 +103,9 @@ public class AuthService {
     }
 
     public void setSettledMinCount(int settledMinCount, Credentials credentials) {
-        web3Util.setSettledMinCount(settledMinCount, credentials);
+        int userCount = web3Util.getUserCount(credentials);
+        if (settledMinCount <= userCount) {
+            web3Util.setSettledMinCount(settledMinCount, credentials);
+        }
     }
 }

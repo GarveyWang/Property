@@ -335,6 +335,12 @@ contract PropertyContract {
             }
 			uint16 totalCount = authApplication.approvalCount + authApplication.disapprovalCount;
 			if(totalCount >= settledMinCount){
+				if(authApplication.approvalCount * 100 > totalCount * settledRatio){
+					User storage user = userMap[authApplication.targetAddr];
+					if((user.authority & authApplication.authority) == 0){
+						user.authority += authApplication.authority;
+					}
+				}
 				authApplication.processing = false;
 			}
         }
@@ -393,6 +399,12 @@ contract PropertyContract {
             }
 			uint16 totalCount = authCancellation.approvalCount + authCancellation.disapprovalCount;
 			if(totalCount >= settledMinCount){
+				if(authCancellation.approvalCount * 100 > totalCount * settledRatio){
+					User storage user = userMap[authCancellation.targetAddr];
+					if((user.authority & authCancellation.authority) != 0){
+						user.authority -= authCancellation.authority;
+					}
+				}
 				authCancellation.processing = false;
 			}
         }

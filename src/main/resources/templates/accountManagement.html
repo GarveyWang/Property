@@ -14,7 +14,13 @@
 <div layout:fragment="content" style="width:90%;">
     <div id="displayAccountPanel">
         <div class="clearfix" style="margin-bottom: 10px">
+            <div style="float: left">
+                当投票人数达<span th:text="${settledMinCount}"></span>票，赞成票达<span th:text="${settledRatio}"></span>%时方生效
+            </div>
             <div style="float: right">
+                <button th:if="${user.canSuper()}" class="btn btn-default" onclick="showEditVoteAttrModal()">
+                    修改投票参数
+                </button>
                 <button th:if="${user.canAddPropertyAccount()}" class="btn btn-default" onclick="showAddPropertyModal()">
                     添加物业账号
                 </button>
@@ -198,7 +204,35 @@
         </div>
     </div>
 
-
+    <div class="modal fade" id="editVoteAttrModal" tabindex="-1" role="dialog" aria-labelledby="editTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                    </button>
+                    <h4 class="modal-title">修改投票参数</h4>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-top: 10px;">
+                        <label for="proprietorPhone">最少投票人数</label>
+                        <input type="text" name="settledMinCount" id="settledMinCount" class="form-control" placeholder="请输入最少投票人数" th:value="${settledMinCount}">
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label for="proprietorPhone">投票通过比例</label>
+                        <input type="text" name="settledRatio" id="settledRatio" class="form-control" placeholder="请输入投票通过比例" th:value="${settledRatio}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="editVoteAttr()">
+                        修改
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <th:block layout:fragment="bottomScriptBlock">
     <script type="text/javascript" src="../static/js/jquery/jquery.md5.js"></script>
@@ -397,6 +431,10 @@
             $('#addProprietorModal').modal("show");
         }
 
+        function showEditVoteAttrModal() {
+            $('#editVoteAttrModal').modal("show");
+        }
+
         function addPropertyActiveCode() {
             $.ajax({
                 type:"POST",
@@ -423,6 +461,23 @@
                 success:function (data) {
                     alert("添加成功");
                     $("#addProprietorModal").modal("hide");
+                }
+            })
+        }
+
+        function editVoteAttr() {
+            $.ajax({
+                type:"POST",
+                url:"/auth/voteAttr/edit",
+                dataType : 'json',
+                data:{
+                    "settledMinCount": $("#settledMinCount").val(),
+                    "settledRatio": $("#settledRatio").val()
+                },
+                success:function (data) {
+                    alert("修改成功");
+                    $("#editVoteAttrModal").modal("hide");
+                    window.location.reload();
                 }
             })
         }
