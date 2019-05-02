@@ -39,6 +39,7 @@ public class AuthController {
 
     @PostMapping("/apply")
     @ResponseBody
+    @NeededAuthority(authorities = Authority.VOTE_MOTION)
     public String applyAuth(@RequestParam("auth") int auth, User user) {
         authService.applyAuth(user.getCredentials(), auth);
         return "200";
@@ -46,6 +47,7 @@ public class AuthController {
 
     @PostMapping("/cancel")
     @ResponseBody
+    @NeededAuthority(authorities = Authority.VOTE_MOTION)
     public String applyAuth(@RequestParam("auth") int auth, @RequestParam("targetAddr") String targetAddress,
                             User user) {
         authService.cancelAuth(user.getCredentials(), auth, targetAddress);
@@ -54,6 +56,7 @@ public class AuthController {
 
     @PostMapping("/application/agree")
     @ResponseBody
+    @NeededAuthority(authorities = Authority.VOTE_MOTION)
     public String agreeApplication(@RequestParam("idx") int idx, User user) {
         authService.agreeAuthApplication(user.getCredentials(), idx);
         return "200";
@@ -61,6 +64,7 @@ public class AuthController {
 
     @PostMapping("/application/disagree")
     @ResponseBody
+    @NeededAuthority(authorities = Authority.VOTE_MOTION)
     public String disagreeApplication(@RequestParam("idx") int idx, User user) {
         authService.disagreeAuthApplication(user.getCredentials(), idx);
         return "200";
@@ -68,6 +72,7 @@ public class AuthController {
 
     @PostMapping("/cancellation/agree")
     @ResponseBody
+    @NeededAuthority(authorities = Authority.VOTE_MOTION)
     public String agreeCancellation(@RequestParam("idx") int idx, User user) {
         authService.agreeAuthCancellation(user.getCredentials(), idx);
         return "200";
@@ -75,6 +80,7 @@ public class AuthController {
 
     @PostMapping("/cancellation/disagree")
     @ResponseBody
+    @NeededAuthority(authorities = Authority.VOTE_MOTION)
     public String disagreeCancellation(@RequestParam("idx") int idx, User user) {
         authService.disagreeAuthCancellation(user.getCredentials(), idx);
         return "200";
@@ -82,6 +88,7 @@ public class AuthController {
 
     @PostMapping("/voteAttr/edit")
     @ResponseBody
+    @NeededAuthority(authorities = Authority.SUPER)
     public String editVoteAttr(@RequestParam("settledMinCount") int settledMinCount,
                                @RequestParam("settledRatio") int settledRatio, User user) {
         authService.setSettledMinCount(settledMinCount, user.getCredentials());
