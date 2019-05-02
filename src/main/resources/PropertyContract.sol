@@ -314,7 +314,7 @@ contract PropertyContract {
 				authApplication.voteMap[msg.sender] = uint8(1);
             }
 			uint16 totalCount = authApplication.approvalCount + authApplication.disapprovalCount;
-			if(totalCount > settledMinCount){
+			if(totalCount >= settledMinCount){
 				if(authApplication.approvalCount * 100 > totalCount * settledRatio){
 					User storage user = userMap[authApplication.targetAddr];
 					if((user.authority & authApplication.authority) == 0){
@@ -334,13 +334,7 @@ contract PropertyContract {
 				authApplication.voteMap[msg.sender] = uint8(2);
             }
 			uint16 totalCount = authApplication.approvalCount + authApplication.disapprovalCount;
-			if(totalCount > settledMinCount){
-				if(authApplication.disapprovalCount * 100 > totalCount * settledRatio){
-					User storage user = userMap[authApplication.targetAddr];
-					if((user.authority & authApplication.authority) != 0){
-						user.authority -= authApplication.authority;
-					}
-				}
+			if(totalCount >= settledMinCount){
 				authApplication.processing = false;
 			}
         }
@@ -363,9 +357,9 @@ contract PropertyContract {
         return authCancellation.voteMap[msg.sender];
     }
 
-    function addAuthCancellation(uint16 _authority) public returns(uint256){
+    function addAuthCancellation(uint16 _authority, address _targetAddr) public returns(uint256){
         if(userMap[msg.sender].authority & 32 > 0){
-            AuthOperation memory authCancellation = AuthOperation(true, _authority, msg.sender, 0, 0);
+            AuthOperation memory authCancellation = AuthOperation(true, _authority, _targetAddr, 0, 0);
             return authCancellationList.push(authCancellation);
         }
     }
@@ -378,11 +372,11 @@ contract PropertyContract {
 				authCancellation.voteMap[msg.sender] = uint8(1);
             }
 			uint16 totalCount = authCancellation.approvalCount + authCancellation.disapprovalCount;
-			if(totalCount > settledMinCount){
+			if(totalCount >= settledMinCount){
 				if(authCancellation.approvalCount * 100 > totalCount * settledRatio){
 					User storage user = userMap[authCancellation.targetAddr];
-					if((user.authority & authCancellation.authority) == 0){
-						user.authority += authCancellation.authority;
+					if((user.authority & authCancellation.authority) != 0){
+						user.authority -= authCancellation.authority;
 					}
 				}
 				authCancellation.processing = false;
@@ -398,13 +392,7 @@ contract PropertyContract {
 				authCancellation.voteMap[msg.sender] = uint8(2);
             }
 			uint16 totalCount = authCancellation.approvalCount + authCancellation.disapprovalCount;
-			if(totalCount > settledMinCount){
-				if(authCancellation.disapprovalCount * 100 > totalCount * settledRatio){
-					User storage user = userMap[authCancellation.targetAddr];
-					if((user.authority & authCancellation.authority) != 0){
-						user.authority -= authCancellation.authority;
-					}
-				}
+			if(totalCount >= settledMinCount){
 				authCancellation.processing = false;
 			}
         }

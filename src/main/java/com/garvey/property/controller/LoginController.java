@@ -54,6 +54,7 @@ public class LoginController {
             if (credentials != null) {
                 User user = userService.validate(credentials, md5Password);
                 if (user != null) {
+                    user.setCredentials(credentials);
                     session.setAttribute("user", user);
                     return "200";
                 }

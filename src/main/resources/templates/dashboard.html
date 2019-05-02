@@ -53,6 +53,7 @@
     </ul>
 </div>
 <div style="background: rgba(0, 0, 0, 0.7); padding: 1px 20px;height: 61px">
+    <div style="float: left; margin-left: 220px; margin-top: 10px"><h4 id="welcome" style="color: white" th:text="'欢迎您，' + ${user.nickName}"></h4></div>
     <div id="title" layout:fragment="title"></div>
 </div>
 <div id="contentContainer" class="container" layout:fragment="content">

@@ -51,4 +51,32 @@ public class AuthController {
         authService.cancelAuth(user.getCredentials(), auth, targetAddress);
         return "200";
     }
+
+    @PostMapping("/application/agree")
+    @ResponseBody
+    public String agreeApplication(@RequestParam("idx") int idx, User user) {
+        authService.agreeAuthApplication(user.getCredentials(), idx);
+        return "200";
+    }
+
+    @PostMapping("/application/disagree")
+    @ResponseBody
+    public String disagreeApplication(@RequestParam("idx") int idx, User user) {
+        authService.disagreeAuthApplication(user.getCredentials(), idx);
+        return "200";
+    }
+
+    @PostMapping("/cancellation/agree")
+    @ResponseBody
+    public String agreeCancellation(@RequestParam("idx") int idx, User user) {
+        authService.agreeAuthCancellation(user.getCredentials(), idx);
+        return "200";
+    }
+
+    @PostMapping("/cancellation/disagree")
+    @ResponseBody
+    public String disagreeCancellation(@RequestParam("idx") int idx, User user) {
+        authService.disagreeAuthCancellation(user.getCredentials(), idx);
+        return "200";
+    }
 }

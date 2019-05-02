@@ -107,7 +107,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="panel panel-default col-sm-offset-1 col-sm-8">
+            <div class="panel panel-default col-sm-9">
                 <table id="authApplicationTable" class="table-striped"></table>
             </div>
             <div class="clearfix"></div>
@@ -140,7 +140,7 @@
                 <div class="panel-body" id="queryResult">
                 </div>
             </div>
-            <div class="panel panel-default col-sm-offset-1 col-sm-8">
+            <div class="panel panel-default col-sm-9">
                 <table id="authCancellationTable" class="table-striped"></table>
             </div>
         </div>
@@ -212,12 +212,12 @@
 
             showAuthority();
 
-            showAuthApplicationTable();
-            showAuthCancellationTable();
+            refreshAuthApplicationTable();
+            refreshAuthCancellationTable();
 
         });
 
-        function showAuthApplicationTable() {
+        function refreshAuthApplicationTable() {
             $('#authApplicationTable').bootstrapTable('destroy');
             $.ajax({
                 type:"POST",
@@ -262,9 +262,13 @@
                                         if (row.targetNickName == null || row.targetNickName == ""){
                                             return row.targetAddr;
                                         } else{
-                                            return row.targetNickName + '(' + row.targetAddr + ')';
+                                            return row.targetNickName + '(' + row.targetAddr.substring(row.targetAddr.length, row.targetAddr.length - 8) + ')';
                                         }
                                     }
+                                },
+                                {
+                                    field: 'authorityName',
+                                    title: '权限名称'
                                 },
                                 {
                                     field: 'approvalCount',
@@ -278,9 +282,12 @@
                                     field: 'myVote',
                                     title: '操作',
                                     formatter: function (value, row, index) {
+                                        if (row.targetAddr == [[${user.address}]]){
+                                            return '不可投票给自己！'
+                                        }
                                         if (row.myVote == 0){
-                                            return '<button class="btn btn-primary">同意</button>' +
-                                                '<button class="btn btn-warning">反对</button>';
+                                            return '<button class="btn btn-primary" onclick="agreeApplication('+ row.idx + ')">赞成</button>' +
+                                                '<button class="btn btn-warning" onclick="disagreeApplication('+ row.idx + ')">反对</button>';
                                         } else if (row.myVote == 1){
                                             return '您已经投赞成票！';
                                         } else if (row.myVote == 2) {
@@ -296,7 +303,7 @@
             });
         }
 
-        function showAuthCancellationTable() {
+        function refreshAuthCancellationTable() {
             $('#authCancellationTable').bootstrapTable('destroy');
             $.ajax({
                 type:"POST",
@@ -341,9 +348,13 @@
                                         if (row.targetNickName == null || row.targetNickName == ""){
                                             return row.targetAddr;
                                         } else{
-                                            return row.targetNickName + '(' + row.targetAddr + ')';
+                                            return row.targetNickName + '(' + row.targetAddr.substring(row.targetAddr.length, row.targetAddr.length - 8) + ')';
                                         }
                                     }
+                                },
+                                {
+                                    field: 'authorityName',
+                                    title: '权限名称'
                                 },
                                 {
                                     field: 'approvalCount',
@@ -357,9 +368,12 @@
                                     field: 'myVote',
                                     title: '操作',
                                     formatter: function (value, row, index) {
+                                        if (row.targetAddr == [[${user.address}]]){
+                                            return '不可投票给自己！'
+                                        }
                                         if (row.myVote == 0){
-                                            return '<button class="btn btn-primary">同意</button>' +
-                                                '<button class="btn btn-warning">反对</button>';
+                                            return '<button class="btn btn-primary" onclick="agreeCancellation('+ row.idx + ')">赞成</button>' +
+                                                '<button class="btn btn-warning" onclick="disagreeCancellation('+ row.idx + ')">反对</button>';
                                         } else if (row.myVote == 1){
                                             return '您已经投赞成票！';
                                         } else if (row.myVote == 2) {
@@ -502,7 +516,7 @@
                     "auth": auth
                 },
                 success:function (data) {
-                    showAuthApplicationTable()
+                    refreshAuthApplicationTable()
                 }
             })
         }
@@ -519,10 +533,67 @@
                     "targetAddr": targetAddr
                 },
                 success:function (data) {
-                    showAuthCancellationTable();
+                    refreshAuthCancellationTable();
                 }
             })
         }
+
+        function agreeApplication(idx) {
+            $.ajax({
+                type:"POST",
+                url:"/auth/application/agree",
+                dataType : 'json',
+                data:{
+                    "idx": idx
+                },
+                success:function (data) {
+                    refreshAuthApplicationTable();
+                }
+            })
+        }
+
+        function disagreeApplication(idx) {
+            $.ajax({
+                type:"POST",
+                url:"/auth/application/disagree",
+                dataType : 'json',
+                data:{
+                    "idx": idx
+                },
+                success:function (data) {
+                    refreshAuthApplicationTable();
+                }
+            })
+        }
+
+        function agreeCancellation(idx) {
+            $.ajax({
+                type:"POST",
+                url:"/auth/cancellation/agree",
+                dataType : 'json',
+                data:{
+                    "idx": idx
+                },
+                success:function (data) {
+                    refreshAuthCancellationTable();
+                }
+            })
+        }
+
+        function disagreeCancellation(idx) {
+            $.ajax({
+                type:"POST",
+                url:"/auth/cancellation/disagree",
+                dataType : 'json',
+                data:{
+                    "idx": idx
+                },
+                success:function (data) {
+                    refreshAuthCancellationTable();
+                }
+            })
+        }
+
     </script>
 </th:block>
 </body>

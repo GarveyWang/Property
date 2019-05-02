@@ -1,5 +1,7 @@
 package com.garvey.property.model;
 
+import com.garvey.property.constant.Authority;
+
 /**
  * @author GarveyWong
  * @date 2019/4/28
@@ -76,5 +78,9 @@ public class AuthOperation {
 
     public void setMyVote(int myVote) {
         this.myVote = myVote;
+    }
+
+    public String getAuthorityName(){
+        return Authority.getDesc(authority);
     }
 }

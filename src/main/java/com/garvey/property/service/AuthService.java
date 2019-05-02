@@ -2,6 +2,7 @@ package com.garvey.property.service;
 
 import com.garvey.property.constant.BasicConst;
 import com.garvey.property.model.AuthOperation;
+import com.garvey.property.model.User;
 import com.garvey.property.util.Web3Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,11 +57,17 @@ public class AuthService {
     }
 
     public void agreeAuthApplication(Credentials credentials, long idx) {
-        web3Util.agreeAuthApplication(idx, credentials);
+        AuthOperation authOperation = web3Util.getAuthApplication(idx, credentials);
+        String targetAddress = authOperation.getTargetAddr();
+        User targetUser = web3Util.getUser(credentials, targetAddress);
+        web3Util.agreeAuthApplication(idx, targetAddress, targetUser.getEncryptedPhone(), credentials);
     }
 
     public void disagreeAuthApplication(Credentials credentials, long idx) {
-        web3Util.disagreeAuthApplication(idx, credentials);
+        AuthOperation authOperation = web3Util.getAuthApplication(idx, credentials);
+        String targetAddress = authOperation.getTargetAddr();
+        User targetUser = web3Util.getUser(credentials, targetAddress);
+        web3Util.disagreeAuthApplication(idx, targetAddress, targetUser.getEncryptedPhone(), credentials);
     }
 
     public void cancelAuth(Credentials credentials, int authority, String targetAddress) {
@@ -68,11 +75,17 @@ public class AuthService {
     }
 
     public void agreeAuthCancellation(Credentials credentials, long idx) {
-        web3Util.agreeAuthCancellation(idx, credentials);
+        AuthOperation authOperation = web3Util.getAuthCancellation(idx, credentials);
+        String targetAddress = authOperation.getTargetAddr();
+        User targetUser = web3Util.getUser(credentials, targetAddress);
+        web3Util.agreeAuthCancellation(idx, targetAddress, targetUser.getEncryptedPhone(), credentials);
     }
 
     public void disagreeAuthCancellation(Credentials credentials, long idx) {
-        web3Util.disagreeAuthCancellation(idx, credentials);
+        AuthOperation authOperation = web3Util.getAuthCancellation(idx, credentials);
+        String targetAddress = authOperation.getTargetAddr();
+        User targetUser = web3Util.getUser(credentials, targetAddress);
+        web3Util.disagreeAuthCancellation(idx, targetAddress, targetUser.getEncryptedPhone(), credentials);
     }
 
     public int getSettledRatio(Credentials credentials) {

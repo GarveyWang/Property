@@ -14,7 +14,6 @@ public class User {
     private Credentials credentials;
 
     public User() {
-
     }
 
     public User(String address, String encryptedPwd, String encryptedPhone, String nickName, int authority) {

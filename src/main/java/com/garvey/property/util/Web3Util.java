@@ -43,7 +43,7 @@ public class Web3Util {
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     static {
-        contractAddress = "0x0146e669fdcecd4533dcfaf2a86bcdb1f309df8e";
+        contractAddress = "0xf128489a28ad37134c55e538c1a011107f50db27";
         gethAddress = "http://localhost:8545";
         web3j = Web3j.build(new HttpService(gethAddress));
         gasProvider = new DefaultGasProvider();
@@ -863,8 +863,14 @@ public class Web3Util {
         }
     }
 
-    @CacheEvict(value = "authApplicationVote", key = "T(String).valueOf(#idx).concat('-').concat(#credentials.address)")
-    public void agreeAuthApplication(long idx, Credentials credentials) {
+    @Caching(evict = {
+            @CacheEvict(value = "user", key = "#targetAddress"),
+            @CacheEvict(value = "user", key = "#encryptedPhone"),
+            @CacheEvict(value = "userByIndex", allEntries = true),
+            @CacheEvict(value = "authApplicationVote", key = "T(String).valueOf(#idx).concat('-').concat(#credentials.address)"),
+            @CacheEvict(value = "authApplication", key = "#idx")
+    })
+    public void agreeAuthApplication(long idx, String targetAddress, String encryptedPhone, Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
             if (contract != null) {
@@ -879,8 +885,14 @@ public class Web3Util {
         }
     }
 
-    @CacheEvict(value = "authApplicationVote", key = "T(String).valueOf(#idx).concat('-').concat(#credentials.address)")
-    public void disagreeAuthApplication(long idx, Credentials credentials) {
+    @Caching(evict = {
+            @CacheEvict(value = "user", key = "#targetAddress"),
+            @CacheEvict(value = "user", key = "#encryptedPhone"),
+            @CacheEvict(value = "userByIndex", allEntries = true),
+            @CacheEvict(value = "authApplicationVote", key = "T(String).valueOf(#idx).concat('-').concat(#credentials.address)"),
+            @CacheEvict(value = "authApplication", key = "#idx")
+    })
+    public void disagreeAuthApplication(long idx, String targetAddress, String encryptedPhone, Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
             if (contract != null) {
@@ -955,7 +967,7 @@ public class Web3Util {
             int retryTimes = 0;
             while (retryTimes < maxRetryTimes) {
                 try {
-                    BigInteger vote = contract.getAuthApplicationVote(BigInteger.valueOf(idx)).send();
+                    BigInteger vote = contract.getAuthCancellationVote(BigInteger.valueOf(idx)).send();
                     System.out.println("【getAuthCancellationVote】重试次数：" + retryTimes);
                     return vote.intValue();
                 } catch (ContractCallException e) {
@@ -985,8 +997,14 @@ public class Web3Util {
         }
     }
 
-    @CacheEvict(value = "authCancellationVote", key = "T(String).valueOf(#idx).concat('-').concat(#credentials.address)")
-    public void agreeAuthCancellation(long idx, Credentials credentials) {
+    @Caching(evict = {
+            @CacheEvict(value = "user", key = "#targetAddress"),
+            @CacheEvict(value = "user", key = "#encryptedPhone"),
+            @CacheEvict(value = "userByIndex", allEntries = true),
+            @CacheEvict(value = "authCancellationVote", key = "T(String).valueOf(#idx).concat('-').concat(#credentials.address)"),
+            @CacheEvict(value = "authCancellation", key = "#idx")
+    })
+    public void agreeAuthCancellation(long idx, String targetAddress, String encryptedPhone, Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
             if (contract != null) {
@@ -1001,8 +1019,14 @@ public class Web3Util {
         }
     }
 
-    @CacheEvict(value = "authCancellationVote", key = "T(String).valueOf(#idx).concat('-').concat(#credentials.address)")
-    public void disagreeAuthCancellation(long idx, Credentials credentials) {
+    @Caching(evict = {
+            @CacheEvict(value = "user", key = "#targetAddress"),
+            @CacheEvict(value = "user", key = "#encryptedPhone"),
+            @CacheEvict(value = "userByIndex", allEntries = true),
+            @CacheEvict(value = "authCancellationVote", key = "T(String).valueOf(#idx).concat('-').concat(#credentials.address)"),
+            @CacheEvict(value = "authCancellation", key = "#idx")
+    })
+    public void disagreeAuthCancellation(long idx, String targetAddress, String encryptedPhone, Credentials credentials) {
         PropertyContract contract = getPropertyContract(credentials);
         if (contract != null) {
             if (contract != null) {
@@ -1024,9 +1048,9 @@ public class Web3Util {
             int retryTimes = 0;
             while (retryTimes < maxRetryTimes) {
                 try {
-                    BigInteger vote = contract.getSettledRatio().send();
+                    BigInteger settledRatio = contract.getSettledRatio().send();
                     System.out.println("【getSettledRatio】重试次数：" + retryTimes);
-                    return vote.intValue();
+                    return settledRatio.intValue();
                 } catch (IndexOutOfBoundsException e) {
                     ++retryTimes;
                 } catch (Exception e) {
@@ -1060,9 +1084,9 @@ public class Web3Util {
             int retryTimes = 0;
             while (retryTimes < maxRetryTimes) {
                 try {
-                    BigInteger vote = contract.getSettledMinCount().send();
+                    BigInteger settledMinCount = contract.getSettledMinCount().send();
                     System.out.println("【getSettledMinCount】重试次数：" + retryTimes);
-                    return vote.intValue();
+                    return settledMinCount.intValue();
                 } catch (IndexOutOfBoundsException e) {
                     ++retryTimes;
                 } catch (Exception e) {

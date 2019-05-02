@@ -1,5 +1,8 @@
 package com.garvey.property.constant;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author GarveyWong
  * @date 2019/3/29
@@ -29,6 +32,19 @@ public enum Authority {
     Authority(int value, String desc) {
         this.value = value;
         this.desc = desc;
+    }
+
+    static Map<Integer, Authority> map;
+
+    static {
+        map = new HashMap<>();
+        for (Authority authority: values()){
+            map.put(authority.value, authority);
+        }
+    }
+
+    public static String getDesc(int value){
+        return map.get(value).getDesc();
     }
 
     public int getValue() {
