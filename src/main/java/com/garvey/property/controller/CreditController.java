@@ -26,17 +26,30 @@ public class CreditController {
 
     @GetMapping
     public String showCreditPage(User user, Model model) {
-        List<Credit> allCredits = creditService.getAllCredits(user.getCredentials());
-        List<CreditLog> myCreditLogs = creditService.getCreditLogs(user.getCredentials(), user.getAddress());
-        model.addAttribute("allCredits", allCredits);
-        model.addAttribute("myCreditLogs", myCreditLogs);
+        Credit myCredit = creditService.getCredit(user.getAddress(), user.getCredentials());
+        model.addAttribute("myCredit", myCredit);
         model.addAttribute("user", user);
         return "credit";
     }
 
+    @PostMapping("/all")
+    @ResponseBody
+    public List<Credit> getAllCredits(User user) {
+        List<Credit> allCredits = creditService.getAllCredits(user.getCredentials());
+        return allCredits;
+    }
+
+    @PostMapping("/logs")
+    @ResponseBody
+    public List<CreditLog> getCreditLogs(@RequestParam("userId") String userId, User user) {
+        List<CreditLog> creditLogs = creditService.getCreditLogs(user.getCredentials(), userId);
+        return creditLogs;
+    }
+
     @NeededAuthority(authorities = {Authority.SUPER})
     @PostMapping("/update")
-    public String updateCredit(@RequestBody CreditLog creditLog, User user){
+    @ResponseBody
+    public String updateCredit(@RequestBody CreditLog creditLog, User user) {
         creditService.updateCredit(creditLog);
         return "200";
     }

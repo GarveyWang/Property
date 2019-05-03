@@ -1,7 +1,7 @@
 package com.garvey.property.service;
 
-import com.garvey.property.constant.BasicConst;
 import com.garvey.property.model.AuthOperation;
+import com.garvey.property.model.CreditLog;
 import com.garvey.property.model.User;
 import com.garvey.property.util.Web3Util;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +19,9 @@ import java.util.List;
 public class AuthService {
     @Autowired
     private Web3Util web3Util;
+
+    @Autowired
+    private CreditService creditService;
 
     public List<AuthOperation> getAuthApplications(Credentials credentials) {
         int applicationCount = web3Util.getAuthApplicationCount(credentials);
@@ -58,16 +61,22 @@ public class AuthService {
 
     public void agreeAuthApplication(Credentials credentials, long idx) {
         AuthOperation authOperation = web3Util.getAuthApplication(idx, credentials);
-        String targetAddress = authOperation.getTargetAddr();
-        User targetUser = web3Util.getUser(credentials, targetAddress);
-        web3Util.agreeAuthApplication(idx, targetAddress, targetUser.getEncryptedPhone(), credentials);
+        if (authOperation.getMyVote() == 0) {
+            String targetAddress = authOperation.getTargetAddr();
+            User targetUser = web3Util.getUser(credentials, targetAddress);
+            web3Util.agreeAuthApplication(idx, targetAddress, targetUser.getEncryptedPhone(), credentials);
+            creditService.updateCredit(new CreditLog(credentials.getAddress(), 1L, "表决权限申请，序号" + idx));
+        }
     }
 
     public void disagreeAuthApplication(Credentials credentials, long idx) {
         AuthOperation authOperation = web3Util.getAuthApplication(idx, credentials);
-        String targetAddress = authOperation.getTargetAddr();
-        User targetUser = web3Util.getUser(credentials, targetAddress);
-        web3Util.disagreeAuthApplication(idx, targetAddress, targetUser.getEncryptedPhone(), credentials);
+        if (authOperation.getMyVote() == 0) {
+            String targetAddress = authOperation.getTargetAddr();
+            User targetUser = web3Util.getUser(credentials, targetAddress);
+            web3Util.disagreeAuthApplication(idx, targetAddress, targetUser.getEncryptedPhone(), credentials);
+            creditService.updateCredit(new CreditLog(credentials.getAddress(), 1L, "表决权限申请，序号" + idx));
+        }
     }
 
     public void cancelAuth(Credentials credentials, int authority, String targetAddress) {
@@ -76,16 +85,22 @@ public class AuthService {
 
     public void agreeAuthCancellation(Credentials credentials, long idx) {
         AuthOperation authOperation = web3Util.getAuthCancellation(idx, credentials);
-        String targetAddress = authOperation.getTargetAddr();
-        User targetUser = web3Util.getUser(credentials, targetAddress);
-        web3Util.agreeAuthCancellation(idx, targetAddress, targetUser.getEncryptedPhone(), credentials);
+        if (authOperation.getMyVote() == 0) {
+            String targetAddress = authOperation.getTargetAddr();
+            User targetUser = web3Util.getUser(credentials, targetAddress);
+            web3Util.agreeAuthCancellation(idx, targetAddress, targetUser.getEncryptedPhone(), credentials);
+            creditService.updateCredit(new CreditLog(credentials.getAddress(), 1L, "表决权限撤销，序号" + idx));
+        }
     }
 
     public void disagreeAuthCancellation(Credentials credentials, long idx) {
         AuthOperation authOperation = web3Util.getAuthCancellation(idx, credentials);
-        String targetAddress = authOperation.getTargetAddr();
-        User targetUser = web3Util.getUser(credentials, targetAddress);
-        web3Util.disagreeAuthCancellation(idx, targetAddress, targetUser.getEncryptedPhone(), credentials);
+        if (authOperation.getMyVote() == 0) {
+            String targetAddress = authOperation.getTargetAddr();
+            User targetUser = web3Util.getUser(credentials, targetAddress);
+            web3Util.disagreeAuthCancellation(idx, targetAddress, targetUser.getEncryptedPhone(), credentials);
+            creditService.updateCredit(new CreditLog(credentials.getAddress(), 1L, "表决权限撤销，序号" + idx));
+        }
     }
 
     public int getSettledRatio(Credentials credentials) {

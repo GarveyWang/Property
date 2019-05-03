@@ -43,7 +43,7 @@ public class Web3Util {
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     static {
-        contractAddress = "0xf128489a28ad37134c55e538c1a011107f50db27";
+        contractAddress = "0x1c0bd3a3395c972fe98ceda846060ef32219c715";
         gethAddress = "http://localhost:8545";
         web3j = Web3j.build(new HttpService(gethAddress));
         gasProvider = new DefaultGasProvider();

@@ -3,6 +3,7 @@ package com.garvey.property.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.garvey.property.constant.BasicConst;
+import com.garvey.property.model.CreditLog;
 import com.garvey.property.model.Motion;
 import com.garvey.property.util.Web3Util;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ import java.util.List;
 public class MotionService {
     @Autowired
     private Web3Util web3Util;
+
+    @Autowired
+    private CreditService creditService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -108,5 +112,6 @@ public class MotionService {
             boolean finished = (i == (optionIndexes.length - 1));
             web3Util.voteOption(motionIdx, optionIndexes[i], finished, credentials);
         }
+        creditService.updateCredit(new CreditLog(credentials.getAddress(), 1L, "表决提案，序号" + motionIdx));
     }
 }

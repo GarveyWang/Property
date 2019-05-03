@@ -66,7 +66,7 @@
          }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
              if (data.response == 200){
                  alert('验证成功！');
-                 window.location.href="/account/management";
+                 window.location.href="/credit";
              } else {
                  alert('验证失败！请检查keystore文件或者密码是否正确');
                  window.location.reload();

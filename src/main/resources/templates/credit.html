@@ -12,222 +12,94 @@
     积分管理
 </h2>
 <div layout:fragment="content" style="width:90%;">
-    <div id="displayAccountPanel">
-        <div class="clearfix" style="margin-bottom: 10px">
-            <div style="float: left">
-                当投票人数达<span th:text="${settledMinCount}"></span>票，赞成票达<span th:text="${settledRatio}"></span>%时方生效
-            </div>
-            <div style="float: right">
-                <button th:if="${user.canSuper()}" class="btn btn-default" onclick="showEditVoteAttrModal()">
-                    修改投票参数
-                </button>
-                <button th:if="${user.canAddPropertyAccount()}" class="btn btn-default" onclick="showAddPropertyModal()">
-                    添加物业账号
-                </button>
-                <button th:if="${user.canAddProprietorAccount()}" class="btn btn-default" onclick="showAddProprietorModal()">
-                    添加业主账号
-                </button>
+    <div id="displayCreditPanel">
+        <input type="hidden" id="myAddress" th:value="${user.address}">
+        <h3>本账号积分： <span th:text="${myCredit.credit}"></span></h3>
+        <div class="clearfix">
+            <div class="panel panel-default col-sm-6">
+                <table id="myCreditLogsTable" class="table-striped"></table>
             </div>
         </div>
-
-        <div>
-            <div class="panel panel-default col-sm-3" >
-                <div class="panel-heading">
-                    <h3 class="panel-title">
-                        本账号权限
-                    </h3>
-                </div>
-                <div class="panel-body">
-                    <ul class="list-group">
-                        <li class="list-group-item clearfix">
-                            <span th:if="${user.canBasicRead()}" class="glyphicon glyphicon-ok"></span>
-                            <span th:if="${!user.canBasicRead()}" class="glyphicon glyphicon-remove"></span>
-                            基本读权限
-                        </li>
-                        <li class="list-group-item clearfix">
-                            <span th:if="${user.canPublishDiscussion()}" class="glyphicon glyphicon-ok"></span>
-                            <span th:if="${!user.canPublishDiscussion()}" class="glyphicon glyphicon-remove"></span>
-                            发布讨论权限
-                            <button style="float: right" th:if="${!user.canPublishDiscussion()}" class="btn btn-xs btn-default" onclick="applyAuth(2)">申请该权限</button>
-                        </li>
-                        <li class="list-group-item clearfix">
-                            <span th:if="${user.canParticipateDiscussion()}" class="glyphicon glyphicon-ok"></span>
-                            <span th:if="${!user.canParticipateDiscussion()}" class="glyphicon glyphicon-remove"></span>
-                            参与讨论权限
-                            <button style="float: right" th:if="${!user.canParticipateDiscussion()}" class="btn btn-xs btn-default" onclick="applyAuth(4)">申请该权限</button>
-                        </li>
-                        <li class="list-group-item clearfix">
-                            <span th:if="${user.canDeleteDiscussion()}" class="glyphicon glyphicon-ok"></span>
-                            <span th:if="${!user.canDeleteDiscussion()}" class="glyphicon glyphicon-remove"></span>
-                            删除讨论权限
-                            <button style="float: right" th:if="${!user.canDeleteDiscussion()}" class="btn btn-xs btn-default" onclick="applyAuth(8)">申请该权限</button>
-                        </li>
-                        <li class="list-group-item clearfix">
-                            <span th:if="${user.canPublishMotion()}" class="glyphicon glyphicon-ok"></span>
-                            <span th:if="${!user.canPublishMotion()}" class="glyphicon glyphicon-remove"></span>
-                            发布提议权限
-                            <button style="float: right" th:if="${!user.canPublishMotion()}" class="btn btn-xs btn-default" onclick="applyAuth(16)">申请该权限</button>
-                        </li>
-                        <li class="list-group-item clearfix">
-                            <span th:if="${user.canVoteMotion()}" class="glyphicon glyphicon-ok"></span>
-                            <span th:if="${!user.canVoteMotion()}" class="glyphicon glyphicon-remove"></span>
-                            表决提议权限
-                            <button style="float: right" th:if="${!user.canVoteMotion()}" class="btn btn-xs btn-default" onclick="applyAuth(32)">申请该权限</button>
-                        </li>
-                        <li class="list-group-item clearfix">
-                            <span th:if="${user.canDeleteMotion()}" class="glyphicon glyphicon-ok"></span>
-                            <span th:if="${!user.canDeleteMotion()}" class="glyphicon glyphicon-remove"></span>
-                            删除提议权限
-                            <button style="float: right" th:if="${!user.canDeleteMotion()}" class="btn btn-xs btn-default" onclick="applyAuth(64)">申请该权限</button>
-                        </li>
-                        <li class="list-group-item clearfix">
-                            <span th:if="${user.canPublishInfo()}" class="glyphicon glyphicon-ok"></span>
-                            <span th:if="${!user.canPublishInfo()}" class="glyphicon glyphicon-remove"></span>
-                            发布公告权限
-                            <button style="float: right" th:if="${!user.canPublishInfo()}" class="btn btn-xs btn-default" onclick="applyAuth(128)">申请该权限</button>
-                        </li>
-                        <li class="list-group-item clearfix">
-                            <span th:if="${user.canPublishFund()}" class="glyphicon glyphicon-ok"></span>
-                            <span th:if="${!user.canPublishFund()}" class="glyphicon glyphicon-remove"></span>
-                            发布资金流向权限
-                            <button style="float: right" th:if="${!user.canPublishFund()}" class="btn btn-xs btn-default" onclick="applyAuth(256)">申请该权限</button>
-                        </li>
-                        <li class="list-group-item clearfix">
-                            <span th:if="${user.canAddProprietorAccount()}" class="glyphicon glyphicon-ok"></span>
-                            <span th:if="${!user.canAddProprietorAccount()}" class="glyphicon glyphicon-remove"></span>
-                            添加业主账号权限
-                            <button style="float: right" th:if="${!user.canAddProprietorAccount()}" class="btn btn-xs btn-default" onclick="applyAuth(512)">申请该权限</button>
-                        </li>
-                        <li class="list-group-item clearfix">
-                            <span th:if="${user.canAddPropertyAccount()}" class="glyphicon glyphicon-ok"></span>
-                            <span th:if="${!user.canAddPropertyAccount()}" class="glyphicon glyphicon-remove"></span>
-                            添加物业账号权限
-                            <button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-default" onclick="applyAuth(1024)">申请该权限</button>
-                        </li>
-                        <li class="list-group-item clearfix">
-                            <span th:if="${user.canSuper()}" class="glyphicon glyphicon-ok"></span>
-                            <span th:if="${!user.canSuper()}" class="glyphicon glyphicon-remove"></span>
-                            超级管理员权限
-                            <button style="float: right" th:if="${!user.canSuper()}" class="btn btn-xs btn-default" onclick="applyAuth(2048)">申请该权限</button>
-                        </li>
-                    </ul>
-                </div>
+        <div class="clearfix">
+            <div class="panel panel-default col-sm-5">
+                <table id="allCreditsTable" class="table-striped"></table>
             </div>
-            <div class="panel panel-default col-sm-9">
-                <table id="authApplicationTable" class="table-striped"></table>
-            </div>
-            <div class="clearfix"></div>
-            <div class="panel panel-default col-sm-3" >
-                <div class="panel-heading">
-                    <h3 class="panel-title">
-                        查找账号权限
-                    </h3>
-                </div>
-                <div class="panel-body">
-                    <select class="form-control" id="selectUser" onchange="showAuthority()">
-                        <option th:each="userItem, itemStat: ${userList}" th:text="${userItem.nickName}"
-                                th:attr="
-                                addr = ${userItem.address},
-                                canBasicRead = ${userItem.canBasicRead()},
-                                canPublishDiscussion = ${userItem.canPublishDiscussion()},
-                                canParticipateDiscussion = ${userItem.canParticipateDiscussion()},
-                                canDeleteDiscussion = ${userItem.canDeleteDiscussion()},
-                                canPublishMotion = ${userItem.canPublishMotion()},
-                                canVoteMotion = ${userItem.canVoteMotion()},
-                                canDeleteMotion = ${userItem.canDeleteMotion()},
-                                canPublishInfo = ${userItem.canPublishInfo()},
-                                canPublishFund = ${userItem.canPublishFund()},
-                                canAddProprietorAccount = ${userItem.canAddProprietorAccount()},
-                                canAddPropertyAccount = ${userItem.canAddPropertyAccount()},
-                                canSuper = ${userItem.canSuper()}">
-                        </option>
-                    </select>
-                </div>
-                <div class="panel-body" id="queryResult">
-                </div>
-            </div>
-            <div class="panel panel-default col-sm-9">
-                <table id="authCancellationTable" class="table-striped"></table>
+            <div class="panel panel-default col-sm-offset-1 col-sm-6">
+                <table id="CreditLogsTable" class="table-striped"></table>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="addPropertyModal" tabindex="-1" role="dialog" aria-labelledby="editTitle" aria-hidden="true">
+    <div class="modal fade" id="addCreditModal" tabindex="-1" role="dialog" aria-labelledby="editTitle" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
                     </button>
-                    <h4 class="modal-title">添加物业账号激活码</h4>
+                    <h4 class="modal-title">增加积分</h4>
                 </div>
                 <div class="modal-body">
                     <div style="margin-top: 10px;">
-                        <label for="propertyPhone">手机号</label>
-                        <input type="text" name="phone" class="form-control" id="propertyPhone" placeholder="请输入注册手机号">
+                        <label for="userNameForAdd">用户名</label>
+                        <input type="text" name="userName" class="form-control" id="userNameForAdd" disabled>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label for="userIdForAdd">用户ID</label>
+                        <input type="text" name="userId" class="form-control" id="userIdForAdd" disabled>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label for="creditChangeForAdd">增加积分</label>
+                        <input type="text" name="creditChange" class="form-control" id="creditChangeForAdd" placeholder="请输入增加的积分">
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label for="remarkForAdd">备注</label>
+                        <input type="text" name="remark" class="form-control" id="remarkForAdd" placeholder="请输入备注">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">
                         关闭
                     </button>
-                    <button type="button" class="btn btn-primary" onclick="addPropertyActiveCode()">
-                        添加
+                    <button type="button" class="btn btn-primary" onclick="addCredit()">
+                        确定
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="addProprietorModal" tabindex="-1" role="dialog" aria-labelledby="editTitle" aria-hidden="true">
+    <div class="modal fade" id="decreaseCreditModal" tabindex="-1" role="dialog" aria-labelledby="editTitle" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
                     </button>
-                    <h4 class="modal-title">添加业主账号激活码</h4>
+                    <h4 class="modal-title">减少积分</h4>
                 </div>
                 <div class="modal-body">
                     <div style="margin-top: 10px;">
-                        <label for="proprietorPhone">手机号</label>
-                        <input type="text" name="phone" class="form-control" id="proprietorPhone" placeholder="请输入注册手机号">
+                        <label for="userNameForDecrease">用户名</label>
+                        <input type="text" name="userName" class="form-control" id="userNameForDecrease" disabled>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label for="userIdForDecrease">用户ID</label>
+                        <input type="text" name="userId" class="form-control" id="userIdForDecrease" disabled>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label for="creditChangeForDecrease">减少积分</label>
+                        <input type="text" name="creditChange" class="form-control" id="creditChangeForDecrease" placeholder="请输入减少的积分">
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label for="remarkForDecrease">备注</label>
+                        <input type="text" name="remark" class="form-control" id="remarkForDecrease" placeholder="请输入备注">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">
                         关闭
                     </button>
-                    <button type="button" class="btn btn-primary" onclick="addProprietorActiveCode()">
-                        添加
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="editVoteAttrModal" tabindex="-1" role="dialog" aria-labelledby="editTitle" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
-                    </button>
-                    <h4 class="modal-title">修改投票参数</h4>
-                </div>
-                <div class="modal-body">
-                    <div style="margin-top: 10px;">
-                        <label for="proprietorPhone">最少投票人数</label>
-                        <input type="text" name="settledMinCount" id="settledMinCount" class="form-control" placeholder="请输入最少投票人数" th:value="${settledMinCount}">
-                    </div>
-                    <div style="margin-top: 10px;">
-                        <label for="proprietorPhone">投票通过比例</label>
-                        <input type="text" name="settledRatio" id="settledRatio" class="form-control" placeholder="请输入投票通过比例" th:value="${settledRatio}">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                        关闭
-                    </button>
-                    <button type="button" class="btn btn-primary" onclick="editVoteAttr()">
-                        修改
+                    <button type="button" class="btn btn-primary" onclick="decreaseCredit()">
+                        确定
                     </button>
                 </div>
             </div>
@@ -244,22 +116,21 @@
             $("#accountNav").slideDown(300);
             $("#accountNav").parent('li').addClass('nav-show').siblings('li').removeClass('nav-show');
 
-            showAuthority();
-
-            refreshAuthApplicationTable();
-            refreshAuthCancellationTable();
-
+            refreshMyCreditLogsTable();
+            refreshAllCreditsTable();
         });
 
-        function refreshAuthApplicationTable() {
-            $('#authApplicationTable').bootstrapTable('destroy');
+        function refreshMyCreditLogsTable() {
+            $('#myCreditLogsTable').bootstrapTable('destroy');
             $.ajax({
                 type:"POST",
-                url:"/auth/applicationList",
-                contentType : 'application/json',
+                url:"/credit/logs",
                 dataType : 'json',
+                data:{
+                    "userId": $("#myAddress").val()
+                },
                 success:function (data) {
-                    $('#authApplicationTable').bootstrapTable({
+                    $('#myCreditLogsTable').bootstrapTable({
                         striped: true,
                         cache: false,
                         pagination: true,
@@ -267,66 +138,89 @@
                         columns: [
                             [
                                 {
-                                    title: "权限申请列表",
+                                    title: "积分日志",
                                     halign:"center",
                                     align:"center",
-                                    colspan: 7
+                                    colspan: 3
                                 }
                             ],
                             [
                                 {
-                                    field: 'idx',
-                                    title: '申请序号'
+                                    field: 'createTime',
+                                    title: '时间',
+                                    formatter: function (value, row, index) {
+                                        return timestampToTime(value);
+                                    }
                                 },
                                 {
-                                    field: 'processing',
-                                    title: '处理状态',
+                                    field: 'creditChange',
+                                    title: '积分变化',
                                     formatter: function (value, row, index) {
-                                        if (row.processing){
-                                            return "投票中";
-                                        } else{
-                                            return "已结束";
+                                        if (value >= 0) {
+                                            return '+' + value;
+                                        }else {
+                                            return '- ' + (-value);
                                         }
                                     }
                                 },
                                 {
-                                    field: 'targetAddr',
-                                    title: '目标用户',
+                                    field: 'remark',
+                                    title: '备注'
+                                }
+                            ]
+                        ],
+                        data: data
+                    })
+                }
+            });
+        }
+
+        function refreshAllCreditsTable() {
+            $('#allCreditsTable').bootstrapTable('destroy');
+            $.ajax({
+                type:"POST",
+                url:"/credit/all",
+                dataType : 'json',
+                success:function (data) {
+                    $('#allCreditsTable').bootstrapTable({
+                        striped: true,
+                        cache: false,
+                        pagination: true,
+                        pageSize: 10,
+                        columns: [
+                            [
+                                {
+                                    title: "系统用户积分",
+                                    halign:"center",
+                                    align:"center",
+                                    colspan: 3
+                                }
+                            ],
+                            [
+                                {
+                                    field: 'userId',
+                                    title: '用户',
                                     formatter: function (value, row, index) {
-                                        if (row.targetNickName == null || row.targetNickName == ""){
-                                            return row.targetAddr;
-                                        } else{
-                                            return row.targetNickName + '(' + row.targetAddr.substring(row.targetAddr.length, row.targetAddr.length - 8) + ')';
+                                        if (row.userName == null || row.userName == "") {
+                                            return row.userId;
+                                        } else {
+                                            return row.userName + '(' + row.userId.substring(row.userId.length, row.userId.length - 8) + ')';
                                         }
                                     }
                                 },
                                 {
-                                    field: 'authorityName',
-                                    title: '权限名称'
+                                    field: 'credit',
+                                    title: '积分'
                                 },
                                 {
-                                    field: 'approvalCount',
-                                    title: '赞成票数'
-                                },
-                                {
-                                    field: 'disapprovalCount',
-                                    title: '反对票数'
-                                },
-                                {
-                                    field: 'myVote',
                                     title: '操作',
                                     formatter: function (value, row, index) {
-                                        if (row.targetAddr == [[${user.address}]]){
-                                            return '不可投票给自己！'
+                                        var operation =  '<button class="btn btn-xs btn-primary" userId="'+ row.userId + '"  onclick="refreshCreditLogsTable(this)">查看详细日志</button>';
+                                        if ([[${user.canSuper()}]]){
+                                            operation += '<button class="btn btn-xs btn-warning" userId="'+ row.userId + '" userName="' + row.userName + '" onclick="showAddCreditModal(this)">增加积分</button>';
+                                            operation += '<button class="btn btn-xs btn-warning" userId="'+ row.userId + '" userName="' + row.userName + '" onclick="showDecreaseCreditModal(this)">减少积分</button>';
                                         }
-                                        if (row.myVote == 0){
-                                            return '<button class="btn btn-primary" onclick="agreeApplication('+ row.idx + ')">赞成</button>' +
-                                                '<button class="btn btn-warning" onclick="disagreeApplication('+ row.idx + ')">反对</button>';
-                                        } else if (row.myVote == 1){
-                                            return '您已经投赞成票！';
-                                        } else if (row.myVote == 2) {
-                                            return '您已经投反对票！';
-                                        }
+                                        return operation;
                                     }
                                 }
                             ]
@@ -337,15 +231,17 @@
             });
         }
 
-        function refreshAuthCancellationTable() {
-            $('#authCancellationTable').bootstrapTable('destroy');
+        function refreshCreditLogsTable(obj) {
+            $('#CreditLogsTable').bootstrapTable('destroy');
             $.ajax({
                 type:"POST",
-                url:"/auth/cancellationList",
-                contentType : 'application/json',
+                url:"/credit/logs",
                 dataType : 'json',
+                data:{
+                    "userId": $(obj).attr("userId")
+                },
                 success:function (data) {
-                    $('#authCancellationTable').bootstrapTable({
+                    $('#CreditLogsTable').bootstrapTable({
                         striped: true,
                         cache: false,
                         pagination: true,
@@ -353,67 +249,45 @@
                         columns: [
                             [
                                 {
-                                    title: "权限取消列表",
+                                    title: "用户积分详细日志",
                                     halign:"center",
                                     align:"center",
-                                    colspan: 7
+                                    colspan: 4
                                 }
                             ],
                             [
                                 {
-                                    field: 'idx',
-                                    title: '申请序号'
+                                    field: 'createTime',
+                                    title: '时间',
+                                    formatter: function (value, row, index) {
+                                        return timestampToTime(value);
+                                    }
                                 },
                                 {
-                                    field: 'processing',
-                                    title: '处理状态',
+                                    field: 'userId',
+                                    title: '用户',
                                     formatter: function (value, row, index) {
-                                        if (row.processing){
-                                            return "投票中";
-                                        } else{
-                                            return "已结束";
+                                        if (row.userName == null || row.userName == "") {
+                                            return row.userId;
+                                        } else {
+                                            return row.userName + '(' + row.userId.substring(row.userId.length, row.userId.length - 8) + ')';
                                         }
                                     }
                                 },
                                 {
-                                    field: 'targetAddr',
-                                    title: '目标用户',
+                                    field: 'creditChange',
+                                    title: '积分变化',
                                     formatter: function (value, row, index) {
-                                        if (row.targetNickName == null || row.targetNickName == ""){
-                                            return row.targetAddr;
-                                        } else{
-                                            return row.targetNickName + '(' + row.targetAddr.substring(row.targetAddr.length, row.targetAddr.length - 8) + ')';
+                                        if (value >= 0) {
+                                            return '+' + value;
+                                        }else {
+                                            return '- ' + (-value);
                                         }
                                     }
                                 },
                                 {
-                                    field: 'authorityName',
-                                    title: '权限名称'
-                                },
-                                {
-                                    field: 'approvalCount',
-                                    title: '赞成票数'
-                                },
-                                {
-                                    field: 'disapprovalCount',
-                                    title: '反对票数'
-                                },
-                                {
-                                    field: 'myVote',
-                                    title: '操作',
-                                    formatter: function (value, row, index) {
-                                        if (row.targetAddr == [[${user.address}]]){
-                                            return '不可投票给自己！'
-                                        }
-                                        if (row.myVote == 0){
-                                            return '<button class="btn btn-primary" onclick="agreeCancellation('+ row.idx + ')">赞成</button>' +
-                                                '<button class="btn btn-warning" onclick="disagreeCancellation('+ row.idx + ')">反对</button>';
-                                        } else if (row.myVote == 1){
-                                            return '您已经投赞成票！';
-                                        } else if (row.myVote == 2) {
-                                            return '您已经投反对票！';
-                                        }
-                                    }
+                                    field: 'remark',
+                                    title: '备注'
                                 }
                             ]
                         ],
@@ -423,230 +297,79 @@
             });
         }
 
-        function showAddPropertyModal() {
-            $('#addPropertyModal').modal("show");
+        function showAddCreditModal(obj) {
+            $('#userIdForAdd').val($(obj).attr("userId"));
+            $('#userNameForAdd').val($(obj).attr("userName"));
+            $('#creditChangeForAdd').val(0);
+            $('#remarkForAdd').val("");
+            $('#addCreditModal').modal("show");
         }
 
-        function showAddProprietorModal() {
-            $('#addProprietorModal').modal("show");
+        function showDecreaseCreditModal(obj) {
+            $('#userIdForDecrease').val($(obj).attr("userId"));
+            $('#userNameForDecrease').val($(obj).attr("userName"));
+            $('#creditChangeForDecrease').val(0);
+            $('#remarkForDecrease').val("");
+            $('#decreaseCreditModal').modal("show");
         }
 
-        function showEditVoteAttrModal() {
-            $('#editVoteAttrModal').modal("show");
-        }
-
-        function addPropertyActiveCode() {
+        function addCredit() {
+            var userId = $('#userIdForAdd').val();
+            var creditChange = $('#creditChangeForAdd').val();
+            var remark = $('#remarkForAdd').val();
             $.ajax({
                 type:"POST",
-                url:"/account/addPropertyActiveCode",
+                url:"/credit/update",
+                contentType : 'application/json',
                 dataType : 'json',
-                data:{
-                    "encryptedPhone": $.md5($("#propertyPhone").val())
-                },
+                data:JSON.stringify({
+                    "userId": userId,
+                    "creditChange": creditChange,
+                    "remark": remark
+                }),
                 success:function (data) {
-                    alert("添加成功");
-                    $("#addPropertyModal").modal("hide");
+                    $('#addCreditModal').modal("hide");
+                    alert("增加成功");
+                    refreshAllCreditsTable();
+                    refreshMyCreditLogsTable();
+                    $('#CreditLogsTable').bootstrapTable('destroy');
                 }
             })
         }
 
-        function addProprietorActiveCode() {
+        function decreaseCredit() {
+            var userId = $('#userIdForDecrease').val();
+            var creditChange = $('#creditChangeForDecrease').val();
+            var remark = $('#remarkForDecrease').val();
             $.ajax({
                 type:"POST",
-                url:"/account/addProprietorActiveCode",
+                url:"/credit/update",
+                contentType : 'application/json',
                 dataType : 'json',
-                data:{
-                    "encryptedPhone": $.md5($("#proprietorPhone").val())
-                },
+                data:JSON.stringify({
+                    "userId": userId,
+                    "creditChange": -creditChange,
+                    "remark": remark
+                }),
                 success:function (data) {
-                    alert("添加成功");
-                    $("#addProprietorModal").modal("hide");
+                    $('#decreaseCreditModal').modal("hide");
+                    alert("减少成功");
+                    refreshAllCreditsTable();
+                    refreshMyCreditLogsTable();
+                    $('#CreditLogsTable').bootstrapTable('destroy');
                 }
             })
         }
 
-        function editVoteAttr() {
-            $.ajax({
-                type:"POST",
-                url:"/auth/voteAttr/edit",
-                dataType : 'json',
-                data:{
-                    "settledMinCount": $("#settledMinCount").val(),
-                    "settledRatio": $("#settledRatio").val()
-                },
-                success:function (data) {
-                    alert("修改成功");
-                    $("#editVoteAttrModal").modal("hide");
-                    window.location.reload();
-                }
-            })
-        }
-
-        function showAuthority() {
-            var selectedUser = $("#selectUser option:selected");
-
-            var html = '<ul class="list-group">';
-            if (selectedUser.attr("canBasicRead")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 基本读权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(1)">申请取消该权限</button></li>';
-            }else{
-                html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 基本读权限</li>';
-            }
-
-            if (selectedUser.attr("canPublishDiscussion")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 发布讨论权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(2)">申请取消该权限</button></li>';
-            }else{
-                html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 发布讨论权限</li>';
-            }
-
-            if (selectedUser.attr("canParticipateDiscussion")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 参与讨论权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(4)">申请取消该权限</button></li>';
-            }else{
-                html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 参与讨论权限</li>';
-            }
-
-            if (selectedUser.attr("canDeleteDiscussion")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 删除讨论权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(8)">申请取消该权限</button></li>';
-            }else{
-                html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 删除讨论权限</li>';
-            }
-
-            if (selectedUser.attr("canPublishMotion")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 发布提议权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(16)">申请取消该权限</button></li>';
-            }else{
-                html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 发布提议权限</li>';
-            }
-
-            if (selectedUser.attr("canVoteMotion")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 表决提议权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(32)">申请取消该权限</button></li>';
-            }else{
-                html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 表决提议权限</li>';
-            }
-
-            if (selectedUser.attr("canDeleteMotion")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 删除提议权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(64)">申请取消该权限</button></li>';
-            }else{
-                html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 删除提议权限</li>';
-            }
-
-            if (selectedUser.attr("canPublishInfo")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 发布公告权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(128)">申请取消该权限</button></li>';
-            }else{
-                html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 发布公告权限</li>';
-            }
-
-            if (selectedUser.attr("canPublishFund")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 发布资金流向权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(256)">申请取消该权限</button></li>';
-            }else{
-                html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 发布资金流向权限</li>';
-            }
-
-            if (selectedUser.attr("canAddProprietorAccount")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 添加业主账号权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(512)">申请取消该权限</button></li>';
-            }else{
-                html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 添加业主账号权限</li>';
-            }
-
-            if (selectedUser.attr("canAddPropertyAccount")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 添加物业账号权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(1024)">申请取消该权限</button></li>';
-            }else{
-                html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 添加物业账号权限</li>';
-            }
-
-            if (selectedUser.attr("canSuper")=='true') {
-                html += '<li class="list-group-item clearfix"><span class="glyphicon glyphicon-ok"></span> 超级管理员权限<button style="float: right" th:if="${!user.canAddPropertyAccount()}" class="btn btn-xs btn-warning" onclick="cancelAuth(2048)">申请取消该权限</button></li>';
-            }else{
-                html += '<li class="list-group-item"><span class="glyphicon glyphicon-remove"></span> 超级管理员权限</li>';
-            }
-            html += '</ul>';
-
-            $("#queryResult").html(html);
-        }
-
-        function applyAuth(auth) {
-            $.ajax({
-                type:"POST",
-                url:"/auth/apply",
-                dataType : 'json',
-                data:{
-                    "auth": auth
-                },
-                success:function (data) {
-                    refreshAuthApplicationTable()
-                }
-            })
-        }
-
-        function cancelAuth(auth) {
-            var selectedUser = $("#selectUser option:selected");
-            var targetAddr = selectedUser.attr("addr");
-            $.ajax({
-                type:"POST",
-                url:"/auth/cancel",
-                dataType : 'json',
-                data:{
-                    "auth": auth,
-                    "targetAddr": targetAddr
-                },
-                success:function (data) {
-                    refreshAuthCancellationTable();
-                }
-            })
-        }
-
-        function agreeApplication(idx) {
-            $.ajax({
-                type:"POST",
-                url:"/auth/application/agree",
-                dataType : 'json',
-                data:{
-                    "idx": idx
-                },
-                success:function (data) {
-                    refreshAuthApplicationTable();
-                }
-            })
-        }
-
-        function disagreeApplication(idx) {
-            $.ajax({
-                type:"POST",
-                url:"/auth/application/disagree",
-                dataType : 'json',
-                data:{
-                    "idx": idx
-                },
-                success:function (data) {
-                    refreshAuthApplicationTable();
-                }
-            })
-        }
-
-        function agreeCancellation(idx) {
-            $.ajax({
-                type:"POST",
-                url:"/auth/cancellation/agree",
-                dataType : 'json',
-                data:{
-                    "idx": idx
-                },
-                success:function (data) {
-                    refreshAuthCancellationTable();
-                }
-            })
-        }
-
-        function disagreeCancellation(idx) {
-            $.ajax({
-                type:"POST",
-                url:"/auth/cancellation/disagree",
-                dataType : 'json',
-                data:{
-                    "idx": idx
-                },
-                success:function (data) {
-                    refreshAuthCancellationTable();
-                }
-            })
+        function timestampToTime(timestamp) {
+            var date = new Date(timestamp);
+            Y = date.getFullYear() + '-';
+            M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+            D = (date.getDate()<10 ? '0'+(date.getDate()) : date.getDate()) + ' ';
+            h = date.getHours() + ':';
+            m = (date.getMinutes() < 10 ? '0'+(date.getMinutes()) : date.getMinutes()) + ':';
+            s = (date.getSeconds() < 10 ? '0'+(date.getSeconds()) : date.getSeconds());
+            return Y+M+D+h+m+s;
         }
 
     </script>
