@@ -40,6 +40,10 @@ public class UserService {
         return users;
     }
 
+    public User getUserByAddress(Credentials credentials, String address){
+        return web3Util.getUser(credentials, address);
+    }
+
     public User getUserByPhone(Credentials credentials, String encryptedPhone) {
         return web3Util.getUserByPhone(credentials, encryptedPhone);
     }

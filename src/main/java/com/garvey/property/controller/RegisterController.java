@@ -1,8 +1,11 @@
 package com.garvey.property.controller;
 
+import com.garvey.property.constant.Authority;
 import com.garvey.property.model.Credit;
+import com.garvey.property.model.Log;
 import com.garvey.property.model.User;
 import com.garvey.property.service.CreditService;
+import com.garvey.property.service.LogService;
 import com.garvey.property.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -35,6 +38,9 @@ public class RegisterController {
     @Autowired
     private CreditService creditService;
 
+    @Autowired
+    private LogService logService;
+
     @GetMapping("/register")
     public String registerPage() {
         return "register";
@@ -61,6 +67,13 @@ public class RegisterController {
         map.put("filePath", filePath);
         Credit credit = new Credit(user.getAddress(), 0L);
         creditService.insertCredit(credit);
+        User etherUser = userService.getUserByAddress(credentials, user.getAddress());
+        if (etherUser == null){
+            map.put("registerResult", "fail");
+        } else {
+            map.put("registerResult", "success");
+            logService.writeLog(new Log(System.currentTimeMillis(), etherUser.getAddress(), etherUser.getNickName(), "账号注册"), user.getCredentials());
+        }
         return map;
     }
 
@@ -85,6 +98,13 @@ public class RegisterController {
         map.put("filePath", filePath);
         Credit credit = new Credit(user.getAddress(), 0L);
         creditService.insertCredit(credit);
+        User etherUser = userService.getUserByAddress(credentials, user.getAddress());
+        if (etherUser == null){
+            map.put("registerResult", "fail");
+        } else {
+            map.put("registerResult", "success");
+            logService.writeLog(new Log(System.currentTimeMillis(), etherUser.getAddress(), etherUser.getNickName(), "账号注册"), user.getCredentials());
+        }
         return map;
     }
 

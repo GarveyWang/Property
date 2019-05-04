@@ -2,8 +2,10 @@ package com.garvey.property.controller;
 
 import com.garvey.property.annotation.NeededAuthority;
 import com.garvey.property.constant.Authority;
+import com.garvey.property.model.Log;
 import com.garvey.property.model.User;
 import com.garvey.property.service.AuthService;
+import com.garvey.property.service.LogService;
 import com.garvey.property.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,6 +27,8 @@ public class AccountManagementController {
     private UserService userService;
     @Autowired
     private AuthService authService;
+    @Autowired
+    private LogService logService;
 
     @GetMapping("/management")
     public String managementPage(User user, Model model) {
@@ -43,6 +47,7 @@ public class AccountManagementController {
     @NeededAuthority(authorities = Authority.ADD_PROPERTY_ACCOUNT)
     public String addPropertyActiveCode(@RequestParam("encryptedPhone") String encryptedPhone, User user) {
         if (userService.addPropertyRegistryCode(user.getCredentials(), encryptedPhone)) {
+            logService.writeLog(new Log(System.currentTimeMillis(), user.getAddress(), user.getNickName(), "添加物业账号激活码"), user.getCredentials());
             return "200";
         }
         return "400";
@@ -53,6 +58,7 @@ public class AccountManagementController {
     @NeededAuthority(authorities = Authority.ADD_PROPRIETOR_ACCOUNT)
     public String addProprietorActiveCode(@RequestParam("encryptedPhone") String encryptedPhone, User user) {
         if (userService.addProprietorRegistryCode(user.getCredentials(), encryptedPhone)) {
+            logService.writeLog(new Log(System.currentTimeMillis(), user.getAddress(), user.getNickName(), "添加业主账号激活码"), user.getCredentials());
             return "200";
         }
         return "400";

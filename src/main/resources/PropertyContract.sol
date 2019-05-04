@@ -53,45 +53,45 @@ contract PropertyContract {
     mapping(string => uint24) propertyRegistryCodeMap;
     
     function hasProprietorRegistryCode(string _encryptedPhone) public view returns (bool) {
-        return proprietorRegistryCodeMap[_encryptedPhone] == 0;
+        return proprietorRegistryCodeMap[_encryptedPhone] != 0;
     }
-    
+
     function hasPropertyRegistryCode(string _encryptedPhone) public view returns (bool) {
-        return propertyRegistryCodeMap[_encryptedPhone] == 0;
+        return propertyRegistryCodeMap[_encryptedPhone] != 0;
     }
-    
+
     function addProprietorRegistryCode(string _encryptedPhone, uint24 code) public{
         if(userMap[msg.sender].authority & 512 > 0 && phoneAddrMap[_encryptedPhone] == address(0)){
             proprietorRegistryCodeMap[_encryptedPhone] = code;
         }
     }
-    
+
     function addPropertyRegistryCode(string _encryptedPhone, uint24 code) public{
         if(userMap[msg.sender].authority & 1024 > 0 && phoneAddrMap[_encryptedPhone] == address(0)){
             propertyRegistryCodeMap[_encryptedPhone] = code;
         }
     }
-    
+
     function registerProprietor(uint24 _code, string _encryptedPwd, string _encryptedPhone, string _nickName) public returns (bool){
         if(_code != 0 && proprietorRegistryCodeMap[_encryptedPhone] == _code){
             registerUser(_encryptedPwd, _encryptedPhone, _nickName, 39);
         }
     }
-    
+
     function registerProperty(uint24 _code, string _encryptedPwd, string _encryptedPhone, string _nickName) public returns (bool){
         if(_code != 0 && propertyRegistryCodeMap[_encryptedPhone] == _code){
             registerUser(_encryptedPwd, _encryptedPhone, _nickName, 1023);
         }
     }
-    
+
     function registerUser(string _encryptedPwd, string _encryptedPhone, string _nickName, uint16 _authority) internal {
         User memory user = User(_encryptedPwd, _encryptedPhone, _nickName, _authority);
         userMap[msg.sender] = user;
         phoneAddrMap[_encryptedPhone] = msg.sender;
         userAddrList.push(msg.sender);
     }
-    
-    //公告 
+
+    //公告
     struct PublicityInfo{
         string title;
         string content;
@@ -101,24 +101,24 @@ contract PropertyContract {
         uint64 timestamp;
     }
     PublicityInfo[] publicityInfoList;
-    
+
     function getPublicityInfoCount() public view returns(uint256){
         return publicityInfoList.length;
     }
-    
+
     function addPublicityInfo(string _title, string _content, string _fileHashes, string _fileNames, uint64 _timestamp) public returns(uint256) {
         if(userMap[msg.sender].authority & 128 > 0){
             PublicityInfo memory publicityInfo = PublicityInfo(_title, _content, _fileHashes, _fileNames, msg.sender, _timestamp);
             return publicityInfoList.push(publicityInfo);
         }
     }
-    
+
     function getPublicityInfo(uint256 _idx) public view returns(string, string, string, string, address, uint64){
         PublicityInfo storage info = publicityInfoList[_idx];
         return (info.title, info.content, info.fileHashes, info.fileNames, info.author, info.timestamp);
     }
-    
-    //收入 
+
+    //收入
     struct IncomeItem{
         string payer;
         address recorder;
@@ -129,23 +129,23 @@ contract PropertyContract {
         uint64 timestamp;
     }
     IncomeItem[] incomeList;
-    
+
     function getIncomeItemCount() public view returns(uint256){
         return incomeList.length;
-    } 
-    
+    }
+
     function addIncomeItem(string _payer, uint64 _amountInCents, string _desc, string _fileHashes, string _fileNames, uint64 _timestamp) public returns(uint256){
         if(userMap[msg.sender].authority & 256 > 0){
             IncomeItem memory incomeItem = IncomeItem(_payer, msg.sender, _amountInCents, _desc, _fileHashes, _fileNames, _timestamp);
             return incomeList.push(incomeItem);
         }
     }
-    
+
     function getIncomeItem(uint256 _idx) public view returns(string, address, uint64, string, string, string, uint64){
         IncomeItem storage income = incomeList[_idx];
         return (income.payer, income.recorder, income.amountInCents, income.desc, income.fileHashes, income.fileNames, income.timestamp);
     }
-    
+
     //支出
     struct ExpenseItem{
         string payee;
@@ -157,23 +157,23 @@ contract PropertyContract {
         uint64 timestamp;
     }
     ExpenseItem[] expenseList;
-    
+
     function getExpenseItemCount() public view returns(uint256){
         return expenseList.length;
-    } 
-    
+    }
+
     function addExpenseItem(string _payee, uint64 _amountInCents, string _desc, string _fileHashes, string _fileNames, uint64 _timestamp) public returns(uint256){
         if(userMap[msg.sender].authority & 256 > 0){
             ExpenseItem memory expenseItem = ExpenseItem(_payee, msg.sender, _amountInCents, _desc, _fileHashes, _fileNames, _timestamp);
             return expenseList.push(expenseItem);
         }
     }
-    
+
     function getExpenseItem(uint256 _idx) public view returns(string, address, uint64, string, string, string, uint64){
         ExpenseItem storage expense = expenseList[_idx];
         return (expense.payee, expense.recorder, expense.amountInCents, expense.desc, expense.fileHashes, expense.fileNames, expense.timestamp);
     }
-    
+
     //提案
     struct Motion{
         string title;
@@ -189,11 +189,11 @@ contract PropertyContract {
         mapping(address => bool) voteFinishMap;
     }
     Motion[] motionList;
-    
+
     function getMotionCount() public view returns(uint256){
         return motionList.length;
     }
-    
+
     function addMotion(string _title, string _content, string _fileHashes, string _fileNames, uint64 _timestamp, bool _multipleVote, string _options, uint64 _length) public returns(uint256){
         if(userMap[msg.sender].authority & 16 > 0){
             uint32[] memory votes = new uint32[](_length);
@@ -201,12 +201,12 @@ contract PropertyContract {
             return motionList.push(motion);
         }
     }
-    
+
     function getMotion(uint256 _motionIdx) public view returns(string, string, string, string, address, uint64, bool, string){
         Motion storage motion = motionList[_motionIdx];
         return (motion.title, motion.content, motion.fileHashes, motion.fileNames, motion.author, motion.timestamp, motion.multipleVote, motion.options);
     }
-    
+
     function voteOption(uint256 _motionIdx, uint16 _optionIdx, bool finished) public{
         if(userMap[msg.sender].authority & 32 > 0) {
             Motion storage motion = motionList[_motionIdx];
@@ -228,29 +228,29 @@ contract PropertyContract {
             }
         }
     }
-    
+
     function getVoteCount(uint256 _motionIdx) public view returns(uint256){
         Motion storage motion = motionList[_motionIdx];
         return motion.voteMap[msg.sender].length;
     }
-    
+
     function getVoteIndex(uint256 _motionIdx, uint256 idx) public view returns(uint16){
         Motion storage motion = motionList[_motionIdx];
         if(motion.timestamp > 0){
             return motion.voteMap[msg.sender][idx];
         }
     }
-    
+
     function getTotalVote(uint256 _motionIdx, uint16 _optionIdx) public view returns(uint32){
         Motion storage motion = motionList[_motionIdx];
         return motion.totalVotes[_optionIdx];
     }
-    
+
     function hasVoted(uint256 _motionIdx) public view returns(bool){
         Motion storage motion = motionList[_motionIdx];
         return motion.voteFinishMap[msg.sender];
     }
-    
+
     uint8 settledRatio = 50;
     uint16 settledMinCount = 3;
 
@@ -410,4 +410,17 @@ contract PropertyContract {
         }
     }
 
+    string[] logList;
+
+    function getLogCount() public view returns(uint256){
+        return logList.length;
+    }
+
+    function getLog(uint256 _logIdx) public view returns(string){
+        return logList[_logIdx];
+    }
+
+    function writeLog(string _log) public {
+        logList.push(_log);
+    }
 }

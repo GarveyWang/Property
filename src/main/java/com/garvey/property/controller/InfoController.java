@@ -2,9 +2,11 @@ package com.garvey.property.controller;
 
 import com.garvey.property.annotation.NeededAuthority;
 import com.garvey.property.constant.Authority;
+import com.garvey.property.model.Log;
 import com.garvey.property.model.PublicityInfo;
 import com.garvey.property.model.PublicityInfoProp;
 import com.garvey.property.model.User;
+import com.garvey.property.service.LogService;
 import com.garvey.property.service.PublicityService;
 import com.garvey.property.util.IpfsUtil;
 import org.apache.commons.io.FileUtils;
@@ -33,6 +35,9 @@ public class InfoController {
 
     @Autowired
     private PublicityService publicityService;
+
+    @Autowired
+    private LogService logService;
 
     @GetMapping("/info")
     public String infoPage(@RequestParam(value = "page", defaultValue = "1") int pageNum,
@@ -80,6 +85,7 @@ public class InfoController {
             info.setAttachments(attachmentsMap);
         }
         publicityService.addPublicityInfo(info, user);
+        logService.writeLog(new Log(System.currentTimeMillis(), user.getAddress(), user.getNickName(), "发布公告《" + title + "》"), user.getCredentials());
         return "200";
     }
 }

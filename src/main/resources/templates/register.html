@@ -118,9 +118,13 @@
                 "nickName": nickName
             },
             success:function (data) {
-                filePath = data.filePath;
-                $("#goToLoginPageBtn").hide();
-                $('#downloadModal').modal("show");
+                if(data.registerResult == "fail"){
+                    alert("注册失败，请检查手机号或验证码是否有误！");
+                }else{
+                    filePath = data.filePath;
+                    $("#goToLoginPageBtn").hide();
+                    $('#downloadModal').modal("show");
+                }
             }
         })
     }

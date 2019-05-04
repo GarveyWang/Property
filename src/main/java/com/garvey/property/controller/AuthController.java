@@ -3,8 +3,10 @@ package com.garvey.property.controller;
 import com.garvey.property.annotation.NeededAuthority;
 import com.garvey.property.constant.Authority;
 import com.garvey.property.model.AuthOperation;
+import com.garvey.property.model.Log;
 import com.garvey.property.model.User;
 import com.garvey.property.service.AuthService;
+import com.garvey.property.service.LogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +26,8 @@ import java.util.List;
 public class AuthController {
     @Autowired
     private AuthService authService;
+    @Autowired
+    private LogService logService;
 
     @PostMapping("/applicationList")
     @ResponseBody
@@ -42,6 +46,7 @@ public class AuthController {
     @NeededAuthority(authorities = Authority.VOTE_MOTION)
     public String applyAuth(@RequestParam("auth") int auth, User user) {
         authService.applyAuth(user.getCredentials(), auth);
+        logService.writeLog(new Log(System.currentTimeMillis(), user.getAddress(), user.getNickName(), "申请权限：" + Authority.getDesc(auth)), user.getCredentials());
         return "200";
     }
 
@@ -51,6 +56,7 @@ public class AuthController {
     public String applyAuth(@RequestParam("auth") int auth, @RequestParam("targetAddr") String targetAddress,
                             User user) {
         authService.cancelAuth(user.getCredentials(), auth, targetAddress);
+        logService.writeLog(new Log(System.currentTimeMillis(), user.getAddress(), user.getNickName(), "申请取消" + targetAddress +"权限：" + Authority.getDesc(auth)), user.getCredentials());
         return "200";
     }
 
@@ -93,6 +99,7 @@ public class AuthController {
                                @RequestParam("settledRatio") int settledRatio, User user) {
         authService.setSettledMinCount(settledMinCount, user.getCredentials());
         authService.setSettledRatio(settledRatio, user.getCredentials());
+        logService.writeLog(new Log(System.currentTimeMillis(), user.getAddress(), user.getNickName(), "调整权限投票参数：参与人数" + settledMinCount + "，比例" + settledRatio + "%"), user.getCredentials());
         return "200";
     }
 }

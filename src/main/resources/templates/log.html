@@ -11,15 +11,81 @@
     操作日志
 </h2>
 <div layout:fragment="content" style="width:90%;">
-    操作日志
+    <div class="col-sm-10">
+        <table id="logsTable" class="table-striped"></table>
+    </div>
 </div>
 <th:block layout:fragment="bottomScriptBlock">
+    <script type="text/javascript" src="../static/js/bootstrap/bootstrap-table.min.js"></script>
+    <script type="text/javascript" src="../static/js/bootstrap/bootstrap-table-zh-CN.min.js"></script>
     <script type="text/javascript">
         $(function () {
             $('.nav-item').children('ul').slideUp(300);
             $("#infoNav").slideDown(300);
             $("#infoNav").parent('li').addClass('nav-show').siblings('li').removeClass('nav-show');
-        })
+
+            refreshLogsTable();
+        });
+
+        function refreshLogsTable(){
+            $.ajax({
+                type:"POST",
+                url:"/publicity/logs",
+                dataType : 'json',
+                success:function (data) {
+                    $('#logsTable').bootstrapTable({
+                        striped: true,
+                        cache: false,
+                        pagination: true,
+                        pageSize: 15,
+                        columns: [
+                            [
+                                {
+                                    title: "操作日志",
+                                    halign:"center",
+                                    align:"center",
+                                    colspan: 4
+                                }
+                            ],
+                            [
+                                {
+                                    field: 'timestamp',
+                                    title: '时间',
+                                    formatter: function (value, row, index) {
+                                        return timestampToTime(value);
+                                    }
+                                },
+                                {
+                                    field: 'operatorAddress',
+                                    title: '操作者ID'
+                                },
+                                {
+                                    field: 'operatorName',
+                                    title: '操作者昵称'
+                                },
+                                {
+                                    field: 'operation',
+                                    title: '操作'
+                                }
+                            ]
+                        ],
+                        data: data
+                    })
+                }
+            });
+        }
+
+        function timestampToTime(timestamp) {
+            var date = new Date(timestamp);
+            Y = date.getFullYear() + '-';
+            M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+            D = (date.getDate()<10 ? '0'+(date.getDate()) : date.getDate()) + ' ';
+            h = date.getHours() + ':';
+            m = (date.getMinutes() < 10 ? '0'+(date.getMinutes()) : date.getMinutes()) + ':';
+            s = (date.getSeconds() < 10 ? '0'+(date.getSeconds()) : date.getSeconds());
+            return Y+M+D+h+m+s;
+        }
+
     </script>
 </th:block>
 </body>

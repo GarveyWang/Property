@@ -43,7 +43,7 @@ public class Web3Util {
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     static {
-        contractAddress = "0x1c0bd3a3395c972fe98ceda846060ef32219c715";
+        contractAddress = "0x16341b8577b736c3a4f795c31aa702341f808777";
         gethAddress = "http://localhost:8545";
         web3j = Web3j.build(new HttpService(gethAddress));
         gasProvider = new DefaultGasProvider();
@@ -1107,6 +1107,61 @@ public class Web3Util {
                 contract.setSettledMinCount(
                         BigInteger.valueOf(settledMinCount)
                 ).send();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Cacheable(value = "logCount", key = "")
+    public int getLogCount(Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    BigInteger count = contract.getLogCount().send();
+                    System.out.println("【getLogCount】重试次数：" + retryTimes);
+                    return count.intValue();
+                } catch (ContractCallException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return -1;
+                }
+            }
+            System.out.println("【getLogCount】未找到");
+        }
+        return -1;
+    }
+
+    @Cacheable(value = "log", key = "#idx", unless = "#result == null")
+    public Log getLog(long idx, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            int retryTimes = 0;
+            while (retryTimes < maxRetryTimes) {
+                try {
+                    String log = contract.getLog(BigInteger.valueOf(idx)).send();
+                    return new Log(log);
+                } catch (ContractCallException e) {
+                    ++retryTimes;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+            System.out.println("【getLog】未找到");
+        }
+        return null;
+    }
+
+    @CacheEvict(value = "logCount", allEntries = true)
+    public void writeLog(String log, Credentials credentials) {
+        PropertyContract contract = getPropertyContract(credentials);
+        if (contract != null) {
+            try {
+                contract.writeLog(log).send();
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -2,8 +2,10 @@ package com.garvey.property.controller;
 
 import com.garvey.property.annotation.NeededAuthority;
 import com.garvey.property.constant.Authority;
+import com.garvey.property.model.Log;
 import com.garvey.property.model.Motion;
 import com.garvey.property.model.User;
+import com.garvey.property.service.LogService;
 import com.garvey.property.service.MotionService;
 import com.garvey.property.util.IpfsUtil;
 import org.apache.commons.io.FileUtils;
@@ -32,6 +34,9 @@ public class MotionController {
 
     @Autowired
     private IpfsUtil ipfsUtil;
+
+    @Autowired
+    private LogService logService;
 
     @GetMapping
     public String motionPage(@RequestParam(value = "page", defaultValue = "1") int pageNum,
@@ -89,6 +94,7 @@ public class MotionController {
             motion.setAttachments(attachmentsMap);
         }
         motionService.addMotion(motion, user.getCredentials());
+        logService.writeLog(new Log(System.currentTimeMillis(), user.getAddress(), user.getNickName(), "添加提案《" + title + "》"), user.getCredentials());
         return "200";
     }
 

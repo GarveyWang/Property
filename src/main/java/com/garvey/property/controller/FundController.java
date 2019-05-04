@@ -4,8 +4,10 @@ import com.garvey.property.annotation.NeededAuthority;
 import com.garvey.property.constant.Authority;
 import com.garvey.property.model.ExpenseItem;
 import com.garvey.property.model.IncomeItem;
+import com.garvey.property.model.Log;
 import com.garvey.property.model.User;
 import com.garvey.property.service.FundService;
+import com.garvey.property.service.LogService;
 import com.garvey.property.util.IpfsUtil;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,9 @@ public class FundController {
 
     @Autowired
     private FundService fundService;
+
+    @Autowired
+    private LogService logService;
 
     @GetMapping("/fund")
     public String fundPage(User user, Model model) {
@@ -79,6 +84,7 @@ public class FundController {
             incomeItem.setAttachments(attachmentsMap);
         }
         fundService.addIncomeItem(incomeItem, user);
+        logService.writeLog(new Log(System.currentTimeMillis(), user.getAddress(), user.getNickName(), "添加收入条目"), user.getCredentials());
         return "200";
     }
 
@@ -109,6 +115,7 @@ public class FundController {
             expenseItem.setAttachments(attachmentsMap);
         }
         fundService.addExpenseItem(expenseItem, user);
+        logService.writeLog(new Log(System.currentTimeMillis(), user.getAddress(), user.getNickName(), "添加支出条目"), user.getCredentials());
         return "200";
     }
 }
